@@ -42,3 +42,39 @@ void assembleFile(FILE *f) {
 void firstPass(FILE *f) {
 
 }
+
+/*
+ * Like fgets, but reads entire line even after n characters were read
+ */
+char *fgetsShred(FILE *f, int n, char *buffer) {
+    int i, ch, reachedEndOfLine = FALSE;
+
+    ch = getc(f);
+    if (n <= 0 || ch == EOF) { /* If nothing to be read, or EOF already reached before reading */
+        return NULL;
+    }
+    ungetc(ch, f); /* Pushback to be read in loop later */
+    n--; /* leave space fo NULL */
+
+    for (i = 0; i < n; i++) {
+        ch = getc(f);
+
+        if (ch == EOF || ch == '\n') {
+            reachedEndOfLine = TRUE;
+            break;
+        } else {
+            buffer[i] = ch;
+        }
+    }
+    buffer[i] = '\0';
+
+    while (!reachedEndOfLine) { /* until reaching end of line */
+        /* Shred: Read trailing characters, to avoid reading them later as a new line */
+        ch = getc(f);
+        if (ch == EOF || ch == '\n') {
+            reachedEndOfLine = TRUE;
+        }
+    }
+
+    return buffer;
+}
