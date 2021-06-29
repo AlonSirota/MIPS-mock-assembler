@@ -9,4 +9,5 @@
 
 void assemblePath(char *fileName);
 void assembleFile(FILE *f);
+void firstPass(FILE *f);
 #endif //ASSEMBLER_ASSEMBLER_H

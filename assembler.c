@@ -35,5 +35,10 @@ void assemblePath(char *fileName) {
  */
 void assembleFile(FILE *f) {
     assert(f != NULL);
-    // TODO assemble file
+    firstPass(f);
+    // TODO Second pass
+}
+
+void firstPass(FILE *f) {
+
 }
