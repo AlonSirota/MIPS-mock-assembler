@@ -12,12 +12,28 @@ int main(int argc, char *argv[]) {
 
     /* Assemble every filename in arguments. */
     for (i = 1; i < argc; i++){
-        assemble(argv[i]);
+        assemblePath(argv[i]);
     }
 
     return 0;
 }
 
-void assemble(char *fileName) {
-    /* TODO */
+void assemblePath(char *fileName) {
+    // TODO enforce '.as' file extension.
+    FILE *f = fopen(fileName, "r");
+    if (f == NULL) {
+        printf("Error while opening file %s\n", fileName);
+    }
+    assembleFile(f);
+    fclose(fileName);
+}
+
+/*
+ * Assembles file f.
+ * f parameter is expected to be an opened file.
+ * f won't be closed as part of this function.
+ */
+void assembleFile(FILE *f) {
+    assert(f != NULL);
+    // TODO assemble file
 }

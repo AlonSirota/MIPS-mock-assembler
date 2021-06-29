@@ -5,6 +5,8 @@
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
 #include <stdio.h>
+#include <assert.h>
 
-void assemble(char *fileName);
+void assemblePath(char *fileName);
+void assembleFile(FILE *f);
 #endif //ASSEMBLER_ASSEMBLER_H
