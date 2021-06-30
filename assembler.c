@@ -44,7 +44,7 @@ void firstPass(FILE *f) {
 }
 
 /*
- * Like fgets, but reads entire line even after n characters were read
+ * Like fgets, but flushes f till end of line / EOF.
  */
 char *fgetsShred(FILE *f, int n, char *buffer) {
     int i, ch, reachedEndOfLine = FALSE;
