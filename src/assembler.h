@@ -6,6 +6,7 @@
 #define ASSEMBLER_ASSEMBLER_H
 #define FALSE 0
 #define TRUE 1
+#define LINE_LENGTH 80
 #include <stdio.h>
 #include <assert.h>
 
