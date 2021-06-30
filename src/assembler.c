@@ -10,7 +10,7 @@ void assemblePath(char *fileName) {
         printf("Error while opening file %s\n", fileName);
     }
     assembleFile(f);
-    fclose(fileName);
+    fclose(f);
 }
 
 /*
