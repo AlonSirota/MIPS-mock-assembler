@@ -25,7 +25,18 @@ void assembleFile(FILE *f) {
 }
 
 void firstPass(FILE *f) {
+    int ic = 100, dc = 0;
+    char *line[LINE_LENGTH + 1];
 
+    assert(f != NULL);
+    fgetsShred(f, LINE_LENGTH + 1, line);
+
+    /* TODO:
+     * Parse line
+     * Add symbol if exists
+     * Adjust ic or dc
+     * Do symbol table stuff
+     */
 }
 
 /*
