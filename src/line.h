@@ -4,6 +4,8 @@
 
 #ifndef WTFPROJECT_LINE_H
 #define WTFPROJECT_LINE_H
+#define LINE_LENGTH 80
+
 typedef struct node {
     char *value;
     struct node *next;
