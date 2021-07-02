@@ -8,7 +8,7 @@
  * line.head = a->b->c->NULL
  */
 line strToLine(char *str) {
-    line l = {.label = NULL, .head = {.next = NULL, .value = NULL} };
+    line l = {.label = NULL, .head = { .value = NULL, .next = NULL} };
     char buffer[LINE_LENGTH + 1];
     char *token;
     node *curr, *temp;
@@ -24,7 +24,7 @@ line strToLine(char *str) {
     }
 
     if (lastChar(token) == LABEL_SUFFIX) { /* If first word is a label */
-        l.label = malloc(strlen(token) + 1); //TODO malloc fail
+        l.label = (char *) malloc(strlen(token) + 1); //TODO malloc fail
         strcpy(l.label, token);
         l.label[strlen(l.label) - 1] = '\0'; /* Trim the ':' from the label name */
 
@@ -36,16 +36,16 @@ line strToLine(char *str) {
     }
 
     /* Processing next word after label, or first word if no label */
-    l.head.value = malloc(strlen(token) + 1); //TODO malloc fail
+    l.head.value = (char *) malloc(strlen(token) + 1); //TODO malloc fail
     strcpy(l.head.value, token);
 
     curr = &l.head;
     do {
         token = xstrtok(str, PARAMETER_DELIM);
         if (token) {
-            curr->next = malloc(sizeof (node));
+            curr->next = (node *) malloc(sizeof (node));
             curr = curr->next;
-            curr->value = malloc(strlen(token) + 1);
+            curr->value = (char *) malloc(strlen(token) + 1);
             strcpy(curr->value, token);
         }
     } while (token);
