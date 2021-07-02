@@ -1,5 +1,8 @@
 #include "assembler.h"
 
+/*
+ * Assemble every file in argv.
+ */
 int main(int argc, char *argv[]) {
     int i;
     if (argc < 2) {
