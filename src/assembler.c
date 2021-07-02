@@ -2,6 +2,7 @@
 // Created by alon on 6/27/21.
 //
 #include "assembler.h"
+#include "line.h"
 
 void assemblePath(char *fileName) {
     // TODO enforce '.as' file extension.
@@ -26,13 +27,13 @@ void assembleFile(FILE *f) {
 
 void firstPass(FILE *f) {
     int ic = 100, dc = 0;
-    char *line[LINE_LENGTH + 1];
-
+    char lineStr[LINE_LENGTH + 1];
+    line lineParsed;
     assert(f != NULL);
-    fgetsShred(f, LINE_LENGTH + 1, line);
+    fgetsShred(f, LINE_LENGTH + 1, lineStr);
+    lineParsed = strToLine(lineStr);
 
     /* TODO:
-     * Parse line
      * Add symbol if exists
      * Adjust ic or dc
      * Do symbol table stuff

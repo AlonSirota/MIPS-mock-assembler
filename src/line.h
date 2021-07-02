@@ -5,6 +5,16 @@
 #ifndef WTFPROJECT_LINE_H
 #define WTFPROJECT_LINE_H
 #define LINE_LENGTH 80
+#define WORD_DELIMITERS " \t"
+#define LABEL_SUFFIX ':'
+
+#define PARAMETER_DELIM ","
+
+#include <stdio.h>
+#include <ctype.h>
+#include <assert.h>
+#include <string.h>
+#include <stdlib.h>
 
 typedef struct node {
     char *value;
@@ -17,4 +27,6 @@ typedef struct line {
 } line;
 
 line strToLine(char *str);
+char lastChar(char *str);
+char *xstrtok(char *str, char *delims);
 #endif //WTFPROJECT_LINE_H
