@@ -10,7 +10,7 @@
 line strToLine(char *str) {
     line l = {.label = NULL, .head = { .value = NULL, .next = NULL} };
     char buffer[LINE_LENGTH + 1];
-    char *token;
+    char *token, *savePtr;
     node *curr, *temp;
     int i, j;
 
@@ -18,7 +18,7 @@ line strToLine(char *str) {
         return l;
     }
 
-    token = strtok(str, WORD_DELIMITERS);
+    token = strtok_r(str, WORD_DELIMITERS, &savePtr);
     if (token == NULL) { /* Line without words, return empty line */
         return l;
     }
@@ -29,7 +29,7 @@ line strToLine(char *str) {
         l.label[strlen(l.label) - 1] = '\0'; /* Trim the ':' from the label name */
 
         /* Next word */
-        token = strtok(NULL, WORD_DELIMITERS);
+        token = strtok_r(NULL, WORD_DELIMITERS, &savePtr);
         if (token == NULL) {
             return l;
         }
@@ -41,7 +41,7 @@ line strToLine(char *str) {
 
     curr = &l.head;
     do {
-        token = xstrtok(str, PARAMETER_DELIM);
+        token = strsep(&savePtr, PARAMETER_DELIM);
         if (token) {
             curr->next = (node *) malloc(sizeof (node));
             curr = curr->next;
@@ -63,37 +63,4 @@ char lastChar(char *str) {
     assert(strlen(str));
 
     return str[strlen(str) - 1];
-}
-
-/*
- * Like strtok but handle empty tokens.
- * ex. xstrtok("a||b", "|") will give {"a", "", "b"}
- */
-char *xstrtok(char *str, char *delims)
-{
-    static char *save = NULL;
-    char *p;
-    int n;
-
-    if(str != NULL)
-        save = str;
-
-    /*
-    *see if we have reached the end of the str
-    */
-    if(save == NULL || *save == '\0')
-        return NULL;
-
-    /*
-     * return the number of characters that aren't delims
-     */
-    n = strcspn(save, delims);
-    p = save; /*save start of this token*/
-
-    save += n; /*bump past the delim*/
-
-    if(*save != '\0') /*trash the delim if necessary*/
-        *save++ = '\0';
-
-    return(p);
 }

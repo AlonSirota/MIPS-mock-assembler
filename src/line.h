@@ -28,5 +28,4 @@ typedef struct line {
 
 line strToLine(char *str);
 char lastChar(char *str);
-char *xstrtok(char *str, char *delims);
 #endif //WTFPROJECT_LINE_H
