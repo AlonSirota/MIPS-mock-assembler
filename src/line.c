@@ -9,10 +9,8 @@
  */
 line strToLine(char *str) {
     line l = {.label = NULL, .head = { .value = NULL, .next = NULL} };
-    char buffer[LINE_LENGTH + 1];
     char *token, *savePtr;
-    node *curr, *temp;
-    int i, j;
+    node *curr;
 
     if (str[0] == ';') {/* Comment line, return empty line */
         return l;
@@ -24,8 +22,7 @@ line strToLine(char *str) {
     }
 
     if (lastChar(token) == LABEL_SUFFIX) { /* If first word is a label */
-        l.label = (char *) malloc(strlen(token) + 1); //TODO malloc fail
-        strcpy(l.label, token);
+        l.label = strdup(token);
         l.label[strlen(l.label) - 1] = '\0'; /* Trim the ':' from the label name */
 
         /* Next word */
@@ -36,8 +33,7 @@ line strToLine(char *str) {
     }
 
     /* Processing next word after label, or first word if no label */
-    l.head.value = (char *) malloc(strlen(token) + 1); //TODO malloc fail
-    strcpy(l.head.value, token);
+    l.head.value = strdup(token);
 
     curr = &l.head;
     do {
@@ -46,8 +42,7 @@ line strToLine(char *str) {
             token = trimWhiteSpace(token);
             curr->next = (node *) malloc(sizeof (node));
             curr = curr->next;
-            curr->value = (char *) malloc(strlen(token) + 1);
-            strcpy(curr->value, token);
+            curr->value = strdup(token);
         }
     } while (token);
     curr->next = NULL;
