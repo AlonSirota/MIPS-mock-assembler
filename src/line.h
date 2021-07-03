@@ -33,4 +33,6 @@ char lastChar(char *str);
 char * firstNoneSpace(char *str);
 void trimTrailingSpace(char *str);
 char * trimWhiteSpace(char *str);
+void freeLine(line l);
+void freeSafely(void *ptr);
 #endif //WTFPROJECT_LINE_H
