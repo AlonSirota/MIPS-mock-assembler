@@ -2,7 +2,7 @@
 #include "assembler.c"
 #include "line.c"
 
-TEST(fgetsShred, brolo) {
+TEST(fgetsShred, Shred) {
     FILE *stream;
     char buffer[] = "a\nb";
     char out[40];
@@ -12,7 +12,7 @@ TEST(fgetsShred, brolo) {
     ASSERT_EQ('b', fgetc(stream)) << "Shred even though reaching \n";
 }
 
-TEST(fgetsShred, brolo2) {
+TEST(fgetsShred, NoShred) {
     FILE *stream;
     char buffer[] = "ab";
     char out[40];
