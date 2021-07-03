@@ -43,6 +43,7 @@ line strToLine(char *str) {
     do {
         token = strsep(&savePtr, PARAMETER_DELIM);
         if (token) {
+            token = trimWhiteSpace(token);
             curr->next = (node *) malloc(sizeof (node));
             curr = curr->next;
             curr->value = (char *) malloc(strlen(token) + 1);
@@ -63,4 +64,44 @@ char lastChar(char *str) {
     assert(strlen(str));
 
     return str[strlen(str) - 1];
+}
+
+/*
+ * Returns pointer first none whitespace char in str.
+ */
+char * firstNoneSpace(char *str) {
+    assert(str != NULL);
+    while (*str != '\0' && isspace(*str)) {
+        str++;
+    }
+    return str;
+}
+
+/*
+ * Inserts '\0' after the last none-whitespace character.
+ * Modifies parameter str.
+ */
+void trimTrailingSpace(char *str) {
+    int i, lastGraph = NONE;
+    assert(str != NULL);
+
+    /* Find last graphical character index */
+    for (i = 0; str[i] != '\0'; i++) {
+        if (!isspace(str[i])) {
+            lastGraph = i;
+        }
+    }
+
+    if (lastGraph != NONE){ /* If there was a graphical character */
+        str[lastGraph + 1] = '\0'; /* It is now the last character */
+    }    
+}
+
+/*
+ * Returns pointer to str without trailing and leading whitespace.
+ * Points to a character in the parameter (not creating a semi-duplicate).
+ */
+char *trimWhiteSpace(char *str) {
+    trimTrailingSpace(str);
+    return firstNoneSpace(str);
 }

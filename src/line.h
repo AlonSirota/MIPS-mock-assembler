@@ -10,6 +10,8 @@
 
 #define PARAMETER_DELIM ","
 
+#define NONE -1
+
 #include <stdio.h>
 #include <ctype.h>
 #include <assert.h>
@@ -28,4 +30,7 @@ typedef struct line {
 
 line strToLine(char *str);
 char lastChar(char *str);
+char * firstNoneSpace(char *str);
+void trimTrailingSpace(char *str);
+char * trimWhiteSpace(char *str);
 #endif //WTFPROJECT_LINE_H
