@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "assembler.c"
 #include "line.c"
+#include "./fmemopen_windows.c"
 
 TEST(fgetsShred, brolo) {
     FILE *stream;
