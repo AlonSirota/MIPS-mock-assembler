@@ -123,3 +123,22 @@ char *trimWhiteSpace(char *str) {
     trimTrailingSpace(str);
     return firstNoneSpace(str);
 }
+
+void freeLine(line l) {
+    node *curr, *next;
+
+    freeSafely(l.label);
+    freeSafely(l.head.value);
+
+    curr = l.head.next;
+    for (curr = l.head.next; curr != NULL; curr = next) {
+        freeSafely(curr->value);
+        next = curr->next;
+        freeSafely(curr);
+    }
+}
+
+void freeSafely(void *ptr) {
+    if (ptr != NULL)
+        free(ptr);
+}
