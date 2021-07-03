@@ -1,41 +1,54 @@
+#include <stdio.h>
+#include <string.h>
+#include "symbolTable.c"
+#include "line.h"
+#include "statusCodes.h"
+
 //
 // Created by Ram Ben on 7/2/2021.
 //
-#define INSTRUCTION_ADD 1
-#define INSTRUCTION_SUB 2
-#define INSTRUCTION_AND 3
-#define INSTRUCTION_OR 4
-#define INSTRUCTION_NOR 5
-#define INSTRUCTION_MOVE 6
-#define INSTRUCTION_MVHI 7
-#define INSTRUCTION_MVLO 8
-#define INSTRUCTION_ADDI 9
-#define INSTRUCTION_SUBI 10
-#define INSTRUCTION_ANDI 11
-#define INSTRUCTION_ORI 12
-#define INSTRUCTION_NORI 13
-#define INSTRUCTION_BNE 14
-#define INSTRUCTION_BEQ 15
-#define INSTRUCTION_BLT 16
-#define INSTRUCTION_BGT 17
-#define INSTRUCTION_LB 18
-#define INSTRUCTION_SB 19
-#define INSTRUCTION_LW 20
-#define INSTRUCTION_SW 21
-#define INSTRUCTION_LH 22
-#define INSTRUCTION_SH 23
-#define INSTRUCTION_JMP 24
-#define INSTRUCTION_LA 25
-#define INSTRUCTION_CALL 26
-#define INSTRUCTION_STOP 27
 
+#define R_OP_OFFSET 26
+#define R_RS_OFFSET 21
+#define R_RT_OFFSET 16
+#define R_RD_OFFSET 11
+#define R_FUNCT_OFFSET 6
 
+typedef enum instruction_id {
+    INSTRUCTION_ADD,
+    INSTRUCTION_SUB,
+    INSTRUCTION_AND,
+    INSTRUCTION_OR,
+    INSTRUCTION_NOR,
+    INSTRUCTION_MOVE,
+    INSTRUCTION_MVHI,
+    INSTRUCTION_MVLO,
+    INSTRUCTION_ADDI,
+    INSTRUCTION_SUBI,
+    INSTRUCTION_ANDI,
+    INSTRUCTION_ORI,
+    INSTRUCTION_NORI,
+    INSTRUCTION_BNE,
+    INSTRUCTION_BEQ,
+    INSTRUCTION_BLT,
+    INSTRUCTION_BGT,
+    INSTRUCTION_LB,
+    INSTRUCTION_SB,
+    INSTRUCTION_LW,
+    INSTRUCTION_SW,
+    INSTRUCTION_LH,
+    INSTRUCTION_SH,
+    INSTRUCTION_JMP,
+    INSTRUCTION_LA,
+    INSTRUCTION_CALL,
+    INSTRUCTION_STOP
+} instruction_id;
 typedef struct inst{
     char *name;
     char type;
     int funct;
     int opcode;
-    int UID; /* easier to compere insted of string */
+    instruction_id IID; /* easier to compere insted of string */
 } inst;
 
 inst instructions[] = {{"add", 'R', 1, 0, INSTRUCTION_ADD},
@@ -65,5 +78,106 @@ inst instructions[] = {{"add", 'R', 1, 0, INSTRUCTION_ADD},
                        {"la", 'J', 0, 31,INSTRUCTION_LA},
                        {"call", 'J', 0, 32, INSTRUCTION_CALL},
                        {"stop", 'J', 0, 63,INSTRUCTION_STOP},
+                       NULL
                        };
-/* TODO: add find instruction in list, return the inst add list of  */
+inst *findInstruction(char *name){
+    inst *ptr = instructions;
+    while (ptr != NULL){
+        if (strcmp(name, ptr->name) == 0)
+            return ptr;
+        ptr += 1;
+    }
+    return NULL;
+}
+
+int parseInstruction(node *node, int *ic, char *codeSeg, Symbol *symbolTable){
+    if(node == NULL)
+        return LINE_OK; /* empty line do nothing */
+    inst *instruction = findInstruction(node->value);
+    if(instruction == NULL)
+        return LINE_UNRECOGNIZED_INSTRUCTION;
+    switch (instruction->type) {
+        case 'R':
+            parseRInstruction(instruction, node->next, ic, codeSeg);
+            break;
+        case 'I':
+            break;
+        case 'J':
+            break;
+        default:
+            break; /* impossible.... */
+    }
+}
+
+int parseRInstruction(inst *instruction, node *node, int *ic, char *codeSeg,){
+    switch (instruction->IID) {
+        case INSTRUCTION_MOVE:
+        case INSTRUCTION_MVLO:
+        case INSTRUCTION_MVHI:
+            return instructionRMove(instruction,node,ic,codeSeg);
+            break;
+        default:
+            return instructionRArithmetic(instruction,node,ic,codeSeg);
+            
+        
+    }
+}
+int instructionRAdd(inst *instruction, node *node, int *ic, char *codeSeg){
+    unsigned long  binaryInstruction = 0;
+    int rs,rd,rt;
+    rs = parseRegister(node->value);
+    if (rs < 0)
+        return rs;
+    rd = parseRegister(node->value);
+    if (rd < 0)
+        return rd;
+    rt = parseRegister(node->value);
+    if (rt < 0)
+        return rt;
+    binaryInstruction += instruction->opcode << R_OP_OFFSET;
+    binaryInstruction += rs << R_RS_OFFSET;
+    binaryInstruction += rt << R_RT_OFFSET;
+    binaryInstruction += rd << R_RD_OFFSET;
+    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
+    codeSeg[*ic - 100] = binaryInstruction & 15ul;
+    codeSeg[*ic - 100 + 1] = binaryInstruction & 240ul;
+    codeSeg[*ic - 100 + 2] = binaryInstruction & 3840ul;
+    codeSeg[*ic - 100 + 3] = binaryInstruction & 61440ul;
+    (*ic) += 4;
+    return LINE_OK;
+}
+
+int instructionRMove(inst *instruction, node *node, int *ic, char *codeSeg){
+    unsigned long  binaryInstruction = 0;
+    int rs,rd,rt;
+    rs = parseRegister(node->value);
+    if (rs < 0)
+        return rs;
+    rd = parseRegister(node->value);
+    if (rd < 0)
+        return rd;
+    rt = 0;
+    binaryInstruction += instruction->opcode << R_OP_OFFSET;
+    binaryInstruction += rs << R_RS_OFFSET;
+    binaryInstruction += rt << R_RT_OFFSET;
+    binaryInstruction += rd << R_RD_OFFSET;
+    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
+    codeSeg[*ic - 100] = binaryInstruction & 15ul;
+    codeSeg[*ic - 100 + 1] = binaryInstruction & 240ul;
+    codeSeg[*ic - 100 + 2] = binaryInstruction & 3840ul;
+    codeSeg[*ic - 100 + 3] = binaryInstruction & 61440ul;
+    (*ic) += 4;
+    return LINE_OK;
+}
+
+
+int parseRegister(char *str){
+    if(str[0] != '$') /*todo make macro*/
+        return OPERAND_NOT_REGISTER;
+    if(!isdigit(str[1]))
+        return OPERAND_NOT_VALID_REGISTER;
+    int num = atoi(str[1]);
+    if(num <0 || num > 31)
+        return OPERAND_NOT_VALID_REGISTER;
+    return num;
+}

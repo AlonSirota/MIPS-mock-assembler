@@ -10,4 +10,6 @@ add_executable(assembler
         line.c
         line.h
         symbolTable.c
-        instructionList.c)
+        instructionList.c
+        guidanceList.c
+        )
