@@ -55,6 +55,33 @@ TEST(strToLine, emptyParameters) {
     //TODO DESTROY LINE
 }
 
+TEST(strToLine, emptyLine) {
+    char str[] = "";
+    line l = strToLine(str);
+    ASSERT_TRUE(l.label == NULL) << "label error";
+    ASSERT_TRUE(l.head.value == NULL) << "mnemonic error";
+    ASSERT_TRUE(l.head.next == NULL) << "first parameter error";
+    freeLine(l);
+}
+
+TEST(strToLine, whiteSpaceLine) {
+    char str[] = " \t";
+    line l = strToLine(str);
+    ASSERT_TRUE(l.label == NULL) << "label error";
+    ASSERT_TRUE(l.head.value == NULL) << "mnemonic error";
+    ASSERT_TRUE(l.head.next == NULL) << "first parameter error";
+    freeLine(l);
+}
+
+TEST(strToLine, commentLine) {
+    char str[] = "; label: a b,c";
+    line l = strToLine(str);
+    ASSERT_TRUE(l.label == NULL) << "label error";
+    ASSERT_TRUE(l.head.value == NULL) << "mnemonic error";
+    ASSERT_TRUE(l.head.next == NULL) << "first parameter error";
+    freeLine(l);
+}
+
 TEST(trimWhiteSpace, leading) {
     char str[] = " \t\na \t\n";
     ASSERT_STREQ(firstNoneSpace(str), "a \t\n");
