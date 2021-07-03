@@ -2,8 +2,8 @@
 // Created by Ram Ben on 7/3/2021.
 //
 
-#ifndef WTFPROJECT_INSTRUCTIONLIST_H
-#define WTFPROJECT_INSTRUCTIONLIST_H
+#ifndef WTFPROJECT_SYMBOLTABLET_H
+#define WTFPROJECT_SYMBOLTABLET_H
 #include <stdlib.h>
 #include "string.h"
 #define SYMBOL_DATA 1
