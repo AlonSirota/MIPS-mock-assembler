@@ -79,13 +79,14 @@ TEST(findIntruction, noLable){
     ASSERT_NE(instruction == NULL, 0);
 }
 TEST(parseRInstructions, noLabel){
-    char output[] = {0, 101, 72, 64}; /* see page 27 first intruction in table*/
+    char buf[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
     char codeSeg[4];
     int status, ic = 100;
     char str[] = "add $3,$5,$9";
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
-    status = parseRInstruction(instruction, l.head.next, &ic, codeSeg);
+    status = parseRInstruction(instruction, l.head.next, buf);
     ASSERT_EQ(status, LINE_OK);
-    ASSERT_NE(memcmp(output,codeSeg,4), 0);
+    ASSERT_EQ(strcmp(output,buf), 0);
 }

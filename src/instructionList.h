@@ -16,6 +16,12 @@
 #define R_RD_OFFSET 11
 #define R_FUNCT_OFFSET 6
 
+#define I_OP_OFFSET 26
+#define I_RS_OFFSET 21
+#define I_RT_OFFSET 16
+#define I_IMMED_OFFSET 0
+
+
 typedef enum instruction_id {
     INSTRUCTION_ADD,
     INSTRUCTION_SUB,
@@ -83,11 +89,17 @@ inst instructions[] = {{"add", 'R', 1, 0, INSTRUCTION_ADD},
                        {"stop", 'J', 0, 63,INSTRUCTION_STOP},
                        {"end of list", 0, 0, 0,INSTRUCTION_LIST_END}
 };
-int parseRInstruction(inst *instruction, node *node, int *ic, char *codeSeg);
-int instructionRArithmetic(inst *instruction, node *node, int *ic, char *codeSeg);
-int instructionRMove(inst *instruction, node *node, int *ic, char *codeSeg);
+inst *findInstruction(char *name);
+int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic);
+int parseRInstruction(inst *instruction, node *node, char *buf);
+int instructionRArithmetic(inst *instruction, node *node, char *buf);
+int instructionRMove(inst *instruction, node *node, char *buf);
 int parseRegister(char *str);
-
-
+void printInstruction(char *buf);
+int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
+int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
+int instructionIArithmetic(inst *instruction, node *node, char *buf);
+int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+int readImmed(char *buf);
 
 #endif //WTFPROJECT_INSTRUCTIONLIST_H

@@ -4,7 +4,7 @@
 #include "instructionList.h"
 
 
-
+char parsedInstruction[4];
 inst *findInstruction(char *name){
     inst *ptr = instructions;
     while (ptr->IID != INSTRUCTION_LIST_END){
@@ -15,7 +15,7 @@ inst *findInstruction(char *name){
     return NULL;
 }
 
-int parseInstruction(node *node, int *ic, char *codeSeg, Symbol *symbolTable){
+int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic) {
     if(node == NULL)
         return LINE_OK; /* empty line do nothing */
     inst *instruction = findInstruction(node->value);
@@ -23,9 +23,10 @@ int parseInstruction(node *node, int *ic, char *codeSeg, Symbol *symbolTable){
         return LINE_UNRECOGNIZED_INSTRUCTION;
     switch (instruction->type) {
         case 'R':
-            parseRInstruction(instruction, node->next, ic, codeSeg);
+            return parseRInstruction(instruction, node->next, buf);
             break;
         case 'I':
+            return parseIInstruction(instruction, node->next, buf, symbolTable, ic);
             break;
         case 'J':
             break;
@@ -35,69 +36,153 @@ int parseInstruction(node *node, int *ic, char *codeSeg, Symbol *symbolTable){
 }
 
 
-int parseRInstruction(inst *instruction, node *node, int *ic, char *codeSeg) {
+int parseRInstruction(inst *instruction, node *node, char *buf) {
     switch (instruction->IID) {
         case INSTRUCTION_MOVE:
         case INSTRUCTION_MVLO:
         case INSTRUCTION_MVHI:
-            return instructionRMove(instruction,node,ic,codeSeg);
+            return instructionRMove(instruction,node,buf);
             break;
         default:
-            return instructionRArithmetic(instruction,node,ic,codeSeg);
+            return instructionRArithmetic(instruction,node,buf);
+    }
+}
+
+int instructionRArithmetic(inst *instruction, node *node, char *buf) {
+    unsigned long  binaryInstruction = 0;
+    unsigned int rs,rd,rt;
+    rs = parseRegister(node->value);
+    node = node->next;
+    if (rs < 0)
+        return rs;
+    rt = parseRegister(node->value);
+    node = node->next;
+    if (rt < 0)
+        return rt;
+    rd = parseRegister(node->value);
+    node = node->next;
+    if (rd < 0)
+        return rd;
+    if(node != NULL)
+        return TOO_MANY_ARGUMENTS;
+    binaryInstruction += instruction->opcode << R_OP_OFFSET;
+    binaryInstruction += rs << R_RS_OFFSET;
+    binaryInstruction += rt << R_RT_OFFSET;
+    binaryInstruction += rd << R_RD_OFFSET;
+    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
+    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
+    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
+    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
+    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
+    printInstruction(buf);
+    return LINE_OK;
+}
+
+int instructionRMove(inst *instruction, node *node, char *buf) {
+    unsigned long  binaryInstruction = 0;
+    int rs,rd,rt;
+    rs = parseRegister(node->value);
+    if (rs < 0)
+        return rs;
+    node = node->next;
+    rt = parseRegister(node->value);
+    if (rt < 0)
+        return rt;
+    node = node->next;
+    if(node != NULL)
+        return TOO_MANY_ARGUMENTS;
+    rd = 0;
+    binaryInstruction += instruction->opcode << R_OP_OFFSET;
+    binaryInstruction += rs << R_RS_OFFSET;
+    binaryInstruction += rt << R_RT_OFFSET;
+    binaryInstruction += rd << R_RD_OFFSET;
+    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
+    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
+    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
+    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
+    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
+    printInstruction(buf);
+    return LINE_OK;
+}
+
+int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
+    switch (instruction->IID) {
+        case INSTRUCTION_BNE:
+        case INSTRUCTION_BEQ:
+        case INSTRUCTION_BLT:
+        case INSTRUCTION_BGT:
+            return instructionIBranch(instruction, node, buf, symbolTable, ic);
+            break;
+        case INSTRUCTION_ADDI:
+        case INSTRUCTION_SUBI:
+        case INSTRUCTION_ANDI:
+        case INSTRUCTION_ORI:
+        case INSTRUCTION_NORI:
+            return instructionIArithmetic(instruction,node,buf);
+            break;
+        default:
+            return instructionILoad(instruction,node,buf, symbolTable);
 
 
     }
 }
 
-int instructionRArithmetic(inst *instruction, node *node, int *ic, char *codeSeg) {
+int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     unsigned long  binaryInstruction = 0;
-    int rs,rd,rt;
+    int rs,rt, immed;
     rs = parseRegister(node->value);
+    node = node->next;
     if (rs < 0)
         return rs;
-    rd = parseRegister(node->value);
-    if (rd < 0)
-        return rd;
     rt = parseRegister(node->value);
     if (rt < 0)
         return rt;
-    binaryInstruction += instruction->opcode << R_OP_OFFSET;
-    binaryInstruction += rs << R_RS_OFFSET;
-    binaryInstruction += rt << R_RT_OFFSET;
-    binaryInstruction += rd << R_RD_OFFSET;
-    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
-    codeSeg[*ic - 100] = binaryInstruction & 15ul;
-    codeSeg[*ic - 100 + 1] = binaryInstruction & 240ul;
-    codeSeg[*ic - 100 + 2] = binaryInstruction & 3840ul;
-    codeSeg[*ic - 100 + 3] = binaryInstruction & 61440ul;
-    (*ic) += 4;
+    node = node->next;
+    immed = readImmed(node->value);
+    binaryInstruction += instruction->opcode << I_OP_OFFSET;
+    binaryInstruction += rs << I_RS_OFFSET;
+    binaryInstruction += rt << I_RT_OFFSET;
+    binaryInstruction += immed << R_FUNCT_OFFSET;
+    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
+    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
+    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
+    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
+    printInstruction(buf);
     return LINE_OK;
 }
+int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
 
-int instructionRMove(inst *instruction, node *node, int *ic, char *codeSeg) {
+}
+
+int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0;
-    int rs,rd,rt;
+    int rs,rt, immed;
     rs = parseRegister(node->value);
+    node = node->next;
     if (rs < 0)
         return rs;
-    rd = parseRegister(node->value);
-    if (rd < 0)
-        return rd;
-    rt = 0;
-    binaryInstruction += instruction->opcode << R_OP_OFFSET;
-    binaryInstruction += rs << R_RS_OFFSET;
-    binaryInstruction += rt << R_RT_OFFSET;
-    binaryInstruction += rd << R_RD_OFFSET;
-    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
-    codeSeg[*ic - 100] = (binaryInstruction) & (2^8-1);
-    codeSeg[*ic - 100 + 1] = (binaryInstruction >> 8) & ((2^8-1));
-    codeSeg[*ic - 100 + 2] = (binaryInstruction >> 16) & ((2^8-1));
-    codeSeg[*ic - 100 + 3] = (binaryInstruction >> 24) & ((2^8-1));
-    (*ic) += 4;
+    rt = parseRegister(node->value);
+    if (rt < 0)
+        return rt;
+    node = node->next;
+    immed = readImmed(node->value);
+    binaryInstruction += instruction->opcode << I_OP_OFFSET;
+    binaryInstruction += rs << I_RS_OFFSET;
+    binaryInstruction += rt << I_RT_OFFSET;
+    binaryInstruction += immed << R_FUNCT_OFFSET;
+    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
+    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
+    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
+    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
+    printInstruction(buf);
     return LINE_OK;
 }
 
+
 int parseRegister(char *str) {
+    if(str == NULL){
+        return MISSING_ARGUMENTS; /* todo: check empty string*/
+    }
     if(str[0] != '$') /*todo make macro*/
         return OPERAND_NOT_REGISTER;
     if(!isdigit(str[1]))
@@ -106,4 +191,35 @@ int parseRegister(char *str) {
     if(num <0 || num > 31)
         return OPERAND_NOT_VALID_REGISTER;
     return num;
+}
+int readImmed(char *buf){
+    if(buf == NULL){
+        return MISSING_ARGUMENTS;
+    }
+    int res = 0;
+    int sing = 1;
+    if(!isdigit(buf[0])){
+        switch (buf[0]) {
+            case '-':
+                sing = -1;
+                break;
+            case '+':
+                sing = 1;
+                break;
+            default:
+                return ILLEAGLE_IMMED; /* todo: fix range problem */
+        }
+    }
+    while(*buf != NULL){
+        if(!isdigit(buf[0]))
+            return ILLEAGLE_IMMED;
+        res *= 10;
+        res += buf[0] - '0';
+        buf++;
+    }
+    return res*sing;
+}
+
+void printInstruction(char *buf){
+    sprintf(buf, "%.2X %.2X %.2X %.2X", parsedInstruction[0], parsedInstruction[1], parsedInstruction[2], parsedInstruction[3]);
 }
