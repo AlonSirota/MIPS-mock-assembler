@@ -3,6 +3,13 @@
 //
 #include "assembler.h"
 #include "line.h"
+#include "symbolTable.c"
+
+#define CODE_SIZE 2^25 /* max memory size */
+
+#define DATA_SIZE 2^25
+
+char parseOp(node node, char string[18], int i, Symbol *pSymbol);
 
 void assemblePath(char *fileName) {
     // TODO enforce '.as' file extension.
@@ -74,4 +81,37 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
     }
 
     return buffer;
+}
+
+void secondPass(FILE *f){
+    Symbol *symbolTable; /* will be recived from first pass */
+    int ic = 100;
+    char codeSeg[CODE_SIZE];
+    char dataSeg[DATA_SIZE]; /* will be recived from first pass */
+    char lineStr[LINE_LENGTH + 1];
+    line lineParsed;
+    assert(f != NULL);
+    fgetsShred(f, LINE_LENGTH + 1, lineStr);
+    lineParsed = strToLine(lineStr);
+    parseOp(lineParsed.head, codeSeg, ic, symbolTable);
+    if (!instruction){
+        codeSeg[ic-100] = instruction
+    }
+}
+
+char parseOp(node node, char string[18], int i, Symbol *pSymbol) {
+
+    return 0;
+}
+
+void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
+    int i, num = 100;
+    fprintf(f, "%d %d\n", ic-100,dc);
+    while (num <= ic){
+        fprintf(f, "%.4d", num);
+        for(i = 0, i < 4 && num++ <= ic, i++) {
+            fprintf(f, " %.2X", codeSeg[num - 100]);
+        }
+        printf("/n");
+    }
 }
