@@ -3,7 +3,7 @@
 #include "line.c"
 #include "./fmemopen_windows.c"
 
-TEST(fgetsShred, brolo) {
+TEST(fgetsShred, Shred) {
     FILE *stream;
     char buffer[] = "a\nb";
     char out[40];
@@ -13,7 +13,7 @@ TEST(fgetsShred, brolo) {
     ASSERT_EQ('b', fgetc(stream)) << "Shred even though reaching \n";
 }
 
-TEST(fgetsShred, brolo2) {
+TEST(fgetsShred, NoShred) {
     FILE *stream;
     char buffer[] = "ab";
     char out[40];
@@ -23,12 +23,49 @@ TEST(fgetsShred, brolo2) {
     ASSERT_EQ(EOF, fgetc(stream)) << "Didn't shred";
 }
 
-TEST(strToLine, test) {
+TEST(strToLine, easy) {
     char str[] = "label: a b,c";
     line l = strToLine(str);
     ASSERT_STREQ(l.label, "label") << "label error";
     ASSERT_STREQ(l.head.value, "a") << "mnemonic error";
     ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
-    ASSERT_STREQ(l.head.next->next->value, "c") << "second parameter error";
+    ASSERT_STREQ(l.head.next->next->value, "c") << "post empty parameter error";
     //TODO DESTROY LINE
+}
+
+TEST(strToLine, noLabel) {
+    char str[] = "a b,c";
+    line l = strToLine(str);
+    ASSERT_STREQ(l.head.value, "a") << "mnemonic error";
+    ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
+    ASSERT_STREQ(l.head.next->next->value, "c") << "post empty parameter error";
+    //TODO DESTROY LINE
+}
+
+TEST(strToLine, emptyParameters) {
+    char str[] = "label: a b,, c";
+    line l = strToLine(str);
+    ASSERT_STREQ(l.label, "label") << "label error";
+    ASSERT_STREQ(l.head.value, "a") << "mnemonic error";
+    ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
+    ASSERT_STREQ(l.head.next->next->value, "") << "empty parameter error";
+    ASSERT_STREQ(l.head.next->next->next->value, "c") << "post empty parameter error";
+    //TODO DESTROY LINE
+}
+
+TEST(trimWhiteSpace, leading) {
+    char str[] = " \t\na \t\n";
+    ASSERT_STREQ(firstNoneSpace(str), "a \t\n");
+}
+
+TEST(trimWhiteSpace, trailing) {
+    char str[] = " \t\na \t\n";
+    trimTrailingSpace(str);
+    ASSERT_STREQ(str, " \t\na");
+}
+
+TEST(trimWhiteSpace, both) {
+    char str[] = " \t\na \t\n";
+    char *trimmed = trimWhiteSpace(str);
+    ASSERT_STREQ(trimmed, "a");
 }

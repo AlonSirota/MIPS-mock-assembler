@@ -10,7 +10,7 @@
 line strToLine(char *str) {
     line l = {.label = NULL, .head = { .value = NULL, .next = NULL} };
     char buffer[LINE_LENGTH + 1];
-    char *token;
+    char *token, *savePtr;
     node *curr, *temp;
     int i, j;
 
@@ -18,7 +18,7 @@ line strToLine(char *str) {
         return l;
     }
 
-    token = strtok(str, WORD_DELIMITERS);
+    token = strtok_r(str, WORD_DELIMITERS, &savePtr);
     if (token == NULL) { /* Line without words, return empty line */
         return l;
     }
@@ -29,7 +29,7 @@ line strToLine(char *str) {
         l.label[strlen(l.label) - 1] = '\0'; /* Trim the ':' from the label name */
 
         /* Next word */
-        token = strtok(NULL, WORD_DELIMITERS);
+        token = strtok_r(NULL, WORD_DELIMITERS, &savePtr);
         if (token == NULL) {
             return l;
         }
@@ -41,8 +41,9 @@ line strToLine(char *str) {
 
     curr = &l.head;
     do {
-        token = xstrtok(str, PARAMETER_DELIM);
+        token = strsep(&savePtr, PARAMETER_DELIM);
         if (token) {
+            token = trimWhiteSpace(token);
             curr->next = (node *) malloc(sizeof (node));
             curr = curr->next;
             curr->value = (char *) malloc(strlen(token) + 1);
@@ -66,34 +67,41 @@ char lastChar(char *str) {
 }
 
 /*
- * Like strtok but handle empty tokens.
- * ex. xstrtok("a||b", "|") will give {"a", "", "b"}
+ * Returns pointer first none whitespace char in str.
  */
-char *xstrtok(char *str, char *delims)
-{
-    static char *save = NULL;
-    char *p;
-    int n;
+char * firstNoneSpace(char *str) {
+    assert(str != NULL);
+    while (*str != '\0' && isspace(*str)) {
+        str++;
+    }
+    return str;
+}
 
-    if(str != NULL)
-        save = str;
+/*
+ * Inserts '\0' after the last none-whitespace character.
+ * Modifies parameter str.
+ */
+void trimTrailingSpace(char *str) {
+    int i, lastGraph = NONE;
+    assert(str != NULL);
 
-    /*
-    *see if we have reached the end of the str
-    */
-    if(save == NULL || *save == '\0')
-        return NULL;
+    /* Find last graphical character index */
+    for (i = 0; str[i] != '\0'; i++) {
+        if (!isspace(str[i])) {
+            lastGraph = i;
+        }
+    }
 
-    /*
-     * return the number of characters that aren't delims
-     */
-    n = strcspn(save, delims);
-    p = save; /*save start of this token*/
+    if (lastGraph != NONE){ /* If there was a graphical character */
+        str[lastGraph + 1] = '\0'; /* It is now the last character */
+    }    
+}
 
-    save += n; /*bump past the delim*/
-
-    if(*save != '\0') /*trash the delim if necessary*/
-        *save++ = '\0';
-
-    return(p);
+/*
+ * Returns pointer to str without trailing and leading whitespace.
+ * Points to a character in the parameter (not creating a semi-duplicate).
+ */
+char *trimWhiteSpace(char *str) {
+    trimTrailingSpace(str);
+    return firstNoneSpace(str);
 }
