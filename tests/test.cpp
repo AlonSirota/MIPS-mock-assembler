@@ -1,7 +1,9 @@
+#define USING_WINDOWS
 #include "gtest/gtest.h"
 #include "assembler.c"
 #include "line.c"
 #include "./fmemopen_windows.c"
+#include "instructionList.c"
 
 TEST(fgetsShred, Shred) {
     FILE *stream;
@@ -68,4 +70,21 @@ TEST(trimWhiteSpace, both) {
     char str[] = " \t\na \t\n";
     char *trimmed = trimWhiteSpace(str);
     ASSERT_STREQ(trimmed, "a");
+}
+TEST(findIntruction, noLable){
+    inst *instruction = findInstruction("add");
+    ASSERT_EQ(instruction == NULL, 0);
+    instruction = findInstruction("lol");
+    ASSERT_NE(instruction == NULL, 0);
+}
+TEST(parseRInstructions, noLabel){
+    char output[] = {0, 101, 72, 64}; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    char str[] = "add $3,$5,$9";
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, &ic, codeSeg);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_NE(memcmp(output,codeSeg,4), 0);
 }

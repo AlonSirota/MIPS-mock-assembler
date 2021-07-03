@@ -3,7 +3,7 @@
 //
 #include "assembler.h"
 #include "line.h"
-#include "symbolTable.c"
+#include "symbolTable.h"
 
 #define CODE_SIZE 2^25 /* max memory size */
 
@@ -94,9 +94,9 @@ void secondPass(FILE *f){
     fgetsShred(f, LINE_LENGTH + 1, lineStr);
     lineParsed = strToLine(lineStr);
     parseOp(lineParsed.head, codeSeg, ic, symbolTable);
-    if (!instruction){
+    /*if (!instruction){
         codeSeg[ic-100] = instruction
-    }
+    }*/
 }
 
 char parseOp(node node, char string[18], int i, Symbol *pSymbol) {
@@ -109,7 +109,7 @@ void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
     fprintf(f, "%d %d\n", ic-100,dc);
     while (num <= ic){
         fprintf(f, "%.4d", num);
-        for(i = 0, i < 4 && num++ <= ic, i++) {
+        for(i = 0; i < 4 && num++ <= ic; i++) {
             fprintf(f, " %.2X", codeSeg[num - 100]);
         }
         printf("/n");

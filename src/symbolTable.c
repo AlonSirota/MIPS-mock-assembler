@@ -1,29 +1,18 @@
 //
 // Created by Ram Ben on 7/2/2021.
 //
-#include <stdlib.h>
-#include "string.h"
+#include "symbolTable.h"
 
-#define SYMBOL_DATA 1
-#define SYMBOL_CODE 2
-#define SYMBOL_ENTRY 4
-#define SYMBOL_EXTERNAL 8
 
-typedef struct symbol {
-    struct symbol *next;
-    char* label;
-    int address;
-    int attributes;
-} Symbol;
-
-Symbol *findSymbolInTable(Symbol *table, char *label){
+Symbol *findSymbolInTable(Symbol *table, char *label) {
     while (strcmp(label, table->label) == 0){
         table = table->next;
     }
     return table;
 }
 
-int addSymbol(Symbol *table, char* label, int address, int attributes){
+
+int addSymbol(Symbol *table, char *label, int address, int attributes) {
     Symbol *next = malloc(sizeof (Symbol));
     if(next == NULL)
         return 1;
@@ -41,7 +30,7 @@ int addSymbol(Symbol *table, char* label, int address, int attributes){
     return 0;
 }
 
-int discardTable(Symbol *table){
+int discardTable(Symbol *table) {
     Symbol *next;
     while(table != NULL){
         next = table->next;

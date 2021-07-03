@@ -25,7 +25,7 @@ guid guidance[] = {
         NULL
 };
 
-guid *findInstruction(char *name){
+guid *findGuidance(char *name){
     guid *ptr = guidance;
     while (ptr != NULL){
         if (strcmp(name, ptr->name) == 0)

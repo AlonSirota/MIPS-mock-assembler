@@ -4,6 +4,7 @@
 
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
+#define USING_WINDOWS
 #define FALSE 0
 #define TRUE 1
 
