@@ -36,6 +36,16 @@ TEST(strToLine, easy) {
     //TODO DESTROY LINE
 }
 
+TEST(strToLine, emptyLabel) {
+    char str[] = ": a b,c";
+    line l = strToLine(str);
+    ASSERT_STREQ(l.label, "") << "label error";
+    ASSERT_STREQ(l.head.value, "a") << "mnemonic error";
+    ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
+    ASSERT_STREQ(l.head.next->next->value, "c") << "post empty parameter error";
+    //TODO DESTROY LINE
+}
+
 TEST(strToLine, noLabel) {
     char str[] = "a b,c";
     line l = strToLine(str);
