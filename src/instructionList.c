@@ -4,7 +4,13 @@
 #include "instructionList.h"
 
 
-char parsedInstruction[4];
+static char parsedInstruction[4];
+
+/**
+ * search for an instruction
+ * @param name - name of an instruction, e.g: "add", "sub"...
+ * @return a pointer to the apropriate instruction, null if not found
+ */
 inst *findInstruction(char *name){
     inst *ptr = instructions;
     while (ptr->IID != INSTRUCTION_LIST_END){
@@ -15,6 +21,14 @@ inst *findInstruction(char *name){
     return NULL;
 }
 
+/**
+ * parses an instuction line
+ * @param node - the first element in a line
+ * @param buf - string buffer to write instruction in hex format
+ * @param symbolTable  - lable symbol table
+ * @param ic - the instruction counter
+ * @return the parsing result: LINE_OK if line is gramatically correct, else returns the error in the line
+ */
 int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic) {
     if(node == NULL)
         return LINE_OK; /* empty line do nothing */
@@ -35,7 +49,14 @@ int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic) {
     }
 }
 
-
+/**
+ * parse spesifically R typed instruction
+ * parsing is grouped by similar types of instructions
+ * @param instruction
+ * @param node
+ * @param buf
+ * @return
+ */
 int parseRInstruction(inst *instruction, node *node, char *buf) {
     switch (instruction->IID) {
         case INSTRUCTION_MOVE:
@@ -49,11 +70,11 @@ int parseRInstruction(inst *instruction, node *node, char *buf) {
 }
 
 int instructionRArithmetic(inst *instruction, node *node, char *buf) {
-    unsigned long  binaryInstruction = 0;
-    unsigned int rs,rd,rt;
+    unsigned long  binaryInstruction = 0; /* the resulting binary code of the instruction */
+    unsigned int rs,rd,rt; /* registers */
     rs = parseRegister(node->value);
     node = node->next;
-    if (rs < 0)
+    if (rs < 0) /* register number can only be non negetive, negetive result means an error was returned */
         return rs;
     rt = parseRegister(node->value);
     node = node->next;
@@ -63,14 +84,14 @@ int instructionRArithmetic(inst *instruction, node *node, char *buf) {
     node = node->next;
     if (rd < 0)
         return rd;
-    if(node != NULL)
+    if(node != NULL) /* didnt reach end of line */
         return TOO_MANY_ARGUMENTS;
-    binaryInstruction += instruction->opcode << R_OP_OFFSET;
-    binaryInstruction += rs << R_RS_OFFSET;
-    binaryInstruction += rt << R_RT_OFFSET;
-    binaryInstruction += rd << R_RD_OFFSET;
-    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
-    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
+    binaryInstruction |= instruction->opcode << R_OP_OFFSET; /* shifting parameters to the defined position */
+    binaryInstruction |= rs << R_RS_OFFSET;
+    binaryInstruction |= rt << R_RT_OFFSET;
+    binaryInstruction |= rd << R_RD_OFFSET;
+    binaryInstruction |= instruction->funct << R_FUNCT_OFFSET;
+    parsedInstruction[0] = (binaryInstruction) & 0b11111111; /* extructing bytes from instruction to "memory" in little endian */
     parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
     parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
     parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
@@ -129,7 +150,7 @@ int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTa
 
 int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     unsigned long  binaryInstruction = 0;
-    int rs,rt, immed;
+    int rs,rt, immed; /* immed is 16 bit singed int*/
     rs = parseRegister(node->value);
     node = node->next;
     if (rs < 0)
@@ -179,6 +200,11 @@ int instructionIArithmetic(inst *instruction, node *node, char *buf) {
 }
 
 
+/**
+ * recives one parameter from line and tries to parse register id
+ * @param str  - the parameter that should contain a register number, can be null in which case a MISSING_ARGUMENT error will be returned
+ * @return the register id or the appropriate error code
+ */
 int parseRegister(char *str) {
     if(str == NULL){
         return MISSING_ARGUMENTS; /* todo: check empty string*/
@@ -192,11 +218,17 @@ int parseRegister(char *str) {
         return OPERAND_NOT_VALID_REGISTER;
     return num;
 }
+
+/**
+ * recives one parameter from line and tries to parse a valid immediate
+ * @param buf  - the parameter that should contain a valid immediate, can be null in which case a MISSING_ARGUMENT error will be returned
+ * @return the value of the immediate or the appropriate error code
+ */
 int readImmed(char *buf){
     if(buf == NULL){
         return MISSING_ARGUMENTS;
     }
-    int res = 0;
+    int prev = 0, res = 0;
     int sing = 1;
     if(!isdigit(buf[0])){
         switch (buf[0]) {
@@ -207,19 +239,29 @@ int readImmed(char *buf){
                 sing = 1;
                 break;
             default:
-                return ILLEAGLE_IMMED; /* todo: fix range problem */
+                return ILLEAGLE_IMMED;
         }
     }
     while(*buf != NULL){
         if(!isdigit(buf[0]))
             return ILLEAGLE_IMMED;
+        prev = res;
         res *= 10;
         res += buf[0] - '0';
+        if(res <= prev) /* int overflow (int may be bigger then 16 bits)*/
+            return IMMED_OUT_OF_RANGE;
         buf++;
     }
+    res *= sing;
+    if(res < (-(1 << 16)) || res > ((1 << 16) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
+        return IMMED_OUT_OF_RANGE;
     return res*sing;
 }
 
+/**
+ * parses the internal instuction buffer into buf with the required format
+ * @param buf - outup string buffer
+ */
 void printInstruction(char *buf){
     sprintf(buf, "%.2X %.2X %.2X %.2X", parsedInstruction[0], parsedInstruction[1], parsedInstruction[2], parsedInstruction[3]);
 }
