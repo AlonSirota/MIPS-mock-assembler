@@ -13,5 +13,5 @@ add_executable(assembler
         symbolTable.h
         instructionList.c
         instructionList.h
-        guidanceList.c
-        )
+        directive.c
+        directive.h)
