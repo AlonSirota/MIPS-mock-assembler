@@ -37,8 +37,11 @@ void firstPass(FILE *f) {
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
     assert(f != NULL);
-    fgetsShred(f, LINE_LENGTH + 1, lineStr);
-    lineParsed = strToLine(lineStr);
+
+    while (fgetsShred(f, LINE_LENGTH + 1, lineStr)) {
+        lineParsed = strToLine(lineStr);
+    }
+
 
     /* TODO:
      * Add symbol if exists
