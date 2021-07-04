@@ -20,3 +20,10 @@ directiveType strToDirectiveType(char *name){
         return UNDEFINED;
     }
 }
+
+/*
+ * Returns true if line's operand is a directive.
+ */
+int isLineDirective(line l) {
+    return strToDirectiveType(l.head.value) != UNDEFINED;
+}
