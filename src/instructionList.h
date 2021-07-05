@@ -95,7 +95,7 @@ int parseRInstruction(inst *instruction, node *node, char *buf);
 int instructionRArithmetic(inst *instruction, node *node, char *buf);
 int instructionRMove(inst *instruction, node *node, char *buf);
 int parseRegister(char *str);
-void printInstruction(char *buf);
+void printInstruction(char *buf, int binaryInstruction);
 int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
 int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
 int instructionIArithmetic(inst *instruction, node *node, char *buf);

@@ -3,9 +3,6 @@
 */
 #include "instructionList.h"
 
-
-static char parsedInstruction[4];
-
 /**
  * search for an instruction
  * @param name - name of an instruction, e.g: "add", "sub"...
@@ -91,11 +88,7 @@ int instructionRArithmetic(inst *instruction, node *node, char *buf) {
     binaryInstruction |= rt << R_RT_OFFSET;
     binaryInstruction |= rd << R_RD_OFFSET;
     binaryInstruction |= instruction->funct << R_FUNCT_OFFSET;
-    parsedInstruction[0] = (binaryInstruction) & 0b11111111; /* extructing bytes from instruction to "memory" in little endian */
-    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
-    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
-    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
-    printInstruction(buf);
+    printInstruction(buf, binaryInstruction);
     return LINE_OK;
 }
 
@@ -118,11 +111,7 @@ int instructionRMove(inst *instruction, node *node, char *buf) {
     binaryInstruction += rt << R_RT_OFFSET;
     binaryInstruction += rd << R_RD_OFFSET;
     binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
-    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
-    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
-    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
-    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
-    printInstruction(buf);
+    printInstruction(buf, binaryInstruction);
     return LINE_OK;
 }
 
@@ -164,11 +153,7 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
     binaryInstruction += immed << R_FUNCT_OFFSET;
-    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
-    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
-    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
-    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
-    printInstruction(buf);
+    printInstruction(buf, binaryInstruction);
     return LINE_OK;
 }
 int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
@@ -191,11 +176,7 @@ int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
     binaryInstruction += immed << R_FUNCT_OFFSET;
-    parsedInstruction[0] = (binaryInstruction) & 0b11111111;
-    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
-    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
-    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
-    printInstruction(buf);
+    printInstruction(buf, binaryInstruction);
     return LINE_OK;
 }
 
@@ -225,7 +206,7 @@ int parseRegister(char *str) {
  * @return the value of the immediate or the appropriate error code
  */
 int readImmed(char *buf){
-    if(buf == NULL){
+    if(buf == NULL || strlen(buf)==0){
         return MISSING_ARGUMENTS;
     }
     int prev = 0, res = 0;
@@ -262,6 +243,11 @@ int readImmed(char *buf){
  * parses the internal instuction buffer into buf with the required format
  * @param buf - outup string buffer
  */
-void printInstruction(char *buf){
+void printInstruction(char *buf, int binaryInstruction) {
+    char parsedInstruction[4];
+    parsedInstruction[0] = (binaryInstruction) & 0b11111111; /* extructing bytes from instruction to "memory" in little endian */
+    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
+    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
+    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
     sprintf(buf, "%.2X %.2X %.2X %.2X", parsedInstruction[0], parsedInstruction[1], parsedInstruction[2], parsedInstruction[3]);
 }
