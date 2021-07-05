@@ -33,7 +33,7 @@ TEST(strToLine, easy) {
     ASSERT_STREQ(l.head.value, "a") << "mnemonic error";
     ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
     ASSERT_STREQ(l.head.next->next->value, "c") << "post empty parameter error";
-    //TODO DESTROY LINE
+    freeLine(l);
 }
 
 TEST(strToLine, emptyLabel) {
@@ -43,7 +43,7 @@ TEST(strToLine, emptyLabel) {
     ASSERT_STREQ(l.head.value, "a") << "mnemonic error";
     ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
     ASSERT_STREQ(l.head.next->next->value, "c") << "post empty parameter error";
-    //TODO DESTROY LINE
+    freeLine(l);
 }
 
 TEST(strToLine, noLabel) {
@@ -52,7 +52,7 @@ TEST(strToLine, noLabel) {
     ASSERT_STREQ(l.head.value, "a") << "mnemonic error";
     ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
     ASSERT_STREQ(l.head.next->next->value, "c") << "post empty parameter error";
-    //TODO DESTROY LINE
+    freeLine(l);
 }
 
 TEST(strToLine, emptyParameters) {
@@ -63,7 +63,7 @@ TEST(strToLine, emptyParameters) {
     ASSERT_STREQ(l.head.next->value, "b") << "first parameter error";
     ASSERT_STREQ(l.head.next->next->value, "") << "empty parameter error";
     ASSERT_STREQ(l.head.next->next->next->value, "c") << "post empty parameter error";
-    //TODO DESTROY LINE
+    freeLine(l);
 }
 
 TEST(strToLine, emptyLine) {
