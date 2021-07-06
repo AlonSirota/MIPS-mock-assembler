@@ -36,17 +36,24 @@ void firstPass(FILE *f) {
     int ic = 100, dc = 0;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
+    Symbol *symbolTable = NULL;
     assert(f != NULL);
 
     while (fgetsShred(f, LINE_LENGTH + 1, lineStr)) {
         lineParsed = strToLine(lineStr);
+        if (isLineDirective(lineParsed)) {
+            if (lineParsed.label != NULL) {
+                addSymbol(&symbolTable, lineParsed.label, dc, DATA);
+            }
+        }
     }
 
 
     /* TODO:
-     * Add symbol if exists
+     * Add symbolNode if exists
      * Adjust ic or dc
-     * Do symbol table stuff
+     * Do symbolNode table stuff
+     * Make sure symbol table is freed.
      */
 }
 
