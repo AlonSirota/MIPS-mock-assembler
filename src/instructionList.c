@@ -22,7 +22,7 @@ inst *findInstruction(char *name){
  * parses an instuction line
  * @param node - the first element in a line
  * @param buf - string buffer to write instruction in hex format
- * @param symbolTable  - lable symbol table
+ * @param symbolTable  - lable symbolNode table
  * @param ic - the instruction counter
  * @return the parsing result: LINE_OK if line is gramatically correct, else returns the error in the line
  */
