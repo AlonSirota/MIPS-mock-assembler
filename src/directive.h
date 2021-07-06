@@ -6,7 +6,7 @@
 #define ASSEMBLER_DIRECTIVE_H
 #include <stdio.h>
 #include <string.h>
-#include "line.h";
+#include "line.h"
 
 typedef enum{
     WORD,
