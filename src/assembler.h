@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include "directive.h"
 
 void assemblePath(char *fileName);
 void assembleFile(FILE *f);
