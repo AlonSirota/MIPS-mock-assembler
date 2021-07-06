@@ -5,6 +5,8 @@
 #include "assembler.c"
 #include "line.c"
 #include "instructionList.c"
+#include "directive.c"
+#include "symbolTable.c"
 
 TEST(fgetsShred, Shred) {
     FILE *stream;
