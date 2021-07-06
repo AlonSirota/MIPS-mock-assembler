@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include "directive.h"
+#include "line.h"
+#include "symbolTable.h"
 
 void assemblePath(char *fileName);
 void assembleFile(FILE *f);

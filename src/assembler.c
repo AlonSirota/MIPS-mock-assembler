@@ -2,8 +2,6 @@
 // Created by alon on 6/27/21.
 //
 #include "assembler.h"
-#include "line.h"
-#include "symbolTable.h"
 
 #define CODE_SIZE 2^25 /* max memory size */
 
