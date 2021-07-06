@@ -6,20 +6,25 @@
 #define WTFPROJECT_SYMBOLTABLET_H
 #include <stdlib.h>
 #include "string.h"
-#define SYMBOL_DATA 1
-#define SYMBOL_CODE 2
-#define SYMBOL_ENTRY 4
-#define SYMBOL_EXTERNAL 8
 
-typedef struct symbol {
-    struct symbol *next;
+/* Will be used for flags as bitmask */
+enum symbolType {
+    UNSET = 0,
+    DATA = 1,
+    CODE = 1 << 1,
+    ENTRY = 1 << 2,
+    EXTERNAL = 1 << 3
+};
+
+typedef struct symbolNode {
+    struct symbolNode *next;
     char* label;
     int address;
-    int attributes;
+    char attributes;
 } Symbol;
 
 Symbol *findSymbolInTable(Symbol *table, char *label);
-int addSymbol(Symbol *table, char* label, int address, int attributes);
+int addSymbol(Symbol **tablePtr, char* label, int address, int attributes);
 int discardTable(Symbol *table);
 
 
