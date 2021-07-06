@@ -4,6 +4,8 @@
 #include "symbolTable.h"
 
 
+Symbol *newSymbol(char *label, int address, int attributes);
+
 Symbol *findSymbolInTable(Symbol *table, char *label) {
     while (strcmp(label, table->label) == 0){
         table = table->next;
@@ -12,22 +14,37 @@ Symbol *findSymbolInTable(Symbol *table, char *label) {
 }
 
 
-int addSymbol(Symbol *table, char *label, int address, int attributes) {
-    Symbol *next = malloc(sizeof (Symbol));
-    if(next == NULL)
-        return 1;
-    char *nextLabel = malloc(strlen(label) * sizeof (char));
+int addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
+    Symbol* curr;
+    Symbol *next = newSymbol(label, address, attributes); /* Prepare new symbol */
+    // TODO makesure malloc succeded
+
+    if (*tablePtr == NULL) { /* if table is empty */
+        *tablePtr = next; /* it now contains the new element. */
+        return EXIT_SUCCESS;
+    }
+
+    /* else, find last element*/
+    curr = *tablePtr;
+    while (curr->next != NULL)
+        curr = curr->next; // TODO check if label already exists.
+
+    /* append */
+    curr->next = next;
+    return EXIT_SUCCESS;
+}
+
+Symbol *newSymbol(char *label, int address, int attributes) {
+    Symbol * new = malloc(sizeof (Symbol));
+    char *nextLabel = strdup(label);
     if (nextLabel == NULL)
         return 1;
-    strcpy(nextLabel, label);
-    next->label = nextLabel;
-    next->address = address;
-    next->attributes = attributes;
-    next->next = NULL;
-    while (table->next != NULL)
-        table = table->next;
-    table->next = next;
-    return 0;
+    new->label = nextLabel;
+    new->address = address;
+    new->attributes = attributes;
+    new->next = NULL;
+
+    return new;
 }
 
 int discardTable(Symbol *table) {
@@ -39,4 +56,9 @@ int discardTable(Symbol *table) {
         table = next;
     }
     return 0;
+}
+
+symbolTable emptySymbolTable() {
+    symbolTable res = {.head = NULL,.last = NULL};
+    return res;
 }
