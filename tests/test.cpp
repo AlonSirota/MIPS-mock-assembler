@@ -129,3 +129,36 @@ TEST(parseRInstructions, noLabel){
     ASSERT_EQ(status, LINE_OK);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
+
+TEST(addSymbol, easy) {
+    Symbol *tableHead = NULL; /* aka empty */
+    addSymbol(&tableHead, "a", 1, DATA);
+    addSymbol(&tableHead, "b", 2, DATA | CODE);
+
+    Symbol *curr = tableHead;
+    ASSERT_TRUE(curr != NULL);
+    ASSERT_TRUE(!strcmp(curr->label, "a"));
+    ASSERT_TRUE(curr->address == 1);
+    ASSERT_TRUE(curr->attributes == DATA);
+    curr = curr->next;
+    ASSERT_TRUE(curr != NULL);
+    ASSERT_TRUE(!strcmp(curr->label, "b"));
+    ASSERT_TRUE(curr->address == 2);
+    ASSERT_TRUE(curr->attributes == DATA | CODE);
+    ASSERT_TRUE(curr->next == NULL);
+    discardTable(tableHead);
+}
+
+TEST(addSymbol, preventDuplicates) {
+    Symbol *tableHead = NULL; /* aka empty */
+    addSymbol(&tableHead, "a", 1, DATA);
+    addSymbol(&tableHead, "a", 2, DATA | CODE);
+
+    Symbol *curr = tableHead;
+    ASSERT_TRUE(curr != NULL);
+    ASSERT_TRUE(!strcmp(curr->label, "a"));
+    ASSERT_TRUE(curr->address == 1);
+    ASSERT_TRUE(curr->attributes == DATA);
+    ASSERT_TRUE(curr->next == NULL);
+    discardTable(tableHead);
+}
