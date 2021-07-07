@@ -55,8 +55,3 @@ int discardTable(Symbol *table) {
     }
     return 0;
 }
-
-symbolTable emptySymbolTable() {
-    symbolTable res = {.head = NULL,.last = NULL};
-    return res;
-}
