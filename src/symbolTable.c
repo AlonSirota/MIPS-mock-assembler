@@ -35,16 +35,14 @@ int addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
 }
 
 Symbol *newSymbol(char *label, int address, int attributes) {
-    Symbol * new = malloc(sizeof (Symbol));
-    char *nextLabel = strdup(label);
-    if (nextLabel == NULL)
-        return 1;
-    new->label = nextLabel;
-    new->address = address;
-    new->attributes = attributes;
-    new->next = NULL;
+    Symbol * s = (Symbol *) malloc(sizeof (Symbol)); // TODO handle malloc error
+    char *nextLabel = strdup(label); //TODO handle strdup error
+    s->label = nextLabel;
+    s->address = address;
+    s->attributes = attributes;
+    s->next = NULL;
 
-    return new;
+    return s;
 }
 
 int discardTable(Symbol *table) {
