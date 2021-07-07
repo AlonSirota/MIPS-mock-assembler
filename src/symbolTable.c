@@ -26,8 +26,17 @@ int addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
 
     /* else, find last element*/
     curr = *tablePtr;
-    while (curr->next != NULL)
-        curr = curr->next; // TODO check if label already exists.
+    do {
+        /* Don't append to table if label already exists */
+        if (!strcmp(curr->label, label)) {
+            discardTable(next);
+            return EXIT_FAILURE;
+        }
+
+        /* Go forward until reaching last node */
+        if (curr->next != NULL)
+            curr = curr->next; // TODO check if label already exists.
+    } while (curr->next != NULL);
 
     /* append */
     curr->next = next;
@@ -45,7 +54,7 @@ Symbol *newSymbol(char *label, int address, int attributes) {
     return s;
 }
 
-int discardTable(Symbol *table) {
+void discardTable(Symbol *table) {
     Symbol *next;
     while(table != NULL){
         next = table->next;
@@ -53,5 +62,4 @@ int discardTable(Symbol *table) {
         free(table);
         table = next;
     }
-    return 0;
 }
