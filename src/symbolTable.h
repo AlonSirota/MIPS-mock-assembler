@@ -25,7 +25,7 @@ typedef struct symbolNode {
 
 Symbol *findSymbolInTable(Symbol *table, char *label);
 int addSymbol(Symbol **tablePtr, char* label, int address, int attributes);
-int discardTable(Symbol *table);
+void discardTable(Symbol *table);
 
 
 
