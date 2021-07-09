@@ -6,6 +6,8 @@
 #define WTFPROJECT_SYMBOLTABLET_H
 #include <stdlib.h>
 #include "string.h"
+#include "statusCodes.h"
+#include <stdio.h>
 
 /* Will be used for flags as bitmask */
 enum symbolType {

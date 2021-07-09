@@ -30,7 +30,8 @@ int addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
         /* Don't append to table if label already exists */
         if (!strcmp(curr->label, label)) {
             discardTable(next);
-            return EXIT_FAILURE;
+            printf("label %s was already defined\n", label);
+            return ERR_LABEL_ALREADY_DEFINED;
         }
 
         /* Go forward until reaching last node */
