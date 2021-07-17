@@ -21,10 +21,10 @@
 #define WORD_MAX 2147483647
 typedef unsigned char byte;
 typedef enum{
-    WORD,
-    BYTE,
-    HALF_WORD,
-    ASCII,
+    WORD_TYPE,
+    BYTE_TYPE,
+    HALF_WORD_TYPE,
+    ASCII_TYPE,
     UNDEFINED
 } directiveType;
 

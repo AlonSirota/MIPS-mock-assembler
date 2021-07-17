@@ -9,13 +9,13 @@ directiveType strToDirectiveType(char *name){
         return UNDEFINED;
 
     if (strcmp(".db", name)) {
-        return BYTE;
+        return BYTE_TYPE;
     } else if (strcmp(".dh", name)) {
-        return HALF_WORD;
+        return HALF_WORD_TYPE;
     } else if (strcmp(".dw", name)) {
-        return WORD;
+        return WORD_TYPE;
     }else if (strcmp(".asciz", name)) {
-        return ASCII;
+        return ASCII_TYPE;
     }else {
         return UNDEFINED;
     }
