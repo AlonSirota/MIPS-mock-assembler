@@ -9,10 +9,10 @@
 #include "line.h"
 
 typedef enum{
-    WORD,
-    BYTE,
-    HALF_WORD,
-    ASCII,
+    WORD_TYPE,
+    BYTE_TYPE,
+    HALF_WORD_TYPE,
+    ASCII_TYPE,
     UNDEFINED
 } directiveType;
 int isLineDirective(line l);
