@@ -7,7 +7,7 @@
 Symbol *newSymbol(char *label, int address, int attributes);
 
 Symbol *findSymbolInTable(Symbol *table, char *label) {
-    while (strcmp(label, table->label) == 0){
+    while (table != NULL && strcmp(label, table->label) != 0){
         table = table->next;
     }
     return table;
