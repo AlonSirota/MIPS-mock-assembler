@@ -95,6 +95,16 @@ TEST(strToLine, commentLine) {
     freeLine(l);
 }
 
+TEST(strToLine, singleParameterInst) {
+    char str[] = "add $3";
+    line l = strToLine(str);
+    ASSERT_TRUE(l.label == NULL) << "label error";
+    ASSERT_STREQ(l.head.value, "add") << " error";
+    ASSERT_FALSE(l.head.next == NULL) << "first parameter error";
+    ASSERT_STREQ(l.head.next->value, "$3");
+    freeLine(l);
+}
+
 TEST(trimWhiteSpace, leading) {
     char str[] = " \t\na \t\n";
     ASSERT_STREQ(firstNoneSpace(str), "a \t\n");
@@ -116,18 +126,6 @@ TEST(findIntruction, noLable){
     ASSERT_EQ(instruction == NULL, 0);
     instruction = findInstruction("lol");
     ASSERT_NE(instruction == NULL, 0);
-}
-TEST(parseRInstructions, noLabel){
-    char buf[20];
-    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
-    char codeSeg[4];
-    int status, ic = 100;
-    char str[] = "add $3,$5,$9";
-    line l = strToLine(str);
-    inst *instruction = findInstruction(l.head.value);
-    status = parseRInstruction(instruction, l.head.next, buf);
-    ASSERT_EQ(status, LINE_OK);
-    ASSERT_EQ(strcmp(output,buf), 0);
 }
 
 TEST(addSymbol, easy) {
@@ -161,4 +159,87 @@ TEST(addSymbol, preventDuplicates) {
     ASSERT_TRUE(curr->attributes == DATA);
     ASSERT_TRUE(curr->next == NULL);
     discardTable(tableHead);
+}
+TEST(parseInstructionRArithmetic, base){
+    char buf[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    char str[] = "add $3,$5,$9";
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+}
+TEST(parseInstructionRArithmetic, tooFewArgs){
+    char buf[20];
+    char str[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    strcpy(str,"add $3");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"add $3,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str, "add $3,$5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str, "add $3,$5,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str, "add $3,$5,$9,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+}
+TEST(parseInstructionRMove, base){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "40 20 80 06"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    char str[] = "move $20,$4";
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+}
+TEST(parseInstructionRMove, tooFewArgs){
+    char buf[20];
+    char str[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    strcpy(str,"move $3");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"move $3,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str, "move $3,$5,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+    strcpy(str, "move $3,$5,$9");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
 }

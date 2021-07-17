@@ -66,19 +66,19 @@ int parseRInstruction(inst *instruction, node *node, char *buf) {
 
 int instructionRArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0; /* the resulting binary code of the instruction */
-    unsigned int rs,rd,rt; /* registers */
-    rs = parseRegister(node->value);
-    node = node->next;
+    int rs,rd,rt; /* registers */
+    rs = parseRegister(node);
     if (rs < 0) /* register number can only be non negetive, negetive result means an error was returned */
         return rs;
-    rt = parseRegister(node->value);
     node = node->next;
+    rt = parseRegister(node);
     if (rt < 0)
         return rt;
-    rd = parseRegister(node->value);
     node = node->next;
+    rd = parseRegister(node);
     if (rd < 0)
         return rd;
+    node = node->next;
     if(node != NULL) /* didnt reach end of line */
         return TOO_MANY_ARGUMENTS;
     binaryInstruction |= instruction->opcode << R_OP_OFFSET; /* shifting parameters to the defined position */
@@ -90,20 +90,20 @@ int instructionRArithmetic(inst *instruction, node *node, char *buf) {
     return LINE_OK;
 }
 
-int instructionRMove(inst *instruction, node *node, char *buf) {
+int instructionRMove(inst *instruction, node *node, char *buf) { /* move rd, rs */
     unsigned long  binaryInstruction = 0;
     int rs,rd,rt;
-    rs = parseRegister(node->value);
+    rs = parseRegister(node);
     if (rs < 0)
         return rs;
     node = node->next;
-    rt = parseRegister(node->value);
-    if (rt < 0)
-        return rt;
+    rd = parseRegister(node);
+    if (rd < 0)
+        return rd;
     node = node->next;
     if(node != NULL)
         return TOO_MANY_ARGUMENTS;
-    rd = 0;
+    rt = 0;
     binaryInstruction |= instruction->opcode << R_OP_OFFSET;
     binaryInstruction |= rs << R_RS_OFFSET;
     binaryInstruction |= rt << R_RT_OFFSET;
@@ -140,11 +140,11 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
     int rs,rt, add, resCode; /* immed is 16 bit singed int*/
     char label[32];
     Symbol *s;
-    rs = parseRegister(node->value);
-    node = node->next;
+    rs = parseRegister(node);
     if (rs < 0)
         return rs;
-    rt = parseRegister(node->value);
+    node = node->next;
+    rt = parseRegister(node);
     if (rt < 0)
         return rt;
     node = node->next;
@@ -170,14 +170,14 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
 int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
     unsigned long  binaryInstruction = 0;
     int rs,rt, immed;
-    rs = parseRegister(node->value);
-    node = node->next;
+    rs = parseRegister(node);
     if (rs < 0)
         return rs;
+    node = node->next;
     immed = readImmed(node->value);
     /* do error cheching */
     node = node->next;
-    rt = parseRegister(node->value);
+    rt = parseRegister(node);
     if (rt < 0)
         return rt;
     node = node->next;
@@ -194,14 +194,14 @@ int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTab
 int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0;
     int rs,rt, immed;
-    rs = parseRegister(node->value);
-    node = node->next;
+    rs = parseRegister(node);
     if (rs < 0)
         return rs;
+    node = node->next;
     immed = readImmed(node->value);
     /* do error cheching */
     node = node->next;
-    rt = parseRegister(node->value);
+    rt = parseRegister(node);
     if (rt < 0)
         return rt;
     node = node->next;
@@ -231,7 +231,7 @@ int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTabl
     int rs_flag, resCode, addr; /* immed is 16 bit singed int*/
     char label[32];
     Symbol *s;
-    addr = parseRegister(node->value);
+    addr = parseRegister(node);
     if (addr >= 0) /* JMP $register */
         rs_flag = 1;
     else if (addr != OPERAND_NOT_REGISTER){ /* JMP $register but bad register */
@@ -293,8 +293,13 @@ int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) 
  * @param str  - the parameter that should contain a register number, can be null in which case a MISSING_ARGUMENT error will be returned
  * @return the register id or the appropriate error code
  */
-int parseRegister(char *str) {
-    if(str == NULL){
+int parseRegister(node *node) {
+    char *str;
+    if(node == NULL){
+        return MISSING_ARGUMENTS; /* todo: check empty string*/
+    }
+    str = node->value;
+    if(str == NULL || str[0] == NULL){
         return MISSING_ARGUMENTS; /* todo: check empty string*/
     }
     if(str[0] != '$') /*todo make macro*/
@@ -365,8 +370,8 @@ int readLabel(char *in){
  * parses the internal instuction buffer into buf with the required format
  * @param buf - outup string buffer
  */
-void printInstruction(char *buf, int binaryInstruction) {
-    char parsedInstruction[4];
+void printInstruction(char *buf,unsigned int binaryInstruction) {
+    unsigned char parsedInstruction[4];
     parsedInstruction[0] = (binaryInstruction) & 0b11111111; /* extructing bytes from instruction to "memory" in little endian */
     parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
     parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
