@@ -21,6 +21,10 @@
 #define I_RT_OFFSET 16
 #define I_IMMED_OFFSET 0
 
+#define J_OP_OFFSET 26
+#define J_REG_FLAG_OFFSET 25
+#define J_ADDR_OFFSET 0
+
 
 typedef enum instruction_id {
     INSTRUCTION_ADD,
@@ -100,6 +104,11 @@ int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTa
 int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
 int instructionIArithmetic(inst *instruction, node *node, char *buf);
 int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+int instructionJStop(inst *instruction, node *node, char *buf);
+int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable);
 int readImmed(char *buf);
-
+int readLabel(char *in);
+int to16bit(int in);
 #endif //WTFPROJECT_INSTRUCTIONLIST_H

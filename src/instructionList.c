@@ -35,12 +35,10 @@ int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic) {
     switch (instruction->type) {
         case 'R':
             return parseRInstruction(instruction, node->next, buf);
-            break;
         case 'I':
             return parseIInstruction(instruction, node->next, buf, symbolTable, ic);
-            break;
         case 'J':
-            break;
+            return parseJInstruction(instruction, node->next, buf, symbolTable);
         default:
             break; /* impossible.... */
     }
@@ -106,11 +104,11 @@ int instructionRMove(inst *instruction, node *node, char *buf) {
     if(node != NULL)
         return TOO_MANY_ARGUMENTS;
     rd = 0;
-    binaryInstruction += instruction->opcode << R_OP_OFFSET;
-    binaryInstruction += rs << R_RS_OFFSET;
-    binaryInstruction += rt << R_RT_OFFSET;
-    binaryInstruction += rd << R_RD_OFFSET;
-    binaryInstruction += instruction->funct << R_FUNCT_OFFSET;
+    binaryInstruction |= instruction->opcode << R_OP_OFFSET;
+    binaryInstruction |= rs << R_RS_OFFSET;
+    binaryInstruction |= rt << R_RT_OFFSET;
+    binaryInstruction |= rd << R_RD_OFFSET;
+    binaryInstruction |= instruction->funct << R_FUNCT_OFFSET;
     printInstruction(buf, binaryInstruction);
     return LINE_OK;
 }
@@ -139,7 +137,9 @@ int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTa
 
 int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     unsigned long  binaryInstruction = 0;
-    int rs,rt, immed; /* immed is 16 bit singed int*/
+    int rs,rt, add, resCode; /* immed is 16 bit singed int*/
+    char label[32];
+    Symbol *s;
     rs = parseRegister(node->value);
     node = node->next;
     if (rs < 0)
@@ -148,16 +148,47 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
     if (rt < 0)
         return rt;
     node = node->next;
+    resCode = readLabel(node->value);
+    if(resCode)
+        return resCode;
+    node = node->next;
+    if(node != NULL)
+        return TOO_MANY_ARGUMENTS;
+    s = findSymbolInTable(symbolTable, label);
+    if(s == NULL)
+        return LABEL_DOES_NOT_EXIST;
+    if(!(s->attributes && CODE))
+        return LABEL_NOT_CODE;
+    add = s->address - ic;
+    binaryInstruction |= instruction->opcode << I_OP_OFFSET;
+    binaryInstruction |= rs << I_RS_OFFSET;
+    binaryInstruction |= rt << I_RT_OFFSET;
+    binaryInstruction |= add << I_IMMED_OFFSET;
+    printInstruction(buf, binaryInstruction);
+    return LINE_OK;
+}
+int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
+    unsigned long  binaryInstruction = 0;
+    int rs,rt, immed;
+    rs = parseRegister(node->value);
+    node = node->next;
+    if (rs < 0)
+        return rs;
     immed = readImmed(node->value);
+    /* do error cheching */
+    node = node->next;
+    rt = parseRegister(node->value);
+    if (rt < 0)
+        return rt;
+    node = node->next;
+    if(node != NULL)
+        return TOO_MANY_ARGUMENTS;
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
     binaryInstruction += immed << R_FUNCT_OFFSET;
     printInstruction(buf, binaryInstruction);
     return LINE_OK;
-}
-int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
-
 }
 
 int instructionIArithmetic(inst *instruction, node *node, char *buf) {
@@ -167,11 +198,15 @@ int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     node = node->next;
     if (rs < 0)
         return rs;
+    immed = readImmed(node->value);
+    /* do error cheching */
+    node = node->next;
     rt = parseRegister(node->value);
     if (rt < 0)
         return rt;
     node = node->next;
-    immed = readImmed(node->value);
+    if(node != NULL)
+        return TOO_MANY_ARGUMENTS;
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
@@ -180,6 +215,78 @@ int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     return LINE_OK;
 }
 
+int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
+    switch (instruction->IID) {
+        case INSTRUCTION_JMP:
+            return instructionJJMP(instruction,node,buf, symbolTable);
+        case INSTRUCTION_STOP:
+            return instructionJStop(instruction,node,buf);
+        default:
+            return instructionJ(instruction,node,buf, symbolTable);
+    }
+}
+
+int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
+    unsigned long  binaryInstruction = 0;
+    int rs_flag, resCode, addr; /* immed is 16 bit singed int*/
+    char label[32];
+    Symbol *s;
+    addr = parseRegister(node->value);
+    if (addr >= 0) /* JMP $register */
+        rs_flag = 1;
+    else if (addr != OPERAND_NOT_REGISTER){ /* JMP $register but bad register */
+        return rs_flag;
+    }else {
+        resCode = readLabel(node->value);
+        if (resCode)
+            return resCode;
+        s = findSymbolInTable(symbolTable, label);
+        if (s == NULL)
+            return LABEL_DOES_NOT_EXIST;
+        if(!((s->attributes && (CODE || EXTERNAL))))
+            return LABEL_NOT_CODE;
+        addr = s->address;
+    }
+    node = node->next;
+    if (node != NULL)
+        return TOO_MANY_ARGUMENTS;
+    binaryInstruction |= instruction->opcode << J_OP_OFFSET;
+    binaryInstruction |= rs_flag << J_REG_FLAG_OFFSET;
+    binaryInstruction |= addr << J_ADDR_OFFSET;
+    printInstruction(buf, binaryInstruction);
+    return LINE_OK;
+}
+
+int instructionJStop(inst *instruction, node *node, char *buf){
+    unsigned long  binaryInstruction = 0;
+    binaryInstruction |= instruction->opcode << J_OP_OFFSET;
+    printInstruction(buf, binaryInstruction);
+    return LINE_OK;
+}
+
+int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
+    unsigned long  binaryInstruction = 0;
+    int  resCode, addr; /* immed is 16 bit singed int*/
+    char label[32];
+    Symbol *s;
+    resCode = readLabel(node->value);
+    if (resCode)
+        return resCode;
+    s = findSymbolInTable(symbolTable, label);
+    if (s == NULL)
+        return LABEL_DOES_NOT_EXIST;
+    if(!((s->attributes && (DATA || EXTERNAL))))
+        return LABEL_NOT_CODE;
+    addr = s->address;
+    node = node->next;
+    if (node != NULL)
+        return TOO_MANY_ARGUMENTS;
+    binaryInstruction |= instruction->opcode << J_OP_OFFSET;
+    binaryInstruction |= 0 << J_REG_FLAG_OFFSET;
+    binaryInstruction |= addr << J_ADDR_OFFSET;
+    printInstruction(buf, binaryInstruction);
+    return LINE_OK;
+}
 
 /**
  * recives one parameter from line and tries to parse register id
@@ -209,7 +316,7 @@ int readImmed(char *buf){
     if(buf == NULL || strlen(buf)==0){
         return MISSING_ARGUMENTS;
     }
-    int prev = 0, res = 0;
+    long prev = 0, res = 0;
     int sing = 1;
     if(!isdigit(buf[0])){
         switch (buf[0]) {
@@ -234,9 +341,24 @@ int readImmed(char *buf){
         buf++;
     }
     res *= sing;
-    if(res < (-(1 << 16)) || res > ((1 << 16) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
+    if(res <= (-(1 << 16)) || res >= ((1 << 16) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
         return IMMED_OUT_OF_RANGE;
-    return res*sing;
+    return to16bit(res*sing);
+}
+int readLabel(char *in){
+    int count = 1;
+    if(!isalpha(in[0]))
+        return INVALID_LABEL;
+    in += 1;
+    while (in[0] != NULL){
+        if(in[0] == ':'){
+            return count <= 31; /* make macro */
+        }
+        if(!isalnum(in[0]))
+            return INVALID_LABEL;
+        count++;
+    }
+    return INVALID_LABEL;
 }
 
 /**
@@ -250,4 +372,20 @@ void printInstruction(char *buf, int binaryInstruction) {
     parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
     parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
     sprintf(buf, "%.2X %.2X %.2X %.2X", parsedInstruction[0], parsedInstruction[1], parsedInstruction[2], parsedInstruction[3]);
+}
+/**
+ * convert int to 16 bit 2's compliment.
+ * we cant guarantee int is 16 bit exactly and uses 2's compliment (even tho it practicaly is)
+ * range check is already done
+ * @param in
+ * @return
+ */
+int to16bit(int in){
+    int sing, out = 0;
+    if(in >= 0)
+        return in;
+    sing = -1;
+    in *= sing;
+    out = (1 << 16) - in;
+    return out;
 }
