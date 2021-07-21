@@ -162,3 +162,54 @@ TEST(addSymbol, preventDuplicates) {
     ASSERT_TRUE(curr->next == NULL);
     discardTable(tableHead);
 }
+
+TEST(directiveToByteTest, db) {
+    byte buffer[1000];
+    byte *res;
+    node nextNext = {.value = "-12", .next = NULL};
+    node next = {.value = "31", .next = &nextNext};
+    node head = {.value = ".db", .next = &next};
+    line l = {.head = head};
+    res = directiveToBytes(l);
+    ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
+    ASSERT_TRUE(res[1] == 0b11110100); /* -12 in binary */
+
+    free(res);
+}
+TEST(directiveToByteTest, dw) {
+    byte buffer[1000];
+    byte *res;
+    node nextNext = {.value = "-12", .next = NULL};
+    node next = {.value = "31", .next = &nextNext};
+    node head = {.value = ".dw", .next = &next};
+    line l = {.head = head};
+    res = directiveToBytes(l);
+
+    ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
+    ASSERT_TRUE(res[1] == 0);
+    ASSERT_TRUE(res[2] == 0);
+    ASSERT_TRUE(res[3] == 0);
+
+    ASSERT_TRUE(res[4] == 0b11110100); /* -12 in binary */
+    ASSERT_TRUE(res[5] == 0b11111111);
+    ASSERT_TRUE(res[6] == 0b11111111);
+    ASSERT_TRUE(res[7] == 0b11111111);
+
+    free(res);
+}
+TEST(directiveToByteTest, dh) {
+    byte buffer[1000];
+    byte *res;
+    node nextNext = {.value = "-12", .next = NULL};
+    node next = {.value = "31", .next = &nextNext};
+    node head = {.value = ".dh", .next = &next};
+    line l = {.head = head};
+    res = directiveToBytes(l);
+
+    ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
+    ASSERT_TRUE(res[1] == 0b00000000);
+
+    ASSERT_TRUE(res[2] == 0b11110100); /* -12 in binary */
+    ASSERT_TRUE(res[3] == 0b11111111);
+    free(res);
+}
