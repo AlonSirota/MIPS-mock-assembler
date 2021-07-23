@@ -94,21 +94,27 @@ inst instructions[] = {{"add", 'R', 1, 0, INSTRUCTION_ADD},
                        {"end of list", 0, 0, 0,INSTRUCTION_LIST_END}
 };
 inst *findInstruction(char *name);
+
 int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic);
+
 int parseRInstruction(inst *instruction, node *node, char *buf);
+int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
+int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+
 int instructionRArithmetic(inst *instruction, node *node, char *buf);
 int instructionRMove(inst *instruction, node *node, char *buf);
-int parseRegister(node *node);
-void printInstruction(char *buf, unsigned int binaryInstruction);
-int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
+
 int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
 int instructionIArithmetic(inst *instruction, node *node, char *buf);
 int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable);
-int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+
 int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable);
 int instructionJStop(inst *instruction, node *node, char *buf);
 int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable);
-int readImmed(char *buf);
-int readLabel(char *in);
+
+int parseRegister(node *node);
+void printInstruction(char *buf, unsigned int binaryInstruction);
+int readImmed(node *node, int *immed);
+int readLabel(node *node);
 int to16bit(int in);
 #endif //WTFPROJECT_INSTRUCTIONLIST_H

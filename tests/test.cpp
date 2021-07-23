@@ -215,7 +215,6 @@ TEST(addSymbol, preventDuplicates) {
 TEST(parseInstructionRArithmetic, base){
     char buf[20];
     char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
-    char codeSeg[4];
     int status, ic = 100;
     char str[] = "add $3,$5,$9";
     line l = strToLine(str);
@@ -256,6 +255,38 @@ TEST(parseInstructionRArithmetic, tooFewArgs){
     status = parseRInstruction(instruction, l.head.next, buf);
     ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
 }
+TEST(parseInstructionRArithmetic, wrongContext){
+    char buf[20];
+    char str[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    strcpy(str,"add $lol,lol,lol");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str,"add $50,lol,$4");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str, "add $3,$5,lol");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_REGISTER);
+    strcpy(str, "add lol,$5,lol");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_REGISTER);
+    strcpy(str, "add $30,$50,$90");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+}
 TEST(parseInstructionRMove, base){// wont work.... mistake in the maman....
     char buf[20];
     char *output = "40 20 80 06"; /* see page 27 first intruction in table*/
@@ -294,6 +325,291 @@ TEST(parseInstructionRMove, tooFewArgs){
     instruction = findInstruction(l.head.value);
     status = parseRInstruction(instruction, l.head.next, buf);
     ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+}
+TEST(parseInstructionRMove, wrongContext){
+    char buf[20];
+    char str[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    strcpy(str,"move $300");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str,"move lol,lol");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_REGISTER);
+    strcpy(str, "move $34,$5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str, "move $3,$54$9");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseRInstruction(instruction, l.head.next, buf);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+}
+
+TEST(instructionIBranch, base){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "1C 00 82 48"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[] = "bgt $4,$2,END";
+    Symbol *st = NULL;
+    addSymbol(&st, "END", 148, CODE);
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+}
+TEST(instructionIBranch, tooFewArgs){
+    char buf[20];
+    char str[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    strcpy(str,"bgt $3");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"bgt $3,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str, "bgt $3,$5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str, "bgt $3,$5,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, INVALID_LABEL);
+    strcpy(str, "bgt $3,$5,END,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+}
+TEST(instructionIBranch, wrongContext){
+    char buf[20];
+    char str[20];
+    char *output = "40 48 65 00"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    strcpy(str,"bgt $300");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str,"bgt lol,lol");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_REGISTER);
+    strcpy(str, "bgt $34,$5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str, "bgt $3,$5,$fsd");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, INVALID_LABEL);
+}
+
+TEST(instructionILoad, base){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "04 00 0A 58"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[] = "sw $0,4,$10";
+    Symbol *st = NULL;
+    addSymbol(&st, "END", 148, CODE);
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+}
+TEST(instructionILoad, tooFewArgs){
+    char buf[20];
+    char str[20];
+    char *output = "04 00 0A 58"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    strcpy(str,"sw $0");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"sw $0,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"sw $0,4");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"sw $0,4,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"sw $0,4,$10,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+}
+TEST(instructionILoad, wrongContext){
+    char buf[20];
+    char str[20];
+    char *output = "04 00 0A 58"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    strcpy(str,"sw $300");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str,"sw lol,lol");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_REGISTER);
+    strcpy(str, "sw $3,$5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, ILLEAGLE_IMMED);
+    strcpy(str, "bgt $3,0,$fsd");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_REGISTER);
+}
+
+TEST(instructionIArithmetic, base){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "FB FF 22 35"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[] = "ori $9,-5,$2";
+    Symbol *st = NULL;
+    addSymbol(&st, "END", 148, CODE);
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+}
+TEST(instructionIArithmetic, tooFewArgs){
+    char buf[20];
+    char str[20];
+    char *output = "04 00 0A 58"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    strcpy(str,"ori $9");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"ori $9,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"ori $9,-5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"ori $9,-5,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"ori $9,-5,$2,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+
+}
+TEST(instructionIArithmetic, wrongContext){
+    char buf[20];
+    char str[20];
+    char *output = "04 00 0A 58"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    strcpy(str,"ori $300");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+    strcpy(str,"ori lol,lol");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_REGISTER);
+    strcpy(str, "ori $3,$5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, ILLEAGLE_IMMED);
+    strcpy(str, "ori $3,0,$fsd");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+}
+
+TEST(instructionJJMP, baseRegister){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "04 00 00 7A"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[] = "jmp $4";
+    Symbol *st = NULL;
+    addSymbol(&st, "Next", 116, CODE);
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+}
+TEST(instructionJJMP, baseLabel){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "74 00 00 78"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[] = "jmp Next";
+    Symbol *st = NULL;
+    addSymbol(&st, "Next", 116, CODE);
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
 }
 
 TEST(directiveToByteTest, db) {

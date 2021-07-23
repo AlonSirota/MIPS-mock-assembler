@@ -17,5 +17,6 @@
 #define INVALID_LABEL -7
 #define LABEL_DOES_NOT_EXIST -8
 #define LABEL_NOT_CODE -9
+#define IMMED_OK 0
 
 #endif //WTFPROJECT_STATUSCODES_H
