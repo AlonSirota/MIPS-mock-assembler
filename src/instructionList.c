@@ -137,8 +137,8 @@ int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTa
 
 int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     unsigned long  binaryInstruction = 0;
-    int rs,rt, add, resCode; /* immed is 16 bit singed int*/
-    char label[32];
+    int rs,rt, add, resCode;
+    char *label;
     Symbol *s;
     rs = parseRegister(node);
     if (rs < 0)
@@ -148,16 +148,17 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
     if (rt < 0)
         return rt;
     node = node->next;
-    resCode = readLabel(node->value);
+    resCode = readLabel(node);
     if(resCode)
         return resCode;
+    label = node->value;
     node = node->next;
     if(node != NULL)
         return TOO_MANY_ARGUMENTS;
     s = findSymbolInTable(symbolTable, label);
     if(s == NULL)
         return LABEL_DOES_NOT_EXIST;
-    if(!(s->attributes && CODE))
+    if(!(s->attributes & CODE))
         return LABEL_NOT_CODE;
     add = s->address - ic;
     binaryInstruction |= instruction->opcode << I_OP_OFFSET;
@@ -169,13 +170,14 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
 }
 int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
     unsigned long  binaryInstruction = 0;
-    int rs,rt, immed;
+    int rs,rt, immed, resCode;
     rs = parseRegister(node);
     if (rs < 0)
         return rs;
     node = node->next;
-    immed = readImmed(node->value);
-    /* do error cheching */
+    resCode = readImmed(node, &immed);
+    if(resCode != IMMED_OK)
+        return resCode;
     node = node->next;
     rt = parseRegister(node);
     if (rt < 0)
@@ -186,20 +188,21 @@ int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTab
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
-    binaryInstruction += immed << R_FUNCT_OFFSET;
+    binaryInstruction += immed << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
     return LINE_OK;
 }
 
 int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0;
-    int rs,rt, immed;
+    int rs,rt, immed, resCode;
     rs = parseRegister(node);
     if (rs < 0)
         return rs;
     node = node->next;
-    immed = readImmed(node->value);
-    /* do error cheching */
+    resCode = readImmed(node, &immed);
+    if(resCode)
+        return resCode;
     node = node->next;
     rt = parseRegister(node);
     if (rt < 0)
@@ -210,7 +213,7 @@ int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
-    binaryInstruction += immed << R_FUNCT_OFFSET;
+    binaryInstruction += immed << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
     return LINE_OK;
 }
@@ -228,7 +231,7 @@ int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTa
 
 int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
     unsigned long  binaryInstruction = 0;
-    int rs_flag, resCode, addr; /* immed is 16 bit singed int*/
+    int rs_flag = 0, resCode, addr; /* immed is 16 bit singed int*/
     char label[32];
     Symbol *s;
     addr = parseRegister(node);
@@ -237,13 +240,14 @@ int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTabl
     else if (addr != OPERAND_NOT_REGISTER){ /* JMP $register but bad register */
         return rs_flag;
     }else {
-        resCode = readLabel(node->value);
+        resCode = readLabel(node);
         if (resCode)
             return resCode;
+        strcpy(label, node->value);
         s = findSymbolInTable(symbolTable, label);
         if (s == NULL)
             return LABEL_DOES_NOT_EXIST;
-        if(!((s->attributes && (CODE || EXTERNAL))))
+        if(!((s->attributes & (CODE | EXTERNAL))))
             return LABEL_NOT_CODE;
         addr = s->address;
     }
@@ -269,13 +273,13 @@ int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) 
     int  resCode, addr; /* immed is 16 bit singed int*/
     char label[32];
     Symbol *s;
-    resCode = readLabel(node->value);
+    resCode = readLabel(node);
     if (resCode)
         return resCode;
     s = findSymbolInTable(symbolTable, label);
     if (s == NULL)
         return LABEL_DOES_NOT_EXIST;
-    if(!((s->attributes && (DATA || EXTERNAL))))
+    if(!((s->attributes & (DATA | EXTERNAL))))
         return LABEL_NOT_CODE;
     addr = s->address;
     node = node->next;
@@ -296,11 +300,11 @@ int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) 
 int parseRegister(node *node) {
     char *str;
     if(node == NULL){
-        return MISSING_ARGUMENTS; /* todo: check empty string*/
+        return MISSING_ARGUMENTS;
     }
     str = node->value;
     if(str == NULL || str[0] == NULL){
-        return MISSING_ARGUMENTS; /* todo: check empty string*/
+        return MISSING_ARGUMENTS;
     }
     if(str[0] != '$') /*todo make macro*/
         return OPERAND_NOT_REGISTER;
@@ -317,7 +321,11 @@ int parseRegister(node *node) {
  * @param buf  - the parameter that should contain a valid immediate, can be null in which case a MISSING_ARGUMENT error will be returned
  * @return the value of the immediate or the appropriate error code
  */
-int readImmed(char *buf){
+int readImmed(node *node, int *immed){
+    char *buf;
+    if (node == NULL)
+        return MISSING_ARGUMENTS;
+    buf = node->value;
     if(buf == NULL || strlen(buf)==0){
         return MISSING_ARGUMENTS;
     }
@@ -327,9 +335,11 @@ int readImmed(char *buf){
         switch (buf[0]) {
             case '-':
                 sing = -1;
+                buf++;
                 break;
             case '+':
                 sing = 1;
+                buf++;
                 break;
             default:
                 return ILLEAGLE_IMMED;
@@ -341,29 +351,31 @@ int readImmed(char *buf){
         prev = res;
         res *= 10;
         res += buf[0] - '0';
-        if(res <= prev) /* int overflow (int may be bigger then 16 bits)*/
+        if(res <= prev && prev != 0) /* int overflow (int may be bigger then 16 bits) */
             return IMMED_OUT_OF_RANGE;
         buf++;
     }
     res *= sing;
     if(res <= (-(1 << 16)) || res >= ((1 << 16) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
         return IMMED_OUT_OF_RANGE;
-    return to16bit(res*sing);
+    *immed = to16bit(res);
+    return IMMED_OK;
 }
-int readLabel(char *in){
+int readLabel(node *node){
+    char *in;
+    if(node == NULL)
+        return MISSING_ARGUMENTS;
+    in = node->value;
     int count = 1;
     if(!isalpha(in[0]))
         return INVALID_LABEL;
-    in += 1;
-    while (in[0] != NULL){
-        if(in[0] == ':'){
-            return count <= 31; /* make macro */
-        }
-        if(!isalnum(in[0]))
+
+    while (in[count] != NULL){
+        if(!isalnum(in[count]))
             return INVALID_LABEL;
         count++;
     }
-    return INVALID_LABEL;
+    return count > 31;
 }
 
 /**
