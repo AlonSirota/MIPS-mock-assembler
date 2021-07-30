@@ -35,13 +35,21 @@ void firstPass(FILE *f) {
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
     Symbol *symbolTable = NULL;
+    bytesNode *dataImage = NULL;
+    byte *directiveBytes = NULL;
+
     assert(f != NULL);
 
     while (fgetsShred(f, LINE_LENGTH + 1, lineStr)) {
         lineParsed = strToLine(lineStr);
         if (isLineDirective(lineParsed)) {
             if (lineParsed.label != NULL) {
-                addSymbol(&symbolTable, lineParsed.label, dc, DATA);
+                if (addSymbol(&symbolTable, lineParsed.label, dc, DATA) == EXIT_SUCCESS) {
+                    directiveBytes = directiveToBytes(lineParsed);
+                    addBytesToImage(&dataImage, directiveBytes);
+                    dc += sizeof(directiveBytes);
+                    continue;
+                }
             }
         }
     }
@@ -122,4 +130,26 @@ void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
         }
         printf("/n");
     }
+}
+
+int addBytesToImage(bytesNode **tablePtr, byte *bytes) {
+    bytesNode * curr;
+    bytesNode *next = (bytesNode *) malloc(sizeof (bytesNode)); /* Prepare new symbol */
+    // TODO makesure malloc succeded
+    next->next = NULL;
+    next->bytes = bytes;
+
+    if (*tablePtr == NULL) { /* if table is empty */
+        *tablePtr = next; /* it now contains the new element. */
+        return EXIT_SUCCESS;
+    }
+
+    /* else, find last element*/
+    curr = *tablePtr;
+    while (curr->next != NULL)
+        curr = curr->next;
+
+    /* append */
+    curr->next = next;
+    return EXIT_SUCCESS;
 }
