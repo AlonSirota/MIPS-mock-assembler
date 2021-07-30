@@ -47,7 +47,7 @@ byte * directiveToBytes(line l) {
     }else if (!strcmp(mnemonic, ".dw")) {
         count = lineParametersToBytes(l.head.next, bytes, WORD_SIZE);
     }
-    else if (!strcmp(mnemonic, ".asciz)")) {
+    else if (!strcmp(mnemonic, ".asciz")) {
 
     }else  {
         printf("Unrecognized directive mnemonic: \"%s\"\n", mnemonic);
