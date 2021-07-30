@@ -13,11 +13,17 @@
 #include "directive.h"
 #include "line.h"
 #include "symbolTable.h"
+#include "directive.h"
 
+typedef struct bytesNode {
+    byte *bytes;
+    bytesNode *next;
+} bytesNode;
 void assemblePath(char *fileName);
 void assembleFile(FILE *f);
 void firstPass(FILE *f);
 void secondPass(FILE *f);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
+int addBytesToImage(bytesNode **tablePtr, byte *bytes);
 #endif //ASSEMBLER_ASSEMBLER_H
