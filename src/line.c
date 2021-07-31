@@ -3,6 +3,16 @@
 #include <string.h>
 #include <stdio.h>
 
+char* strdupN(char *original, int n) {
+    char *out = (char *) malloc(sizeof(char) * (n + 1)); /* + 1 for '\0' */
+    int i;
+    for (i = 0; i < n; i++) {
+        out[i] = original[i];
+    }
+    out[i] = '\0';
+    return out;
+}
+
 char* strsep(char** stringp, const char* delim)
 {
   char* start = *stringp;
@@ -58,17 +68,38 @@ line strToLine(char *str) {
     /* Processing next word after label, or first word if no label */
     l.head.value = strdup(token);
 
-    curr = &l.head;
-    do {
-        token = strsep(&savePtr, PARAMETER_DELIM);
-        if (token) {
-            token = trimWhiteSpace(token);
-            curr->next = (node *) malloc(sizeof (node));
-            curr = curr->next;
-            curr->value = strdup(token);
+    /* TODO create functions for these if and else statements, for readability */
+    if(!strcmp(ASCII_MNEMONIC, l.head.value)) { /* ASCII directive requires unique line parsing */
+        token = strtok_r(NULL, "", &savePtr); /* token = rest of the string */
+        int i;
+        if (*token != '\"') {
+            printf("Expected \" as first character after .asciz\n");
+            return l;
+        } else {
+            for (i = 0; token[i] != '\0' && token[i] != '\"'; i++);
+            if (token[i] == '\0') {
+                l.error = AsciizUnbalancedParenthesis;
+            } else { /* token ended with '\"' */
+                curr = (node *) malloc(sizeof (node));
+                curr->next = NULL;
+                curr->next->value = strdupN(token, i - 1); /* -1 because we it mustn't copy the '\"' char. */
+                l.head.next = curr;
+            }
         }
-    } while (token);
-    curr->next = NULL;
+    } else {
+        curr = &l.head;
+        do {
+            token = strsep(&savePtr, PARAMETER_DELIM);
+            if (token) {
+                token = trimWhiteSpace(token);
+                curr->next = (node *) malloc(sizeof (node));
+                curr = curr->next;
+                curr->value = strdup(token);
+            }
+        } while (token);
+        curr->next = NULL;
+    }
+
 
     return l;
 }

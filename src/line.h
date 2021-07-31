@@ -19,6 +19,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+enum ErrorCode {Good = 0, AsciizUnbalancedParenthesis};
+
 typedef struct node {
     char *value;
     struct node *next;
@@ -27,6 +29,7 @@ typedef struct node {
 typedef struct line {
     char *label;
     node head;
+    int error;
 } line;
 
 char* strsep(char** stringp, const char* delim);
