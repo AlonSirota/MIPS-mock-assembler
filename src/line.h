@@ -12,6 +12,7 @@
 
 #define NONE -1
 
+#include "consts.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <assert.h>
@@ -28,6 +29,7 @@ typedef struct line {
     node head;
 } line;
 
+char* strsep(char** stringp, const char* delim);
 line strToLine(char *str);
 char lastChar(char *str);
 char * firstNoneSpace(char *str);
