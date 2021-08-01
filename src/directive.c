@@ -92,6 +92,31 @@ int lineParametersToBytes(node *head, byte *buffer, int size) {
 }
 
 /*
+ * Copy parameter string to buffer,
+ * check for illegal characters in asciz parameter.
+ * head is expected to contain the string in between parenthesis in the directive line. (excluding parenthesis).
+ * Returns number of bytes inserted to buffer,
+ * updates 'errOut' if found an error
+ */
+int ascizParametersToBytes(node *head, byte *buffer, enum ErrorCode *errOut) {
+    /* assert that there is 1 parameter, otherwise this error should have been caught elsewhere */
+    assert(head != NULL);
+    assert(head->value != NULL);
+    assert(head->next == NULL);
+
+    char *str = head->value;
+    int i, count = 0;
+
+    /* Check for illegal chars */
+    for (i = 0; str[i] != '\0'; i++) {
+        if (!isprint(str[i])) {
+            *errOut = ASCIZ_ILLEGAL_CHAR;
+        }
+    }
+    strcpy((char *) buffer, str);
+    return strlen((char *)buffer) + 1; /* +1 for Null character */
+}
+/*
  * Returns true if number isn't in the range of numbers that can be
  * represented by byteCount bytes.
  */
