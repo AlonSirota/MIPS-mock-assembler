@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-enum ErrorCode {Good = 0, AsciizUnbalancedParenthesis};
+enum ErrorCode {GOOD = 0, ASCIIZ_UNBALANCED_PARENTHESIS, ASCIIZ_MISSING_PARENTHESIS, ASCIIZ_EXTRA_TOKENS};
 
 typedef struct node {
     char *value;
@@ -32,6 +32,9 @@ typedef struct line {
     int error;
 } line;
 
+void parseParameters(char *paramStr, line *lOut);
+void parseAscizParameters (char *paramStr, line *lOut);
+void parseGenericParameters (char *paramStr, line *lOut);
 char* strsep(char** stringp, const char* delim);
 line strToLine(char *str);
 char lastChar(char *str);

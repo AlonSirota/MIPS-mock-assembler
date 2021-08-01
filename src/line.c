@@ -41,7 +41,7 @@ char* strsep(char** stringp, const char* delim)
  * line.head = a->b->c->NULL
  */
 line strToLine(char *str) {
-    line l = {.label = NULL, .head = { .value = NULL, .next = NULL} };
+    line l = {.label = NULL, .head = { .value = NULL, .next = NULL}, l.error = GOOD};
     char *token, *savePtr;
     node *curr;
 
@@ -65,41 +65,10 @@ line strToLine(char *str) {
         }
     }
 
-    /* Processing next word after label, or first word if no label */
+    /* Token is now mnemonic (either the first word, or the first word after the label  */
     l.head.value = strdup(token);
 
-    /* TODO create functions for these if and else statements, for readability */
-    if(!strcmp(ASCII_MNEMONIC, l.head.value)) { /* ASCII directive requires unique line parsing */
-        token = strtok_r(NULL, "", &savePtr); /* token = rest of the string */
-        int i;
-        if (*token != '\"') {
-            printf("Expected \" as first character after .asciz\n");
-            return l;
-        } else {
-            for (i = 0; token[i] != '\0' && token[i] != '\"'; i++);
-            if (token[i] == '\0') {
-                l.error = AsciizUnbalancedParenthesis;
-            } else { /* token ended with '\"' */
-                curr = (node *) malloc(sizeof (node));
-                curr->next = NULL;
-                curr->next->value = strdupN(token, i - 1); /* -1 because we it mustn't copy the '\"' char. */
-                l.head.next = curr;
-            }
-        }
-    } else {
-        curr = &l.head;
-        do {
-            token = strsep(&savePtr, PARAMETER_DELIM);
-            if (token) {
-                token = trimWhiteSpace(token);
-                curr->next = (node *) malloc(sizeof (node));
-                curr = curr->next;
-                curr->value = strdup(token);
-            }
-        } while (token);
-        curr->next = NULL;
-    }
-
+    parseParameters(savePtr, &l);
 
     return l;
 }
@@ -172,4 +141,67 @@ void freeLine(line l) {
 void freeSafely(void *ptr) {
     if (ptr != NULL)
         free(ptr);
+}
+
+/*
+ * Parse paramStr as the parameters in an .asciiz directive,
+ * populate lOut's parameters accordingly.
+ */
+void parseAscizParameters(char *paramStr, line *lOut) {
+    char *token;
+    node *curr;
+    token = strtok_r(NULL,"", &paramStr);
+    if (*token != '\"') {
+        printf("Expected \" as first character in first token after .asciz\n");
+        lOut->error = ASCIIZ_MISSING_PARENTHESIS;
+    } else {
+        token++; /* skip first \" char */
+        char *closingParenthesisPtr = strpbrk(token, "\"");
+        if (closingParenthesisPtr == NULL) {
+            lOut->error = ASCIIZ_UNBALANCED_PARENTHESIS;
+        } else { /* Found closing \" character */
+            curr = (node *) malloc(sizeof (node));
+            curr->next = NULL;
+            curr->value = strdupN(token, closingParenthesisPtr - token); /* -1 because we it mustn't copy the '\"' char. */
+            lOut->head.next = curr;
+
+            /* Make sure there aren't more tokens after closing parenthesis */
+            trimWhiteSpace(closingParenthesisPtr);
+            if (*(closingParenthesisPtr+1) != '\0') {
+                lOut->error = ASCIIZ_EXTRA_TOKENS;
+            }
+        }
+    }
+}
+
+/*
+ * Parse paramStr as the parameters in the format of '[whitespace] word [whitespace],[whitespace] word...'
+ * populate lOut's parameters accordingly.
+ */
+void parseGenericParameters(char *paramStr, line *lOut) {
+    node *curr;
+    char *token;
+    curr = &lOut->head;
+    do {
+        token = strsep(&paramStr, PARAMETER_DELIM);
+        if (token) {
+            token = trimWhiteSpace(token);
+            curr->next = (node *) malloc(sizeof (node));
+            curr = curr->next;
+            curr->value = strdup(token);
+        }
+    } while (token);
+    curr->next = NULL;
+}
+
+/*
+ * Parse paramStr as the parameters in the format that matches the mnemonic in lOut.
+ * populate lOut's parameters accordingly.
+ */
+void parseParameters(char *paramStr, line *lOut) {
+    if(!strcmp(ASCII_MNEMONIC, lOut->head.value)) { /* ASCII directive requires unique line parsing */
+        parseAscizParameters(paramStr, lOut);
+    } else {
+        parseGenericParameters(paramStr, lOut);
+    }
 }
