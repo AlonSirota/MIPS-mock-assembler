@@ -8,6 +8,7 @@
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
+#include "consts.h"
 #include "line.h"
 #define WORD_SIZE 4
 #define BYTE_SIZE 1
@@ -32,6 +33,7 @@ directiveType strToDirectiveType(char *name);
 byte * directiveToBytes(line l);
 char* bytesToHexStr(byte bytes[]);
 int lineParametersToBytes(node *head, byte *buffer, int size);
+int ascizParametersToBytes(node *head, byte *buffer, ErrorCode *errOut);
 int outOfBounds(int num, int byteCount);
 
 #endif //ASSEMBLER_DIRECTIVE_H
