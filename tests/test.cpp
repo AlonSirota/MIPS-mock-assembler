@@ -38,6 +38,46 @@ TEST(strToLine, easy) {
     freeLine(l);
 }
 
+TEST(strToLine, asciiz_good_syntax) {
+    char str[] = "label: .asciz \" word \" ";
+    line l = strToLine(str);
+    ASSERT_STREQ(l.label, "label") << "label error";
+    ASSERT_STREQ(l.head.value, ".asciz") << "mnemonic error";
+    ASSERT_STREQ(l.head.next->value, " word ") << "first parameter error";
+    freeLine(l);
+}
+
+TEST(strToLine, asciiz_extra_chars) {
+    char str[] = "label: .asciz \" word \" bad";
+    line l = strToLine(str);
+    ASSERT_STREQ(l.label, "label") << "label error";
+    ASSERT_STREQ(l.head.value, ".asciz") << "mnemonic error";
+    ASSERT_STREQ(l.head.next->value, " word ") << "first parameter error";
+    ASSERT_EQ(NULL, l.head.next->next) << "Post string input error";
+    ASSERT_EQ(l.error, ASCIIZ_EXTRA_TOKENS) << "Extra tokens not detected";
+    freeLine(l);
+}
+
+TEST(strToLine, asciiz_unbalanced_parenthesis) {
+    char str[] = "label: .asciz \" word ";
+    line l = strToLine(str);
+    ASSERT_STREQ(l.label, "label") << "label error";
+    ASSERT_STREQ(l.head.value, ".asciz") << "mnemonic error";
+    ASSERT_EQ(NULL, l.head.next) << "first parameter error";
+    ASSERT_EQ(l.error,ASCIIZ_UNBALANCED_PARENTHESIS) << "Unbalanced parenthesis error not flagged";
+    freeLine(l);
+}
+
+TEST(strToLine, asciiz_missing_parenthesis) {
+    char str[] = "label: .asciz word";
+    line l = strToLine(str);
+    ASSERT_STREQ(l.label, "label") << "label error";
+    ASSERT_STREQ(l.head.value, ".asciz") << "mnemonic error";
+    ASSERT_EQ(NULL, l.head.next) << "first parameter error";
+    ASSERT_EQ(l.error,ASCIIZ_MISSING_PARENTHESIS) << "Unbalanced parenthesis error not flagged";
+    freeLine(l);
+}
+
 TEST(strToLine, emptyLabel) {
     char str[] = ": a b,c";
     line l = strToLine(str);
