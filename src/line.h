@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-enum ErrorCode {GOOD = 0, ASCIIZ_UNBALANCED_PARENTHESIS, ASCIIZ_MISSING_PARENTHESIS, ASCIIZ_EXTRA_TOKENS};
 
 typedef struct node {
     char *value;
