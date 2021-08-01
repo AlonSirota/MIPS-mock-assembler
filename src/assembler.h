@@ -17,7 +17,7 @@
 
 typedef struct bytesNode {
     byte *bytes;
-    bytesNode *next;
+    struct bytesNode *next;
 } bytesNode;
 void assemblePath(char *fileName);
 void assembleFile(FILE *f);
