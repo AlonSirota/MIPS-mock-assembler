@@ -33,7 +33,7 @@ directiveType strToDirectiveType(char *name);
 byte * directiveToBytes(line l);
 char* bytesToHexStr(byte bytes[]);
 int lineParametersToBytes(node *head, byte *buffer, int size);
-int ascizParametersToBytes(node *head, byte *buffer, ErrorCode *errOut);
+int ascizParametersToBytes(node *head, byte *buffer, enum ErrorCode *errOut);
 int outOfBounds(int num, int byteCount);
 
 #endif //ASSEMBLER_DIRECTIVE_H
