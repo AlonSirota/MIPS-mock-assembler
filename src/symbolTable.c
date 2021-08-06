@@ -16,7 +16,9 @@ Symbol *findSymbolInTable(Symbol *table, char *label) {
 
 enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
     Symbol* curr;
-    Symbol *next = newSymbol(label, address, attributes); /* Prepare new symbol */
+    Symbol *next;
+    // TODO check if label is legal, return an error otherwise
+    next = newSymbol(label, address, attributes); /* Prepare new symbol */
     // TODO makesure malloc succeded
 
     if (*tablePtr == NULL) { /* if table is empty */
@@ -28,7 +30,7 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
     curr = *tablePtr;
     do {
         /* Don't append to table if label already exists */
-        if (!strcmp(curr->label, label)) {
+        if (!strcmp(curr->label, label)) { // TODO add exception, it's ok if trying to add external symbol, that is already defined as external.
             discardTable(next);
             printf("label %s was already defined\n", label);
             return ERR_LABEL_ALREADY_DEFINED;
@@ -36,7 +38,7 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
 
         /* Go forward until reaching last node */
         if (curr->next != NULL)
-            curr = curr->next; // TODO check if label already exists.
+            curr = curr->next;
     } while (curr->next != NULL);
 
     /* append */
@@ -63,4 +65,9 @@ void discardTable(Symbol *table) {
         free(table);
         table = next;
     }
+}
+
+int isValidLabel(char *str) {
+    // TODO
+    return 1;
 }
