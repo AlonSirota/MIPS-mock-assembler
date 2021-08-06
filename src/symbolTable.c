@@ -14,14 +14,14 @@ Symbol *findSymbolInTable(Symbol *table, char *label) {
 }
 
 
-int addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
+enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
     Symbol* curr;
     Symbol *next = newSymbol(label, address, attributes); /* Prepare new symbol */
     // TODO makesure malloc succeded
 
     if (*tablePtr == NULL) { /* if table is empty */
         *tablePtr = next; /* it now contains the new element. */
-        return EXIT_SUCCESS;
+        return GOOD;
     }
 
     /* else, find last element*/
@@ -41,7 +41,7 @@ int addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
 
     /* append */
     curr->next = next;
-    return EXIT_SUCCESS;
+    return GOOD;
 }
 
 Symbol *newSymbol(char *label, int address, int attributes) {

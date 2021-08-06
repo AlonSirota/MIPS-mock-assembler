@@ -37,20 +37,30 @@ void firstPass(FILE *f) {
     Symbol *symbolTable = NULL;
     bytesNode *dataImage = NULL;
     byte *directiveBytes = NULL;
+    int error = GOOD; /* If encountered error */
 
     assert(f != NULL);
 
     while (fgetsShred(f, LINE_LENGTH + 1, lineStr)) {
         lineParsed = strToLine(lineStr);
+
         if (isLineDirective(lineParsed)) {
             if (lineParsed.label != NULL) {
-                if (addSymbol(&symbolTable, lineParsed.label, dc, DATA) == EXIT_SUCCESS) {
-                    directiveBytes = directiveToBytes(lineParsed);
-                    addBytesToImage(&dataImage, directiveBytes);
-                    dc += sizeof(directiveBytes);
-                    continue;
-                }
+                error |= addSymbol(&symbolTable, lineParsed.label, dc, DATA);
             }
+
+            directiveBytes = directiveToBytes(lineParsed);
+            if (directiveBytes == NULL) {
+                error |= GENERIC_ERROR;
+            } else {
+                addBytesToImage(&dataImage, directiveBytes);
+                dc += sizeof(directiveBytes);
+            }
+        }
+        else if (!strcmp(lineParsed.label,ENTRY_MNEMONIC)) {
+            continue; /* Not handled in first pass. */
+        } else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) {
+            processExtern(lineParsed.head, &symbolTable, dc);
         }
     }
 
@@ -152,4 +162,14 @@ int addBytesToImage(bytesNode **tablePtr, byte *bytes) {
     /* append */
     curr->next = next;
     return EXIT_SUCCESS;
+}
+
+enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc) {
+    if (operandHead.value == NULL) {
+        return MISSING_OPERAND;
+    } else if (isValidLabel(operandHead.value)) {
+        return addSymbol(symbolTablePtr, operandHead.value, dc, EXTERNAL);
+    } else {
+        return INVALID_LABEL;
+    }
 }
