@@ -26,5 +26,5 @@ void secondPass(FILE *f);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 int addBytesToImage(bytesNode **tablePtr, byte *bytes);
-ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc);
+enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc);
 #endif //ASSEMBLER_ASSEMBLER_H
