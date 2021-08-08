@@ -505,8 +505,34 @@ TEST(instructionILoad, wrongContext){
     status = parseIInstruction(instruction, l.head.next, buf, st, ic);
     ASSERT_EQ(status, OPERAND_NOT_REGISTER);
 }
+TEST(instructionIBranch, externalLabel){
+    char buf[20];
+    char *output = "1C 00 82 48"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[] = "bgt $4,$2,END";
+    Symbol *st = NULL;
+    addSymbol(&st, "END", 148, EXTERNAL);
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, EXTERNAL_LABEL);
+}
+TEST(instructionIBranch, datalLabel){
+    char buf[20];
+    char *output = "1C 00 82 48"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[] = "bgt $4,$2,END";
+    Symbol *st = NULL;
+    addSymbol(&st, "END", 148, DATA);
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseIInstruction(instruction, l.head.next, buf, st, ic);
+    ASSERT_EQ(status, LINE_OK);
+}
 
-TEST(instructionIArithmetic, base){// wont work.... mistake in the maman....
+TEST(instructionIArithmetic, base){
     char buf[20];
     char *output = "FB FF 22 35"; /* see page 27 first intruction in table*/
     char codeSeg[4];
@@ -602,11 +628,139 @@ TEST(instructionJJMP, baseLabel){// wont work.... mistake in the maman....
     char *output = "74 00 00 78"; /* see page 27 first intruction in table*/
     char codeSeg[4];
     int status, ic = 120;
-    char str[] = "jmp Next";
+    char str[20];
     Symbol *st = NULL;
     addSymbol(&st, "Next", 116, CODE);
+    addSymbol(&st, "Last", 116, DATA);
+    addSymbol(&st, "First", 116, CODE | EXTERNAL);
+    addSymbol(&st, "Prev", 116, CODE | ENTRY);
+    strcpy(str,"jmp Next");
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+    strcpy(str,"jmp Last");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+    strcpy(str,"jmp First");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+    strcpy(str,"jmp Prev");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+}
+TEST(instructionJJMP, tooFewArgs){
+    char buf[20];
+    char str[20];
+    char *output = "04 00 00 7A"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    addSymbol(&st, "Next", 116, CODE);
+    strcpy(str,"jmp ");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, MISSING_ARGUMENTS);
+    strcpy(str,"jmp $9,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+    strcpy(str,"jmp $9,-5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+    strcpy(str,"jmp Next,-5");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+    strcpy(str,"jmp Next,");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+
+}
+TEST(instructionJJMP, wrongContext){
+    char buf[20];
+    char str[20];
+    char *output = "04 00 00 7A"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 100;
+    Symbol *st = NULL;
+    addSymbol(&st, "Next", 116, CODE);
+    strcpy(str,"jmp $900");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
+
+    /* labels are checked before.. */
+}
+TEST(instructionJStop, baseRegister){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "00 00 00 FC"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[20];
+    Symbol *st = NULL;
+    strcpy(str,"stop");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+    strcpy(str,"stop $1");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
+}
+TEST(instructionJ, baseLabel){// wont work.... mistake in the maman....
+    char buf[20];
+    char *output = "A1 00 00 7C"; /* see page 27 first intruction in table*/
+    char codeSeg[4];
+    int status, ic = 120;
+    char str[20];
+    Symbol *st = NULL;
+    addSymbol(&st, "A", 161, CODE);
+    addSymbol(&st, "K", 161, DATA);
+    addSymbol(&st, "B", 161, CODE | EXTERNAL);
+    addSymbol(&st, "C", 161, CODE | ENTRY);
+    strcpy(str,"la K");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+    strcpy(str,"la A");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+    strcpy(str,"la B");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(strcmp(output,buf), 0);
+    strcpy(str,"la C");
+    l = strToLine(str);
+    instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
     ASSERT_EQ(status, LINE_OK);
     ASSERT_EQ(strcmp(output,buf), 0);

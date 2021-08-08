@@ -158,8 +158,9 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
     s = findSymbolInTable(symbolTable, label);
     if(s == NULL)
         return LABEL_DOES_NOT_EXIST;
-    if(!(s->attributes & CODE))
-        return LABEL_NOT_CODE;
+    /* see: https://opal.openu.ac.il/mod/ouilforum/discuss.php?d=2967783&p=7079705#p7079705 */
+    if((s->attributes & EXTERNAL))
+        return EXTERNAL_LABEL;
     add = s->address - ic;
     binaryInstruction |= instruction->opcode << I_OP_OFFSET;
     binaryInstruction |= rs << I_RS_OFFSET;
@@ -237,8 +238,8 @@ int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTabl
     addr = parseRegister(node);
     if (addr >= 0) /* JMP $register */
         rs_flag = 1;
-    else if (addr != OPERAND_NOT_REGISTER){ /* JMP $register but bad register */
-        return rs_flag;
+        else if (addr == MISSING_ARGUMENTS || addr == OPERAND_NOT_VALID_REGISTER){ /* JMP $register but bad register */
+        return addr;
     }else {
         resCode = readLabel(node);
         if (resCode)
@@ -247,8 +248,10 @@ int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTabl
         s = findSymbolInTable(symbolTable, label);
         if (s == NULL)
             return LABEL_DOES_NOT_EXIST;
+        /* not required, see: https://opal.openu.ac.il/mod/ouilforum/discuss.php?d=2967783&p=7079705#p7079705
         if(!((s->attributes & (CODE | EXTERNAL))))
             return LABEL_NOT_CODE;
+            */
         addr = s->address;
     }
     node = node->next;
@@ -263,6 +266,8 @@ int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTabl
 
 int instructionJStop(inst *instruction, node *node, char *buf){
     unsigned long  binaryInstruction = 0;
+    if (node != NULL)
+        return TOO_MANY_ARGUMENTS;
     binaryInstruction |= instruction->opcode << J_OP_OFFSET;
     printInstruction(buf, binaryInstruction);
     return LINE_OK;
@@ -276,11 +281,14 @@ int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) 
     resCode = readLabel(node);
     if (resCode)
         return resCode;
+    strcpy(label, node->value);
     s = findSymbolInTable(symbolTable, label);
     if (s == NULL)
         return LABEL_DOES_NOT_EXIST;
+    /** not required, see: https://opal.openu.ac.il/mod/ouilforum/discuss.php?d=2967783&p=7079705#p7079705
     if(!((s->attributes & (DATA | EXTERNAL))))
         return LABEL_NOT_CODE;
+        **/
     addr = s->address;
     node = node->next;
     if (node != NULL)
