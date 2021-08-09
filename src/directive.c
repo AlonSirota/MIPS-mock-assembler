@@ -31,7 +31,7 @@ int isLineDirective(line l) {
 /*
  * Convert l line (that is assumed to be a directive command) to byte array.
  */
-byte * directiveToBytes(line l) {
+byte * directiveToBytes(line l, enum ErrorCode *errorOut) {
     char *mnemonic = l.head.value;
     byte bytes[LINE_LENGTH * WORD_SIZE]; /* This size will suffice the 'heaviest' case of a line like "<mnemonic> .dw 0,0,0,0..." */
     int count;
@@ -48,9 +48,9 @@ byte * directiveToBytes(line l) {
         count = lineParametersToBytes(l.head.next, bytes, WORD_SIZE);
     }
     else if (!strcmp(mnemonic, ".asciz")) {
-
+        count = ascizParametersToBytes(l.head.next, bytes, errorOut);
     }else  {
-        printf("Unrecognized directive mnemonic: \"%s\"\n", mnemonic);
+        printf("Unrecognized directive mnemonic: \"%s\"\n", mnemonic); /* TODO errorCodeify this */
     }
 
     /* Copy the section of the buffer that contains the generated data. */

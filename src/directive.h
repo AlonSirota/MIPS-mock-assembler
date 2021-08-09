@@ -30,9 +30,9 @@ typedef enum{
 
 int isLineDirective(line l);
 directiveType strToDirectiveType(char *name);
-byte * directiveToBytes(line l);
+byte * directiveToBytes(line l, enum ErrorCode *errorOut);
 char* bytesToHexStr(byte bytes[]);
-int lineParametersToBytes(node *head, byte *buffer, int size);
+int lineParametersToBytes(node *head, byte *buffer, int size); /* TODO add errOut, like in ascizParametersToBytes */
 int ascizParametersToBytes(node *head, byte *buffer, enum ErrorCode *errOut);
 int outOfBounds(int num, int byteCount);
 

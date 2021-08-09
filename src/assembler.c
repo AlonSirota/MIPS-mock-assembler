@@ -9,6 +9,10 @@
 
 char parseOp(node node, char string[18], int i, Symbol *pSymbol);
 
+void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
+
+const char *codeToMsg(enum ErrorCode code);
+
 void assemblePath(char *fileName) {
     // TODO enforce '.as' file extension.
     FILE *f = fopen(fileName, "r");
@@ -37,7 +41,8 @@ void firstPass(FILE *f) {
     Symbol *symbolTable = NULL;
     bytesNode *dataImage = NULL;
     byte *directiveBytes = NULL;
-    int error = GOOD; /* If encountered error */
+    int hasErrors = FALSE;
+    enum ErrorCode error = GOOD; /* If encountered error */
 
     assert(f != NULL);
 
@@ -46,13 +51,13 @@ void firstPass(FILE *f) {
 
         if (isLineDirective(lineParsed)) {
             if (lineParsed.label != NULL) {
-                error |= addSymbol(&symbolTable, lineParsed.label, dc, DATA);
+                error = addSymbol(&symbolTable, lineParsed.label, dc, DATA);
+                logError(error, &hasErrors, lineNumber);
             }
 
-            directiveBytes = directiveToBytes(lineParsed);
-            if (directiveBytes == NULL) {
-                error |= GENERIC_ERROR;
-            } else {
+            directiveBytes = directiveToBytes(lineParsed, &error);
+            if (directiveBytes)
+            {
                 addBytesToImage(&dataImage, directiveBytes);
                 dc += sizeof(directiveBytes);
             }
@@ -60,17 +65,32 @@ void firstPass(FILE *f) {
         else if (!strcmp(lineParsed.label,ENTRY_MNEMONIC)) {
             continue; /* Not handled in first pass. */
         } else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) {
-            processExtern(lineParsed.head, &symbolTable, dc);
+            error = processExtern(lineParsed.head, &symbolTable, dc);
+            logError(error, &hasErrors, lineNumber);
         }
     }
+}
 
+/*
+ * Prints an error message like this:
+ * also sets hasErrors to true if errorCode is an actual error.
+ * "3: message\n"
+ */
+void logError(enum ErrorCode error, int *hasErrors, int lineNumber) {
+    const char* errorMsg;
+    if (error != GOOD) {
+        errorMsg = codeToMsg(error);
+        printf("%d: %s\n", lineNumber, errorMsg);
 
-    /* TODO:
-     * Add symbolNode if exists
-     * Adjust ic or dc
-     * Do symbolNode table stuff
-     * Make sure symbol table is freed.
-     */
+        if (error) {
+            *hasErrors = TRUE;
+        }
+    }
+}
+
+const char *codeToMsg(enum ErrorCode code) {
+    /* TODO, switch case returning a string describing this error code */
+    return "temp message";
 }
 
 /*
