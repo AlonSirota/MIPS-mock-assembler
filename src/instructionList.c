@@ -24,14 +24,14 @@ inst *findInstruction(char *name){
  * @param buf - string buffer to write instruction in hex format
  * @param symbolTable  - lable symbolNode table
  * @param ic - the instruction counter
- * @return the parsing result: LINE_OK if line is gramatically correct, else returns the error in the line
+ * @return the parsing result: GOOD if line is gramatically correct, else returns the error in the line
  */
-int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic) {
+enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic) {
     if(node == NULL)
-        return LINE_OK; /* empty line do nothing */
+        return GOOD; /* empty line do nothing */
     inst *instruction = findInstruction(node->value);
     if(instruction == NULL)
-        return LINE_UNRECOGNIZED_INSTRUCTION;
+        return UNRECOGNIZED_INSTRUCTION;
     switch (instruction->type) {
         case 'R':
             return parseRInstruction(instruction, node->next, buf);
@@ -52,7 +52,7 @@ int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic) {
  * @param buf
  * @return
  */
-int parseRInstruction(inst *instruction, node *node, char *buf) {
+enum ErrorCode parseRInstruction(inst *instruction, node *node, char *buf) {
     switch (instruction->IID) {
         case INSTRUCTION_MOVE:
         case INSTRUCTION_MVLO:
@@ -64,20 +64,21 @@ int parseRInstruction(inst *instruction, node *node, char *buf) {
     }
 }
 
-int instructionRArithmetic(inst *instruction, node *node, char *buf) {
+enum ErrorCode instructionRArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0; /* the resulting binary code of the instruction */
     int rs,rd,rt; /* registers */
-    rs = parseRegister(node);
-    if (rs < 0) /* register number can only be non negetive, negetive result means an error was returned */
-        return rs;
+    enum ErrorCode ec;
+    ec = parseRegister(node, &rs);
+    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+        return ec;
     node = node->next;
-    rt = parseRegister(node);
-    if (rt < 0)
-        return rt;
+    ec = parseRegister(node, &rt);
+    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+        return ec;
     node = node->next;
-    rd = parseRegister(node);
-    if (rd < 0)
-        return rd;
+    ec = parseRegister(node, &rd);
+    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+        return ec;
     node = node->next;
     if(node != NULL) /* didnt reach end of line */
         return TOO_MANY_ARGUMENTS;
@@ -87,19 +88,20 @@ int instructionRArithmetic(inst *instruction, node *node, char *buf) {
     binaryInstruction |= rd << R_RD_OFFSET;
     binaryInstruction |= instruction->funct << R_FUNCT_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
 
-int instructionRMove(inst *instruction, node *node, char *buf) { /* move rd, rs */
+enum ErrorCode instructionRMove(inst *instruction, node *node, char *buf) { /* move rd, rs */
     unsigned long  binaryInstruction = 0;
     int rs,rd,rt;
-    rs = parseRegister(node);
-    if (rs < 0)
-        return rs;
+    enum ErrorCode ec;
+    ec = parseRegister(node, &rs);
+    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+        return ec;
     node = node->next;
-    rd = parseRegister(node);
-    if (rd < 0)
-        return rd;
+    ec = parseRegister(node, &rd);
+    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+        return ec;
     node = node->next;
     if(node != NULL)
         return TOO_MANY_ARGUMENTS;
@@ -110,10 +112,10 @@ int instructionRMove(inst *instruction, node *node, char *buf) { /* move rd, rs 
     binaryInstruction |= rd << R_RD_OFFSET;
     binaryInstruction |= instruction->funct << R_FUNCT_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
 
-int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
+enum ErrorCode parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     switch (instruction->IID) {
         case INSTRUCTION_BNE:
         case INSTRUCTION_BEQ:
@@ -135,22 +137,23 @@ int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTa
     }
 }
 
-int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
+enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     unsigned long  binaryInstruction = 0;
-    int rs,rt, add, resCode;
+    int rs,rt, add;
+    enum ErrorCode ec;
     char *label;
     Symbol *s;
-    rs = parseRegister(node);
-    if (rs < 0)
-        return rs;
+    ec = parseRegister(node, &rs);
+    if (ec != GOOD)
+        return ec;
     node = node->next;
-    rt = parseRegister(node);
-    if (rt < 0)
-        return rt;
+    ec = parseRegister(node, &rt);
+    if (ec != GOOD)
+        return ec;
     node = node->next;
-    resCode = readLabel(node);
-    if(resCode)
-        return resCode;
+    ec = readLabel(node);
+    if(ec != GOOD)
+        return ec;
     label = node->value;
     node = node->next;
     if(node != NULL)
@@ -167,22 +170,23 @@ int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolT
     binaryInstruction |= rt << I_RT_OFFSET;
     binaryInstruction |= add << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
-int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
+enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
     unsigned long  binaryInstruction = 0;
-    int rs,rt, immed, resCode;
-    rs = parseRegister(node);
-    if (rs < 0)
-        return rs;
+    int rs,rt, immed;
+    enum ErrorCode ec;
+    ec = parseRegister(node, &rs);
+    if (ec != GOOD)
+        return ec;
     node = node->next;
-    resCode = readImmed(node, &immed);
-    if(resCode != IMMED_OK)
-        return resCode;
+    ec = readImmed(node, &immed);
+    if(ec != GOOD)
+        return ec;
     node = node->next;
-    rt = parseRegister(node);
-    if (rt < 0)
-        return rt;
+    ec = parseRegister(node, &rt);
+    if (ec != GOOD)
+        return ec;
     node = node->next;
     if(node != NULL)
         return TOO_MANY_ARGUMENTS;
@@ -191,23 +195,24 @@ int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTab
     binaryInstruction += rt << I_RT_OFFSET;
     binaryInstruction += immed << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
 
-int instructionIArithmetic(inst *instruction, node *node, char *buf) {
+enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0;
-    int rs,rt, immed, resCode;
-    rs = parseRegister(node);
-    if (rs < 0)
-        return rs;
+    int rs,rt, immed;
+    enum ErrorCode ec;
+    ec = parseRegister(node, &rs);
+    if (ec != GOOD)
+        return ec;
     node = node->next;
-    resCode = readImmed(node, &immed);
-    if(resCode)
-        return resCode;
+    ec = readImmed(node, &immed);
+    if(ec != GOOD)
+        return ec;
     node = node->next;
-    rt = parseRegister(node);
-    if (rt < 0)
-        return rt;
+    ec = parseRegister(node, &rt);
+    if (ec != GOOD)
+        return ec;
     node = node->next;
     if(node != NULL)
         return TOO_MANY_ARGUMENTS;
@@ -216,10 +221,10 @@ int instructionIArithmetic(inst *instruction, node *node, char *buf) {
     binaryInstruction += rt << I_RT_OFFSET;
     binaryInstruction += immed << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
 
-int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
+enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
     switch (instruction->IID) {
         case INSTRUCTION_JMP:
             return instructionJJMP(instruction,node,buf, symbolTable);
@@ -230,20 +235,22 @@ int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTa
     }
 }
 
-int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
+enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
     unsigned long  binaryInstruction = 0;
-    int rs_flag = 0, resCode, addr; /* immed is 16 bit singed int*/
+    int rs_flag = 0, addr; /* immed is 16 bit singed int*/
+    enum ErrorCode ec;
     char label[32];
     Symbol *s;
-    addr = parseRegister(node);
-    if (addr >= 0) /* JMP $register */
+    ec = parseRegister(node, &addr);
+    if (ec == GOOD){ /* JMP $register */
         rs_flag = 1;
-        else if (addr == MISSING_ARGUMENTS || addr == OPERAND_NOT_VALID_REGISTER){ /* JMP $register but bad register */
-        return addr;
+    }
+    else if (ec == MISSING_ARGUMENTS || ec == OPERAND_NOT_VALID_REGISTER){ /* JMP $register but bad register */
+        return ec;
     }else {
-        resCode = readLabel(node);
-        if (resCode)
-            return resCode;
+        ec = readLabel(node);
+        if (ec != GOOD)
+            return ec;
         strcpy(label, node->value);
         s = findSymbolInTable(symbolTable, label);
         if (s == NULL)
@@ -261,26 +268,27 @@ int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTabl
     binaryInstruction |= rs_flag << J_REG_FLAG_OFFSET;
     binaryInstruction |= addr << J_ADDR_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
 
-int instructionJStop(inst *instruction, node *node, char *buf){
+enum ErrorCode instructionJStop(inst *instruction, node *node, char *buf){
     unsigned long  binaryInstruction = 0;
     if (node != NULL)
         return TOO_MANY_ARGUMENTS;
     binaryInstruction |= instruction->opcode << J_OP_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
 
-int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
+enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) {
     unsigned long  binaryInstruction = 0;
-    int  resCode, addr; /* immed is 16 bit singed int*/
+    int  addr; /* immed is 16 bit singed int*/
+    enum ErrorCode ec;
     char label[32];
     Symbol *s;
-    resCode = readLabel(node);
-    if (resCode)
-        return resCode;
+    ec = readLabel(node);
+    if (ec != GOOD)
+        return ec;
     strcpy(label, node->value);
     s = findSymbolInTable(symbolTable, label);
     if (s == NULL)
@@ -297,7 +305,7 @@ int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) 
     binaryInstruction |= 0 << J_REG_FLAG_OFFSET;
     binaryInstruction |= addr << J_ADDR_OFFSET;
     printInstruction(buf, binaryInstruction);
-    return LINE_OK;
+    return GOOD;
 }
 
 /**
@@ -305,7 +313,7 @@ int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable) 
  * @param str  - the parameter that should contain a register number, can be null in which case a MISSING_ARGUMENT error will be returned
  * @return the register id or the appropriate error code
  */
-int parseRegister(node *node) {
+enum ErrorCode parseRegister(node *node, int *reg) {
     char *str;
     if(node == NULL){
         return MISSING_ARGUMENTS;
@@ -321,7 +329,8 @@ int parseRegister(node *node) {
     int num = atoi(str + 1);
     if(num <0 || num > 31)
         return OPERAND_NOT_VALID_REGISTER;
-    return num;
+    *reg = num;
+    return GOOD;
 }
 
 /**
@@ -329,7 +338,7 @@ int parseRegister(node *node) {
  * @param buf  - the parameter that should contain a valid immediate, can be null in which case a MISSING_ARGUMENT error will be returned
  * @return the value of the immediate or the appropriate error code
  */
-int readImmed(node *node, int *immed){
+enum ErrorCode readImmed(node *node, int *immed){
     char *buf;
     if (node == NULL)
         return MISSING_ARGUMENTS;
@@ -367,9 +376,9 @@ int readImmed(node *node, int *immed){
     if(res <= (-(1 << 16)) || res >= ((1 << 16) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
         return IMMED_OUT_OF_RANGE;
     *immed = to16bit(res);
-    return IMMED_OK;
+    return GOOD;
 }
-int readLabel(node *node){
+enum ErrorCode readLabel(node *node){
     char *in;
     if(node == NULL)
         return MISSING_ARGUMENTS;
@@ -383,7 +392,7 @@ int readLabel(node *node){
             return INVALID_LABEL;
         count++;
     }
-    return count > 31;
+    return (count <= 31)?GOOD:INVALID_LABEL;
 }
 
 /**

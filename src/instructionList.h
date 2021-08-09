@@ -9,7 +9,7 @@
 #include <string.h>
 #include "symbolTable.h"
 #include "line.h"
-#include "statusCodes.h"
+#include "consts.h"
 #define R_OP_OFFSET 26
 #define R_RS_OFFSET 21
 #define R_RT_OFFSET 16
@@ -95,26 +95,26 @@ inst instructions[] = {{"add", 'R', 1, 0, INSTRUCTION_ADD},
 };
 inst *findInstruction(char *name);
 
-int parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic);
+enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic);
 
-int parseRInstruction(inst *instruction, node *node, char *buf);
-int parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
-int parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode parseRInstruction(inst *instruction, node *node, char *buf);
+enum ErrorCode parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
+enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable);
 
-int instructionRArithmetic(inst *instruction, node *node, char *buf);
-int instructionRMove(inst *instruction, node *node, char *buf);
+enum ErrorCode instructionRArithmetic(inst *instruction, node *node, char *buf);
+enum ErrorCode instructionRMove(inst *instruction, node *node, char *buf);
 
-int instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
-int instructionIArithmetic(inst *instruction, node *node, char *buf);
-int instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
+enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf);
+enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable);
 
-int instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable);
-int instructionJStop(inst *instruction, node *node, char *buf);
-int instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode instructionJStop(inst *instruction, node *node, char *buf);
+enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable);
 
-int parseRegister(node *node);
+enum ErrorCode parseRegister(node *node, int *reg);
 void printInstruction(char *buf, unsigned int binaryInstruction);
-int readImmed(node *node, int *immed);
-int readLabel(node *node);
+enum ErrorCode readImmed(node *node, int *immed);
+enum ErrorCode readLabel(node *node);
 int to16bit(int in);
 #endif //WTFPROJECT_INSTRUCTIONLIST_H

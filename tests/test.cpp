@@ -176,7 +176,7 @@ TEST(parseRInstructions, noLabel){
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseRInstruction(instruction, l.head.next, buf);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 
@@ -220,7 +220,7 @@ TEST(parseInstructionRArithmetic, base){
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseRInstruction(instruction, l.head.next, buf);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 TEST(parseInstructionRArithmetic, tooFewArgs){
@@ -296,7 +296,7 @@ TEST(parseInstructionRMove, base){// wont work.... mistake in the maman....
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseRInstruction(instruction, l.head.next, buf);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 TEST(parseInstructionRMove, tooFewArgs){
@@ -365,7 +365,7 @@ TEST(instructionIBranch, base){// wont work.... mistake in the maman....
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseIInstruction(instruction, l.head.next, buf, st, ic);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 TEST(instructionIBranch, tooFewArgs){
@@ -441,7 +441,7 @@ TEST(instructionILoad, base){// wont work.... mistake in the maman....
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseIInstruction(instruction, l.head.next, buf, st, ic);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 TEST(instructionILoad, tooFewArgs){
@@ -529,7 +529,7 @@ TEST(instructionIBranch, datalLabel){
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseIInstruction(instruction, l.head.next, buf, st, ic);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
 }
 
 TEST(instructionIArithmetic, base){
@@ -543,7 +543,7 @@ TEST(instructionIArithmetic, base){
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseIInstruction(instruction, l.head.next, buf, st, ic);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 TEST(instructionIArithmetic, tooFewArgs){
@@ -620,7 +620,7 @@ TEST(instructionJJMP, baseRegister){// wont work.... mistake in the maman....
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 TEST(instructionJJMP, baseLabel){// wont work.... mistake in the maman....
@@ -638,25 +638,25 @@ TEST(instructionJJMP, baseLabel){// wont work.... mistake in the maman....
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"jmp Last");
     l = strToLine(str);
     instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"jmp First");
     l = strToLine(str);
     instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"jmp Prev");
     l = strToLine(str);
     instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 TEST(instructionJJMP, tooFewArgs){
@@ -721,7 +721,7 @@ TEST(instructionJStop, baseRegister){// wont work.... mistake in the maman....
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"stop $1");
     l = strToLine(str);
@@ -744,25 +744,25 @@ TEST(instructionJ, baseLabel){// wont work.... mistake in the maman....
     line l = strToLine(str);
     inst *instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"la A");
     l = strToLine(str);
     instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"la B");
     l = strToLine(str);
     instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"la C");
     l = strToLine(str);
     instruction = findInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st);
-    ASSERT_EQ(status, LINE_OK);
+    ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
 

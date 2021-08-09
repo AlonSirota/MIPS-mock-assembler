@@ -6,7 +6,6 @@
 #define WTFPROJECT_SYMBOLTABLET_H
 #include <stdlib.h>
 #include "string.h"
-#include "statusCodes.h"
 #include "consts.h"
 #include <stdio.h>
 
