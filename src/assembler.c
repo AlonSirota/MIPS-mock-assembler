@@ -31,7 +31,7 @@ void assembleFile(FILE *f) {
 }
 
 void firstPass(FILE *f) {
-    int ic = 100, dc = 0;
+    int ic = 100, dc = 0, lineNumber;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
     Symbol *symbolTable = NULL;
@@ -41,7 +41,7 @@ void firstPass(FILE *f) {
 
     assert(f != NULL);
 
-    while (fgetsShred(f, LINE_LENGTH + 1, lineStr)) {
+    for (lineNumber = 0; fgetsShred(f, LINE_LENGTH + 1, lineStr); lineNumber++) {
         lineParsed = strToLine(lineStr);
 
         if (isLineDirective(lineParsed)) {
