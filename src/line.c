@@ -42,14 +42,13 @@ char* strsep(char** stringp, const char* delim)
  */
 line strToLine(char *str) {
     line l = {.label = NULL, .head = { .value = NULL, .next = NULL}, l.error = GOOD};
-    char *token, *savePtr;
-    node *curr;
+    char *token;
 
     if (str[0] == ';') {/* Comment line, return empty line */
         return l;
     }
 
-    token = strtok_r(str, WORD_DELIMITERS, &savePtr);
+    token = strtok(str, WORD_DELIMITERS);
     if (token == NULL) { /* Line without words, return empty line */
         return l;
     }
@@ -59,7 +58,7 @@ line strToLine(char *str) {
         l.label[strlen(l.label) - 1] = '\0'; /* Trim the ':' from the label name */
 
         /* Next word */
-        token = strtok_r(NULL, WORD_DELIMITERS, &savePtr);
+        token = strtok(NULL, WORD_DELIMITERS);
         if (token == NULL) {
             return l;
         }
@@ -68,7 +67,8 @@ line strToLine(char *str) {
     /* Token is now mnemonic (either the first word, or the first word after the label  */
     l.head.value = strdup(token);
 
-    parseParameters(savePtr, &l);
+    token = strtok(NULL, ""); /* token = rest of str, that wasn't yet tokenized */
+    parseParameters(token, &l);
 
     return l;
 }
@@ -200,8 +200,7 @@ void parseGenericParameters(char *paramStr, line *lOut) {
  */
 void parseParameters(char *paramStr, line *lOut) {
     /* If paramStr is empty, no parameters, this is an edge case not caught in the parse functions below */
-    trimTrailingSpace(paramStr);
-    if (!strcmp(paramStr, "")) {
+    if (paramStr == NULL || !strcmp(paramStr, "")) {
         lOut->head.next = NULL;
     }
     else if(!strcmp(ASCII_MNEMONIC, lOut->head.value)) { /* ASCII directive requires unique line parsing */
