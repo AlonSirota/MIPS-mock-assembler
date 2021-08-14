@@ -21,10 +21,10 @@ char* strsep(char** stringp, const char* delim)
   p = (start != NULL) ? strpbrk(start, delim) : NULL;
 
   if (p == NULL)
-  {
+    {
     *stringp = NULL;
-  }
-  else
+    }
+    else
   {
     *p = '\0';
     *stringp = p + 1;
@@ -199,7 +199,12 @@ void parseGenericParameters(char *paramStr, line *lOut) {
  * populate lOut's parameters accordingly.
  */
 void parseParameters(char *paramStr, line *lOut) {
-    if(!strcmp(ASCII_MNEMONIC, lOut->head.value)) { /* ASCII directive requires unique line parsing */
+    /* If paramStr is empty, no parameters, this is an edge case not caught in the parse functions below */
+    trimTrailingSpace(paramStr);
+    if (!strcmp(paramStr, "")) {
+        lOut->head.next = NULL;
+    }
+    else if(!strcmp(ASCII_MNEMONIC, lOut->head.value)) { /* ASCII directive requires unique line parsing */
         parseAscizParameters(paramStr, lOut);
     } else {
         parseGenericParameters(paramStr, lOut);
