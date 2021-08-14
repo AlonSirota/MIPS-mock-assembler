@@ -30,12 +30,18 @@ void assemblePath(char *fileName) {
  */
 void assembleFile(FILE *f) {
     assert(f != NULL);
-    firstPass(f);
+    enum ErrorCode e;
+    int ic, dc;
+    e = firstPass(f, &ic, &dc);
+
+    if (e == GOOD) {
+        secondPass(f);
+    }
     // TODO Second pass
 }
 
-void firstPass(FILE *f) {
-    int ic = 100, dc = 0, lineNumber;
+enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut) {
+    int lineNumber;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
     Symbol *symbolTable = NULL;
@@ -43,7 +49,7 @@ void firstPass(FILE *f) {
     byte *directiveBytes = NULL;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
-
+    *icOut = 100, *dcOut = 0;
     assert(f != NULL);
 
     /* Iterate over file's lines, while counting the line number */
@@ -55,7 +61,7 @@ void firstPass(FILE *f) {
         }
         else if (isLineDirective(lineParsed)) {
             if (lineParsed.label != NULL) {
-                error = addSymbol(&symbolTable, lineParsed.label, dc, DATA);
+                error = addSymbol(&symbolTable, lineParsed.label, *dcOut, DATA);
                 logError(error, &hasErrors, lineNumber);
             }
 
@@ -64,7 +70,7 @@ void firstPass(FILE *f) {
             if (directiveBytes)
             {
                 addBytesToImage(&dataImage, directiveBytes);
-                dc += sizeof(directiveBytes);
+                *dcOut += sizeof(directiveBytes);
             }
             /* continue */
         }
@@ -72,19 +78,21 @@ void firstPass(FILE *f) {
             continue; /* Not handled in first pass. */
         }
         else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) {
-            error = processExtern(lineParsed.head, &symbolTable, dc);
+            error = processExtern(lineParsed.head, &symbolTable, *dcOut);
             logError(error, &hasErrors, lineNumber);
         }
         else { /* Treat this line as an instruction, all other options have been eliminated. */
             if (lineParsed.label != NULL) {
-                error = addSymbol(&symbolTable, lineParsed.label, ic, CODE);
+                error = addSymbol(&symbolTable, lineParsed.label, *icOut, CODE);
                 logError(error, &hasErrors, lineNumber);
-                ic += 4;
+                *icOut += 4;
             }
             /* Further processing of instruction line is done in second pass. This deviates then as instructed
              * in assignment details */
         }
     }
+
+    return error;
 }
 
 /*
