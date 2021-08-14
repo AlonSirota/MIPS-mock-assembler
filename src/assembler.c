@@ -24,8 +24,9 @@ void assemblePath(char *fileName) {
 void assembleFile(FILE *f) {
     assert(f != NULL);
     enum ErrorCode e;
+    bytesNode *dataImage;
     int ic, dc;
-    e = firstPass(f, &ic, &dc);
+    e = firstPass(f, &ic, &dc, &dataImage);
 
     if (e == GOOD) {
         secondPass(f, NULL, NULL);
@@ -33,12 +34,11 @@ void assembleFile(FILE *f) {
     // TODO Second pass
 }
 
-enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut) {
+enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr) {
     int lineNumber;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
     Symbol *symbolTable = NULL;
-    bytesNode *dataImage = NULL;
     byte *directiveBytes = NULL;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
@@ -62,7 +62,7 @@ enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut) {
             directiveBytes = directiveToBytes(lineParsed, &error);
             if (directiveBytes)
             {
-                addBytesToImage(&dataImage, directiveBytes);
+                addBytesToImage(dataImagePtr, directiveBytes);
                 *dcOut += sizeof(directiveBytes);
             }
             /* continue */
