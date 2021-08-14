@@ -46,27 +46,40 @@ void firstPass(FILE *f) {
 
     assert(f != NULL);
 
+    /* Iterate over file's lines, while counting the line number */
     for (lineNumber = 0; fgetsShred(f, LINE_LENGTH + 1, lineStr); lineNumber++) {
         lineParsed = strToLine(lineStr);
 
-        if (isLineDirective(lineParsed)) {
+        if (!isLineRelevant(lineParsed)) {
+            continue;
+        }
+        else if (isLineDirective(lineParsed)) {
             if (lineParsed.label != NULL) {
                 error = addSymbol(&symbolTable, lineParsed.label, dc, DATA);
                 logError(error, &hasErrors, lineNumber);
             }
 
+            /* Encode directive data */
             directiveBytes = directiveToBytes(lineParsed, &error);
             if (directiveBytes)
             {
                 addBytesToImage(&dataImage, directiveBytes);
                 dc += sizeof(directiveBytes);
             }
+            /* continue */
         }
         else if (!strcmp(lineParsed.label,ENTRY_MNEMONIC)) {
             continue; /* Not handled in first pass. */
         } else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) {
             error = processExtern(lineParsed.head, &symbolTable, dc);
             logError(error, &hasErrors, lineNumber);
+        } else { /* Treat this line as an instruction, all other options have been eliminated. */
+            if (lineParsed.label != NULL) {
+                error = addSymbol(&symbolTable, lineParsed.label, ic, CODE);
+                logError(error, &hasErrors, lineNumber);
+                ic += 4;
+            }
+            /* Further processing of instruction line is done in second pass. */
         }
     }
 }
@@ -192,4 +205,13 @@ enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc) 
     } else {
         return INVALID_LABEL;
     }
+}
+
+/*
+ * Returns true if this line is relevant (and should be processed).
+ * Otherwise it's a comment or empty.
+ */
+int isLineRelevant(line l) {
+    /* if mnemonic is empty */
+    return !(l.head.value == NULL || !strcmp(l.head.value, ""));
 }

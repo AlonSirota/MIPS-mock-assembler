@@ -27,4 +27,5 @@ char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 int addBytesToImage(bytesNode **tablePtr, byte *bytes);
 enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc);
+int isLineRelevant(line l);
 #endif //ASSEMBLER_ASSEMBLER_H
