@@ -14,4 +14,4 @@ add_executable(assembler
         instructionList.c
         instructionList.h
         directive.c
-        directive.h consts.h)
+        directive.h consts.h consts.c)
