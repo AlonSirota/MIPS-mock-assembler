@@ -70,16 +70,19 @@ void firstPass(FILE *f) {
         }
         else if (!strcmp(lineParsed.label,ENTRY_MNEMONIC)) {
             continue; /* Not handled in first pass. */
-        } else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) {
+        }
+        else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) {
             error = processExtern(lineParsed.head, &symbolTable, dc);
             logError(error, &hasErrors, lineNumber);
-        } else { /* Treat this line as an instruction, all other options have been eliminated. */
+        }
+        else { /* Treat this line as an instruction, all other options have been eliminated. */
             if (lineParsed.label != NULL) {
                 error = addSymbol(&symbolTable, lineParsed.label, ic, CODE);
                 logError(error, &hasErrors, lineNumber);
                 ic += 4;
             }
-            /* Further processing of instruction line is done in second pass. */
+            /* Further processing of instruction line is done in second pass. This deviates then as instructed
+             * in assignment details */
         }
     }
 }
