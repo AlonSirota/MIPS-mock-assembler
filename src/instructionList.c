@@ -9,11 +9,11 @@
  * @return a pointer to the apropriate instruction, null if not found
  */
 inst *findInstruction(char *name){
-    inst *ptr = instructions;
+    inst *ptr = INSTRUCTIONS;
     while (ptr->IID != INSTRUCTION_LIST_END){
         if (strcmp(name, ptr->name) == 0)
             return ptr;
-        ptr += 1;
+        ptr++;
     }
     return NULL;
 }
@@ -46,7 +46,7 @@ enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int 
 
 /**
  * parse spesifically R typed instruction
- * parsing is grouped by similar types of instructions
+ * parsing is grouped by similar types of INSTRUCTIONS
  * @param instruction
  * @param node
  * @param buf
