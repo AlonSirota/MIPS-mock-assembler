@@ -5,8 +5,8 @@
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
 #define USING_WINDOWS
-#define FALSE 0
-#define TRUE 1
+#define CODE_SIZE 2^25 /* max memory size */
+#define DATA_SIZE 2^25
 
 #include <stdio.h>
 #include <assert.h>
@@ -19,6 +19,8 @@ typedef struct bytesNode {
     byte *bytes;
     struct bytesNode *next;
 } bytesNode;
+
+const char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
 void assembleFile(FILE *f);
 enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut);

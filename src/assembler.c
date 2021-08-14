@@ -4,15 +4,7 @@
 #include "assembler.h"
 #include "instructionList.h"
 
-#define CODE_SIZE 2^25 /* max memory size */
 
-#define DATA_SIZE 2^25
-
-char parseOp(node node, char string[18], int i, Symbol *pSymbol);
-
-void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
-
-char *codeToMsg(enum ErrorCode code);
 
 void assemblePath(char *fileName) {
     // TODO enforce '.as' file extension.
