@@ -769,11 +769,12 @@ TEST(instructionJ, baseLabel){// wont work.... mistake in the maman....
 TEST(directiveToByteTest, db) {
     byte buffer[1000];
     byte *res;
+    ErrorCode e;
     node nextNext = {.value = "-12", .next = NULL};
     node next = {.value = "31", .next = &nextNext};
     node head = {.value = ".db", .next = &next};
     line l = {.head = head};
-    res = directiveToBytes(l);
+    res = directiveToBytes(l, &e);
     ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
     ASSERT_TRUE(res[1] == 0b11110100); /* -12 in binary */
 
@@ -782,11 +783,12 @@ TEST(directiveToByteTest, db) {
 TEST(directiveToByteTest, dw) {
     byte buffer[1000];
     byte *res;
+    ErrorCode e;
     node nextNext = {.value = "-12", .next = NULL};
     node next = {.value = "31", .next = &nextNext};
     node head = {.value = ".dw", .next = &next};
     line l = {.head = head};
-    res = directiveToBytes(l);
+    res = directiveToBytes(l,&e);
 
     ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
     ASSERT_TRUE(res[1] == 0);
@@ -803,11 +805,12 @@ TEST(directiveToByteTest, dw) {
 TEST(directiveToByteTest, dh) {
     byte buffer[1000];
     byte *res;
+    ErrorCode e;
     node nextNext = {.value = "-12", .next = NULL};
     node next = {.value = "31", .next = &nextNext};
     node head = {.value = ".dh", .next = &next};
     line l = {.head = head};
-    res = directiveToBytes(l);
+    res = directiveToBytes(l,&e);
 
     ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
     ASSERT_TRUE(res[1] == 0b00000000);
