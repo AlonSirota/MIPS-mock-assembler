@@ -7,6 +7,7 @@
 #include "instructionList.c"
 #include "directive.c"
 #include "symbolTable.c"
+#include "consts.c"
 
 TEST(fgetsShred, Shred) {
     FILE *stream;
