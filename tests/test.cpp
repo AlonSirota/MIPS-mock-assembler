@@ -819,3 +819,15 @@ TEST(directiveToByteTest, dh) {
     ASSERT_TRUE(res[3] == 0b11111111);
     free(res);
 }
+
+TEST(printErrors, codeToMsg){
+    enum ErrorCode ec = INVALID_LABEL;
+    const char *errStr = codeToMsg(ec);
+    ASSERT_STREQ(errStr, "Invalid label");
+}
+TEST(printErrors, printErrorOK){
+    enum ErrorCode ec = INVALID_LABEL;
+    char buf[256];
+    makeErrStr(buf, ec, 100);
+    ASSERT_STREQ(buf, "Error at line 100: Invalid label\n");
+}

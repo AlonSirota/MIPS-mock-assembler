@@ -22,10 +22,11 @@ typedef struct bytesNode {
 void assemblePath(char *fileName);
 void assembleFile(FILE *f);
 enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut);
-void secondPass(FILE *f);
+enum ErrorCode secondPass(FILE *f, char* output, Symbol *st);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 int addBytesToImage(bytesNode **tablePtr, byte *bytes);
 enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc);
 int isLineRelevant(line l);
+void printError(enum ErrorCode ec, int lineNo);
 #endif //ASSEMBLER_ASSEMBLER_H

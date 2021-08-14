@@ -2,6 +2,7 @@
 // Created by alon on 6/27/21.
 //
 #include "assembler.h"
+#include "instructionList.h"
 
 #define CODE_SIZE 2^25 /* max memory size */
 
@@ -11,7 +12,7 @@ char parseOp(node node, char string[18], int i, Symbol *pSymbol);
 
 void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
 
-const char *codeToMsg(enum ErrorCode code);
+char *codeToMsg(enum ErrorCode code);
 
 void assemblePath(char *fileName) {
     // TODO enforce '.as' file extension.
@@ -35,7 +36,7 @@ void assembleFile(FILE *f) {
     e = firstPass(f, &ic, &dc);
 
     if (e == GOOD) {
-        secondPass(f);
+        secondPass(f, NULL, NULL);
     }
     // TODO Second pass
 }
@@ -112,9 +113,8 @@ void logError(enum ErrorCode error, int *hasErrors, int lineNumber) {
     }
 }
 
-const char *codeToMsg(enum ErrorCode code) {
-    /* TODO, switch case returning a string describing this error code */
-    return "temp message";
+char *codeToMsg(enum ErrorCode code) {
+    return findErrorString(code);
 }
 
 /*
@@ -153,25 +153,43 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
     return buffer;
 }
 
-void secondPass(FILE *f){
-    Symbol *symbolTable; /* will be recived from first pass */
-    int ic = 100;
-    char codeSeg[CODE_SIZE];
-    char dataSeg[DATA_SIZE]; /* will be recived from first pass */
+enum ErrorCode secondPass(FILE *f, char* output, Symbol *st){
+    int ic = 100, lineNo = 1;
     char lineStr[LINE_LENGTH + 1];
+    enum ErrorCode ecTemp, ec;
     line lineParsed;
     assert(f != NULL);
-    fgetsShred(f, LINE_LENGTH + 1, lineStr);
-    lineParsed = strToLine(lineStr);
-    parseOp(lineParsed.head, codeSeg, ic, symbolTable);
-    /*if (!instruction){
-        codeSeg[ic-100] = instruction
-    }*/
+    while(fgetsShred(f, LINE_LENGTH + 1, lineStr) != NULL){
+        lineParsed = strToLine(lineStr);
+        if(lineParsed.head.value == NULL){ /* empty line */
+            lineNo++;
+            continue;
+        }
+        ecTemp = parseInstruction(&lineParsed.head, output, st, ic);
+        if(ecTemp != GOOD){
+            printError(ecTemp, lineNo);
+            ec = GENERIC_ERROR;
+        }
+        ic += 4; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
+        lineNo++;
+    }
+    return ec;
 }
 
-char parseOp(node node, char string[18], int i, Symbol *pSymbol) {
+/*
+ * easier for testing
+ * */
+void makeErrStr(char *buff, enum ErrorCode ec, int lineNo){
+    char *errorMsg = codeToMsg(ec);
+    if (errorMsg == NULL)
+        errorMsg = "Unknown error - errorcode was defined in enume ErroeCode but was not given an errorString";
+    sprintf(buff, "Error at line %d: %s\n", lineNo, errorMsg);
+}
 
-    return 0;
+void printError(enum ErrorCode ec, int lineNo){
+    char buff[256];
+    makeErrStr(buff, ec, lineNo);
+    fprintf(stderr, "%s", buff);
 }
 
 void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
