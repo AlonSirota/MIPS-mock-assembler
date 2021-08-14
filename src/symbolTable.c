@@ -17,7 +17,7 @@ Symbol *findSymbolInTable(Symbol *table, char *label) {
 enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
     Symbol* curr;
     Symbol *next;
-    // TODO check if label is legal, return an error otherwise
+    // TODO check if label is legal, return an error otherwise. Can't be an assembly keyword.
     next = newSymbol(label, address, attributes); /* Prepare new symbol */
     // TODO makesure malloc succeded
 
