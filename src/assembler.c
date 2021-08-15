@@ -172,7 +172,7 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
 
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st){
     int ic = 100, lineNo = 1;
-    char lineStr[LINE_LENGTH + 1],  *buf; // TODO just a compilation error fix bandage, need to refactor secondPass to write directly to objFile.
+    char lineStr[LINE_LENGTH + 1],  buf[80];
     enum ErrorCode ecTemp, ec;
     line lineParsed;
     assert(f != NULL);
@@ -187,10 +187,25 @@ enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st){
             printError(ecTemp, lineNo);
             ec = GENERIC_ERROR;
         }
+        if(ec == GOOD){
+            printLineToFile(objFile, ic, buf);
+        }
         ic += 4; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
         lineNo++;
     }
     return ec;
+}
+/*
+ * easier to debuf buffers then files....
+ * */
+void printLineToBuffere(char *out, int ic, char *buf) {
+    sprintf(out, "%.4d %s\n", ic, buf);
+}
+
+enum ErrorCode printLineToFile(FILE *pIobuf, int ic, char *buf) {
+    char temp[80];
+    printLineToBuffere(temp, ic, buf);
+    return (fprintf(pIobuf, "%s", temp) > 0 )? GOOD: FILE_WRITE_ERROR;
 }
 
 /*

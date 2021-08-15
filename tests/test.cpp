@@ -832,3 +832,16 @@ TEST(printErrors, printErrorOK){
     makeErrStr(buf, ec, 100);
     ASSERT_STREQ(buf, "Error at line 100: Invalid label\n");
 }
+TEST(printLineToBuffere,print){
+    char buf[20];
+    char out[80];
+    int status, ic = 148;
+    char str[20];
+    Symbol *st = NULL;
+    strcpy(str,"stop");
+    line l = strToLine(str);
+    inst *instruction = findInstruction(l.head.value);
+    status = parseJInstruction(instruction, l.head.next, buf, st);
+    printLineToBuffere(out, ic, buf);
+    ASSERT_STREQ("0148 00 00 00 FC\n", out);
+}

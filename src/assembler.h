@@ -33,4 +33,6 @@ int addBytesToImage(bytesNode **tablePtr, byte *bytes);
 enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc);
 int isLineRelevant(line l);
 void printError(enum ErrorCode ec, int lineNo);
+enum ErrorCode printLineToFile(FILE *pIobuf, int no, char *buf);
+void printObjFileTitle(FILE *pIobuf, int ic, int dc);
 #endif //ASSEMBLER_ASSEMBLER_H
