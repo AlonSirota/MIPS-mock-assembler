@@ -35,12 +35,28 @@ void assembleFile(FILE *f, char *fileName) {
     enum ErrorCode e;
     bytesNode *dataImage;
     int ic, dc;
-    e = firstPass(f, &ic, &dc, &dataImage);
+    FILE *objFile;
+    char objFileName[MAX_FILE_NAME_LEN];
 
-    if (e == GOOD) {
-        secondPass(f, NULL, NULL);
+    if (firstPass(f, &ic, &dc, &dataImage) == GOOD) {
+        /* Name of object file is: "<.as file name>.ob" */
+        strcpy(objFileName, fileName);
+        strcat(objFileName, ".ob");
+
+        /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
+        if (objFile = fopen(objFileName, "w")) {
+            e = secondPass(f, objFile, NULL);
+            fclose(objFile); /* secondPass is done processing object file */
+
+            if (e == GOOD) {
+                // TODO generate the rest of the files: entries and extern
+            } else {
+                remove(objFileName); /* Delete object file, as it shouldn't be saved if an error was found. */
+            }
+        } else {
+            printf("Error while opening file %s\n", fileName);
+        }
     }
-    // TODO Second pass
 }
 
 enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr) {
@@ -154,7 +170,7 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
     return buffer;
 }
 
-enum ErrorCode secondPass(FILE *f, char* output, Symbol *st){
+enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st){
     int ic = 100, lineNo = 1;
     char lineStr[LINE_LENGTH + 1];
     enum ErrorCode ecTemp, ec;
@@ -166,7 +182,7 @@ enum ErrorCode secondPass(FILE *f, char* output, Symbol *st){
             lineNo++;
             continue;
         }
-        ecTemp = parseInstruction(&lineParsed.head, output, st, ic);
+        ecTemp = parseInstruction(&lineParsed.head, objFile, st, ic);
         if(ecTemp != GOOD){
             printError(ecTemp, lineNo);
             ec = GENERIC_ERROR;

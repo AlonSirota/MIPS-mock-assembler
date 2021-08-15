@@ -26,7 +26,7 @@ char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
 void assembleFile(FILE *f, char *fileName);
 enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr);
-enum ErrorCode secondPass(FILE *f, char* output, Symbol *st);
+enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 int addBytesToImage(bytesNode **tablePtr, byte *bytes);
