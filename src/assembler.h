@@ -25,7 +25,7 @@ void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
 char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
 void assembleFile(FILE *f, char *fileName);
-enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr);
+enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **pSymbol);
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
@@ -34,5 +34,6 @@ enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc);
 int isLineRelevant(line l);
 void printError(enum ErrorCode ec, int lineNo);
 enum ErrorCode printLineToFile(FILE *pIobuf, int no, char *buf);
-void printObjFileTitle(FILE *pIobuf, int ic, int dc);
+enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc);
+enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable);
 #endif //ASSEMBLER_ASSEMBLER_H

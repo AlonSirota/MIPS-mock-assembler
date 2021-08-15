@@ -25,6 +25,7 @@ void assemblePath(char *fileName) {
     fclose(f);
 }
 
+
 /*
  * Assembles file f.
  * f parameter is expected to be an opened file.
@@ -32,24 +33,27 @@ void assemblePath(char *fileName) {
  */
 void assembleFile(FILE *f, char *fileName) {
     assert(f != NULL);
-    enum ErrorCode e;
+    enum ErrorCode e, e2;
     bytesNode *dataImage;
     int ic, dc;
     FILE *objFile;
     char objFileName[MAX_FILE_NAME_LEN];
+    Symbol *symbolTable;
 
-    if (firstPass(f, &ic, &dc, &dataImage) == GOOD) {
+    if (firstPass(f, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
         /* Name of object file is: "<.as file name>.ob" */
         strcpy(objFileName, fileName);
         strcat(objFileName, ".ob");
 
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
         if (objFile = fopen(objFileName, "w")) {
-            e = secondPass(f, objFile, NULL);
+            e2 = writeObjFileHeader(objFile, ic, dc);
+            e = secondPass(f, objFile, symbolTable);
             fclose(objFile); /* secondPass is done processing object file */
 
-            if (e == GOOD) {
+            if (e == GOOD && e2 == GOOD) {
                 // TODO generate the rest of the files: entries and extern
+                e = generateEntriesFile(fileName, symbolTable);
             } else {
                 remove(objFileName); /* Delete object file, as it shouldn't be saved if an error was found. */
             }
@@ -59,7 +63,35 @@ void assembleFile(FILE *f, char *fileName) {
     }
 }
 
-enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr) {
+/**
+ * NOT TESTED!!!, no need for deep testing cuz input should be generated properly.
+ *
+ * @param fileName
+ * @param symbolTable
+ * @return
+ */
+enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
+    char entrFileName[MAX_FILE_NAME_LEN];
+    strcpy(entrFileName, fileName);
+    strcat(entrFileName, ".ob");
+    FILE *entrFile;
+    if (entrFile = fopen(entrFileName, "w")) {
+        while (symbolTable != NULL){
+            if(symbolTable->attributes | ENTRY){
+                if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0)
+                    return FILE_WRITE_ERROR;
+            }
+        }
+        return GOOD;
+    }else
+        return FILE_WRITE_ERROR;
+}
+
+enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc) {
+    return (fprintf(pIobuf, "%d %d\n", ic, dc) > 0 )? GOOD: FILE_WRITE_ERROR;
+}
+
+enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **pSymbol) {
     int lineNumber;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
@@ -109,7 +141,7 @@ enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImageP
              * in assignment details */
         }
     }
-
+    *pSymbol = symbolTable;
     return error;
 }
 
