@@ -7,12 +7,21 @@
 
 
 void assemblePath(char *fileName) {
-    // TODO enforce '.as' file extension.
+    /* Check that fileName ends with .asm */
+    char *extension = strstr(fileName, ASSEMBLY_EXTENSION);
+    if (extension) {
+        printf("%s is not a valid assembly file name\n", fileName);
+        return;
+    }
+
     FILE *f = fopen(fileName, "r");
     if (f == NULL) {
         printf("Error while opening file %s\n", fileName);
+        return;
     }
-    assembleFile(f);
+
+    *extension = '\0'; /* Trim .asm extension */
+    assembleFile(f, fileName);
     fclose(f);
 }
 
@@ -21,7 +30,7 @@ void assemblePath(char *fileName) {
  * f parameter is expected to be an opened file.
  * f won't be closed as part of this function.
  */
-void assembleFile(FILE *f) {
+void assembleFile(FILE *f, char *fileName) {
     assert(f != NULL);
     enum ErrorCode e;
     bytesNode *dataImage;

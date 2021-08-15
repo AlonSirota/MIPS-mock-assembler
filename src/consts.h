@@ -5,6 +5,7 @@
 #ifndef WTFPROJECT_CONSTS_H
 #define WTFPROJECT_CONSTS_H
 #include <stddef.h>
+#define ASSEMBLY_EXTENSION ".asm"
 #define ASCII_MNEMONIC ".asciz"
 #define EXTERN_MNEMONIC ".extern"
 #define ENTRY_MNEMONIC ".entry"

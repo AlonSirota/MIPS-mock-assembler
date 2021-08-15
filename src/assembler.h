@@ -24,7 +24,7 @@ char parseOp(node node, char string[18], int i, Symbol *pSymbol);
 void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
 char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
-void assembleFile(FILE *f);
+void assembleFile(FILE *f, char *fileName);
 enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr);
 enum ErrorCode secondPass(FILE *f, char* output, Symbol *st);
 char *fgetsShred(FILE *f, int n, char *buffer);
