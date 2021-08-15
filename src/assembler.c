@@ -172,7 +172,7 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
 
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st){
     int ic = 100, lineNo = 1;
-    char lineStr[LINE_LENGTH + 1];
+    char lineStr[LINE_LENGTH + 1],  *buf; // TODO just a compilation error fix bandage, need to refactor secondPass to write directly to objFile.
     enum ErrorCode ecTemp, ec;
     line lineParsed;
     assert(f != NULL);
@@ -182,7 +182,7 @@ enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st){
             lineNo++;
             continue;
         }
-        ecTemp = parseInstruction(&lineParsed.head, objFile, st, ic);
+        ecTemp = parseInstruction(&lineParsed.head, buf, st, ic);
         if(ecTemp != GOOD){
             printError(ecTemp, lineNo);
             ec = GENERIC_ERROR;
