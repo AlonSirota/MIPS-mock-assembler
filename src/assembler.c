@@ -117,7 +117,7 @@ enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc) {
     return (fprintf(pIobuf, "%d %d\n", ic, dc) > 0 )? GOOD: FILE_WRITE_ERROR;
 }
 
-enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **pSymbol) {
+enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **symbolTableOut) {
     int lineNumber;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
@@ -126,48 +126,44 @@ enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImageP
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
     *icOut = 100, *dcOut = 0;
-    assert(f != NULL);
+    assert(asFile != NULL);
 
     /* Iterate over file's lines, while counting the line number */
-    for (lineNumber = 0; fgetsShred(f, LINE_LENGTH + 1, lineStr); lineNumber++) {
+    /* fgetshred reads a line from asFile to lineStr */
+    for (lineNumber = 0; fgetsShred(asFile, LINE_LENGTH + 1, lineStr); lineNumber++) {
         lineParsed = strToLine(lineStr);
 
-        if (!isLineRelevant(lineParsed)) {
+        if (!isLineRelevant(lineParsed)) { /* skip irrelevant lines */
             continue;
         }
-        else if (isLineDirective(lineParsed)) {
-            if (lineParsed.label != NULL) {
+        else if (isLineDirective(lineParsed)) { /* process directive lines */
+            if (lineParsed.label != NULL) { /* if has label, add to symbol table */
                 error = addSymbol(&symbolTable, lineParsed.label, *dcOut, DATA);
                 logError(error, &hasErrors, lineNumber);
             }
 
             /* Encode directive data */
-            directiveBytes = directiveToBytes(lineParsed, &error);
-            if (directiveBytes)
+            if (directiveBytes = directiveToBytes(lineParsed, &error))
             {
                 addBytesToImage(dataImagePtr, directiveBytes);
                 *dcOut += sizeof(directiveBytes);
             }
-            /* continue */
         }
-        else if (!strcmp(lineParsed.label,ENTRY_MNEMONIC)) {
+        else if (!strcmp(lineParsed.label,ENTRY_MNEMONIC)) { /* process entry lines */
             continue; /* Not handled in first pass. */
         }
-        else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) {
+        else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) { /* process extern lines */
             error = processExtern(lineParsed.head, &symbolTable, *dcOut);
             logError(error, &hasErrors, lineNumber);
         }
-        else { /* Treat this line as an instruction, all other options have been eliminated. */
-            if (lineParsed.label != NULL) {
+        else if (lineParsed.label != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
                 error = addSymbol(&symbolTable, lineParsed.label, *icOut, CODE);
                 logError(error, &hasErrors, lineNumber);
                 *icOut += 4;
             }
-            /* Further processing of instruction line is done in second pass. This deviates then as instructed
-             * in assignment details */
-        }
+            /* Further processing of instruction line is done in second pass. This deviates then the algorithm in assignment details */
     }
-    *pSymbol = symbolTable;
+    *symbolTableOut = symbolTable;
     return error;
 }
 
