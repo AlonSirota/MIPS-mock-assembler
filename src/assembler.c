@@ -33,13 +33,13 @@ void assemblePath(char *fileName) {
  */
 void assembleFile(FILE *f, char *fileName) {
     assert(f != NULL);
-    enum ErrorCode e1, e2, e3, e4;
     bytesNode *dataImage;
     int ic, dc;
     FILE *objFile;
     char objFileName[MAX_FILE_NAME_LEN];
     Symbol *symbolTable;
     externalTable  *externalTable1;
+    int hasErrors = FALSE;
 
     if (firstPass(f, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
         /* Name of object file is: "<.as file name>.ob" */
@@ -48,29 +48,25 @@ void assembleFile(FILE *f, char *fileName) {
 
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
         if (objFile = fopen(objFileName, "w")) {
-            e2 = writeObjFileHeader(objFile, ic, dc);
-            e1 = secondPass(f, objFile, symbolTable, externalTable1);
+            /* Generate the different output files, set on has errors if encountered any errors in them */
+            hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
+            hasErrors |= (GOOD != secondPass(f, objFile, symbolTable, externalTable1));
             fclose(objFile); /* secondPass is done processing object file */
 
-            if (e1 == GOOD && e2 == GOOD) {
-                e1 = generateEntriesFile(fileName, symbolTable);
-                e2 = generateExternalsFile(fileName, symbolTable);
-                if (e1 == GOOD && e2 == GOOD) {
-                    // ok
-                }else{
-                    printf("error2");
-                    remove(objFileName);
-                    //remove(objFileName);
-                    //remove(objFileName);
-                }
-            } else {
-                printf("error 1");
-                remove(objFileName); /* Delete object file, as it shouldn't be saved if an error was found. */
+            if (!hasErrors) {
+                hasErrors |= (GOOD != generateEntriesFile(fileName, symbolTable));
+                hasErrors |= (GOOD != generateExternalsFile(fileName, symbolTable));
             }
         } else {
             printf("Error while opening file %s\n", fileName);
+            hasErrors = TRUE;
         }
         printf("ok?");
+    }
+
+    if (hasErrors) {
+        /* assembleFile function is responsible for deleting objectfile if encountered any errors during assembly process */
+        remove(objFileName);
     }
 }
 
@@ -94,8 +90,10 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
             }
         }
         return GOOD;
-    }else
+    }else {
+        remove(entrFileName);
         return FILE_WRITE_ERROR;
+    }
 }
 
 enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
@@ -109,8 +107,10 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
                 return FILE_WRITE_ERROR;
         }
         return GOOD;
-    }else
+    }else {
+        remove(externalFileName);
         return FILE_WRITE_ERROR;
+    }
 }
 
 enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc) {
