@@ -38,7 +38,7 @@ void assembleFile(FILE *f, char *fileName) {
     FILE *objFile;
     char objFileName[MAX_FILE_NAME_LEN];
     Symbol *symbolTable;
-    externalTable  *externalTable1;
+    externalTable  *externalTable;
     int hasErrors = FALSE;
 
     if (firstPass(f, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
@@ -50,12 +50,12 @@ void assembleFile(FILE *f, char *fileName) {
         if (objFile = fopen(objFileName, "w")) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
-            hasErrors |= (GOOD != secondPass(f, objFile, symbolTable, externalTable1));
+            hasErrors |= (GOOD != secondPass(f, objFile, symbolTable, externalTable));
             fclose(objFile); /* secondPass is done processing object file */
 
             if (!hasErrors) {
                 hasErrors |= (GOOD != generateEntriesFile(fileName, symbolTable));
-                hasErrors |= (GOOD != generateExternalsFile(fileName, symbolTable));
+                hasErrors |= (GOOD != generateExternalsFile(fileName, externalTable));
             }
         } else {
             printf("Error while opening file %s\n", fileName);
