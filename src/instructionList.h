@@ -10,6 +10,8 @@
 #include "symbolTable.h"
 #include "line.h"
 #include "consts.h"
+#include "externalTable.h"
+
 #define R_OP_OFFSET 26
 #define R_RS_OFFSET 21
 #define R_RT_OFFSET 16
@@ -67,11 +69,11 @@ typedef struct inst{
 extern inst INSTRUCTIONS[];
 inst *findInstruction(char *name);
 
-enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic);
+enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic, externalTable  *externalTable1);
 
 enum ErrorCode parseRInstruction(inst *instruction, node *node, char *buf);
 enum ErrorCode parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
-enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, externalTable  *externalTable1);
 
 enum ErrorCode instructionRArithmetic(inst *instruction, node *node, char *buf);
 enum ErrorCode instructionRMove(inst *instruction, node *node, char *buf);
@@ -80,9 +82,9 @@ enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symb
 enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf);
 enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable);
 
-enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable, externalTable  *externalTable1);
 enum ErrorCode instructionJStop(inst *instruction, node *node, char *buf);
-enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable, externalTable  *externalTable1);
 
 enum ErrorCode parseRegister(node *node, int *reg);
 void printInstruction(char *buf, unsigned int binaryInstruction);

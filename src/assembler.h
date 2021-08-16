@@ -14,6 +14,7 @@
 #include "line.h"
 #include "symbolTable.h"
 #include "directive.h"
+#include "externalTable.h"
 
 typedef struct bytesNode {
     byte *bytes;
@@ -26,7 +27,7 @@ char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
 void assembleFile(FILE *f, char *fileName);
 enum ErrorCode firstPass(FILE *f, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **pSymbol);
-enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st);
+enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  *externalTable1);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 int addBytesToImage(bytesNode **tablePtr, byte *bytes);
@@ -36,4 +37,5 @@ void printError(enum ErrorCode ec, int lineNo);
 enum ErrorCode printLineToFile(FILE *pIobuf, int no, char *buf);
 enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc);
 enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable);
+enum ErrorCode generateExternalsFile (char *fileName, externalTable *et);
 #endif //ASSEMBLER_ASSEMBLER_H

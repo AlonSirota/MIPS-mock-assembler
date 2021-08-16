@@ -9,7 +9,7 @@
 void assemblePath(char *fileName) {
     /* Check that fileName ends with .asm */
     char *extension = strstr(fileName, ASSEMBLY_EXTENSION);
-    if (extension) {
+    if (extension == NULL) {
         printf("%s is not a valid assembly file name\n", fileName);
         return;
     }
@@ -33,12 +33,13 @@ void assemblePath(char *fileName) {
  */
 void assembleFile(FILE *f, char *fileName) {
     assert(f != NULL);
-    enum ErrorCode e, e2;
+    enum ErrorCode e1, e2, e3, e4;
     bytesNode *dataImage;
     int ic, dc;
     FILE *objFile;
     char objFileName[MAX_FILE_NAME_LEN];
     Symbol *symbolTable;
+    externalTable  *externalTable1;
 
     if (firstPass(f, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
         /* Name of object file is: "<.as file name>.ob" */
@@ -48,18 +49,28 @@ void assembleFile(FILE *f, char *fileName) {
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
         if (objFile = fopen(objFileName, "w")) {
             e2 = writeObjFileHeader(objFile, ic, dc);
-            e = secondPass(f, objFile, symbolTable);
+            e1 = secondPass(f, objFile, symbolTable, externalTable1);
             fclose(objFile); /* secondPass is done processing object file */
 
-            if (e == GOOD && e2 == GOOD) {
-                // TODO generate the rest of the files: entries and extern
-                e = generateEntriesFile(fileName, symbolTable);
+            if (e1 == GOOD && e2 == GOOD) {
+                e1 = generateEntriesFile(fileName, symbolTable);
+                e2 = generateEntriesFile(fileName, symbolTable);
+                if (e1 == GOOD && e2 == GOOD) {
+                    // ok
+                }else{
+                    printf("error2");
+                    remove(objFileName);
+                    //remove(objFileName);
+                    //remove(objFileName);
+                }
             } else {
+                printf("error 1");
                 remove(objFileName); /* Delete object file, as it shouldn't be saved if an error was found. */
             }
         } else {
             printf("Error while opening file %s\n", fileName);
         }
+        printf("ok?");
     }
 }
 
@@ -73,7 +84,7 @@ void assembleFile(FILE *f, char *fileName) {
 enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
     char entrFileName[MAX_FILE_NAME_LEN];
     strcpy(entrFileName, fileName);
-    strcat(entrFileName, ".ob");
+    strcat(entrFileName, ".ent");
     FILE *entrFile;
     if (entrFile = fopen(entrFileName, "w")) {
         while (symbolTable != NULL){
@@ -81,6 +92,21 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
                 if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0)
                     return FILE_WRITE_ERROR;
             }
+        }
+        return GOOD;
+    }else
+        return FILE_WRITE_ERROR;
+}
+
+enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
+    char externalFileName[MAX_FILE_NAME_LEN];
+    strcpy(externalFileName, fileName);
+    strcat(externalFileName, ".ext");
+    FILE *entrFile;
+    if (entrFile = fopen(externalFileName, "w")) {
+        while (et != NULL){
+            if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0)
+                return FILE_WRITE_ERROR;
         }
         return GOOD;
     }else
@@ -202,7 +228,7 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
     return buffer;
 }
 
-enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st){
+enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  *externalTable1){
     int ic = 100, lineNo = 1;
     char lineStr[LINE_LENGTH + 1],  buf[80];
     enum ErrorCode ecTemp, ec;
@@ -214,7 +240,7 @@ enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st){
             lineNo++;
             continue;
         }
-        ecTemp = parseInstruction(&lineParsed.head, buf, st, ic);
+        ecTemp = parseInstruction(&lineParsed.head, buf, st, ic, externalTable1);
         if(ecTemp != GOOD){
             printError(ecTemp, lineNo);
             ec = GENERIC_ERROR;
