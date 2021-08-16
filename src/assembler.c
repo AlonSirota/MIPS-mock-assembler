@@ -54,7 +54,7 @@ void assembleFile(FILE *f, char *fileName) {
 
             if (e1 == GOOD && e2 == GOOD) {
                 e1 = generateEntriesFile(fileName, symbolTable);
-                e2 = generateEntriesFile(fileName, symbolTable);
+                e2 = generateExternalsFile(fileName, symbolTable);
                 if (e1 == GOOD && e2 == GOOD) {
                     // ok
                 }else{
