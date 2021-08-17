@@ -152,14 +152,14 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
                 *dcOut += sizeof(directiveBytes);
             }
         }
-        else if (!strcmp(lineParsed.label,ENTRY_MNEMONIC)) { /* process entry lines */
+        else if (!strcmp(lineParsed.head.value,ENTRY_MNEMONIC)) { /* process entry lines */
             continue; /* Not handled in first pass. */
         }
-        else if (!strcmp(lineParsed.label,EXTERN_MNEMONIC)) { /* process extern lines */
+        else if (!strcmp(lineParsed.head.value,EXTERN_MNEMONIC)) { /* process extern lines */
             error = processExtern(lineParsed.head, &symbolTable, *dcOut);
             logError(error, &hasErrors, lineNumber);
         }
-        else if (lineParsed.label != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
+        else if (lineParsed.head.value != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
                 error = addSymbol(&symbolTable, lineParsed.label, *icOut, CODE);
                 logError(error, &hasErrors, lineNumber);
                 *icOut += 4;
