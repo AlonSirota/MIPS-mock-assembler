@@ -143,7 +143,10 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             }
 
             /* Encode directive data */
-            if (directiveBytes = directiveToBytes(lineParsed, &error))
+            directiveBytes = directiveToBytes(lineParsed, &error);
+            logError(error, &hasErrors, lineNumber);
+
+            if (directiveBytes)
             {
                 addBytesToImage(dataImagePtr, directiveBytes);
                 *dcOut += sizeof(directiveBytes);
