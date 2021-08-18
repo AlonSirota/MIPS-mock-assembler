@@ -15,6 +15,7 @@
 #include "symbolTable.h"
 #include "directive.h"
 #include "externalTable.h"
+#include "helper.h"
 
 typedef struct bytesNode {
     byte *bytes;

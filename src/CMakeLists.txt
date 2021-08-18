@@ -14,4 +14,4 @@ add_executable(assembler
         instructionList.c
         instructionList.h
         directive.c
-        directive.h consts.h consts.c externalTable.c externalTable.h)
+        directive.h consts.h consts.c externalTable.c externalTable.h helper.c helper.h)

@@ -322,6 +322,8 @@ int addBytesToImage(bytesNode **tablePtr, byte *bytes) {
 enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr) {
     if (operandHead.value == NULL) { /* First operand will be the external label */
         return MISSING_OPERAND;
+    } else if (!isLastNode(operandHead)) { /* Should only have one argument */
+        return TOO_MANY_ARGUMENTS;
     } else if (isValidLabel(operandHead.value)) {
         return addSymbol(symbolTablePtr, operandHead.value, 0, EXTERNAL);
     } else {

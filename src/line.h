@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include "helper.h"
 
 
 typedef struct node {
@@ -42,4 +43,5 @@ void trimTrailingSpace(char *str);
 char * trimWhiteSpace(char *str);
 void freeLine(line l);
 void freeSafely(void *ptr);
+int isLastNode(node n);
 #endif //WTFPROJECT_LINE_H

@@ -209,3 +209,11 @@ void parseParameters(char *paramStr, line *lOut) {
         parseGenericParameters(paramStr, lOut);
     }
 }
+
+/*
+ * Return if node is last in linked list.
+ * empty string nodes don't count as a node.
+ */
+int isLastNode(node n) {
+    return n.next == NULL || isEmptyString(n.next->value);
+}
