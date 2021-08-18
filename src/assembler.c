@@ -27,12 +27,12 @@ void assemblePath(char *fileName) {
 
 
 /*
- * Assembles file f.
- * f parameter is expected to be an opened file.
- * f won't be closed as part of this function.
+ * Assembles file asFile.
+ * asFile parameter is expected to be an opened file.
+ * asFile won't be closed as part of this function.
  */
-void assembleFile(FILE *f, char *fileName) {
-    assert(f != NULL);
+void assembleFile(FILE *asFile, char *fileName) {
+    assert(asFile != NULL);
     bytesNode *dataImage;
     int ic, dc;
     FILE *objFile;
@@ -41,7 +41,7 @@ void assembleFile(FILE *f, char *fileName) {
     externalTable  *externalTable;
     int hasErrors = FALSE;
 
-    if (firstPass(f, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
+    if (firstPass(asFile, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
         /* Name of object file is: "<.as file name>.ob" */
         strcpy(objFileName, fileName);
         strcat(objFileName, ".ob");
@@ -50,7 +50,7 @@ void assembleFile(FILE *f, char *fileName) {
         if (objFile = fopen(objFileName, "w")) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
-            hasErrors |= (GOOD != secondPass(f, objFile, symbolTable, externalTable));
+            hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, externalTable));
             fclose(objFile); /* secondPass is done processing object file */
 
             if (!hasErrors) {
