@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 
 set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(vendor)
-add_executable(tests test.cpp)
+add_executable(tests test.cpp utility.cpp utility.h)
 add_test(NAME check COMMAND tests)
 #Enables including files in specified directories.
 target_include_directories(tests

@@ -9,6 +9,11 @@
 #include "symbolTable.c"
 #include "consts.c"
 #include "externalTable.c"
+#include "helper.c"
+#include "utility.h"
+
+/* Used for creating path of .as files for testing */
+const std::string asFilesBasePath = "../../tests/assembly_files_test_cases/";
 
 TEST(fgetsShred, Shred) {
     FILE *stream;
