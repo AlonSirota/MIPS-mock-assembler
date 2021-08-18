@@ -31,7 +31,7 @@ enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  *ex
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 int addBytesToImage(bytesNode **tablePtr, byte *bytes);
-enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc);
+enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr);
 int isLineRelevant(line l);
 void printError(enum ErrorCode ec, int lineNo);
 enum ErrorCode printLineToFile(FILE *pIobuf, int no, char *buf);

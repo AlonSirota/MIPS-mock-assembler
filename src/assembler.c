@@ -156,7 +156,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             continue; /* Not handled in first pass. */
         }
         else if (!strcmp(lineParsed.head.value,EXTERN_MNEMONIC)) { /* process extern lines */
-            error = processExtern(lineParsed.head, &symbolTable, *dcOut);
+            error = processExtern(lineParsed.head, &symbolTable);
             logError(error, &hasErrors, lineNumber);
         }
         else if (lineParsed.head.value != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
@@ -315,11 +315,15 @@ int addBytesToImage(bytesNode **tablePtr, byte *bytes) {
     return EXIT_SUCCESS;
 }
 
-enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr, int dc) {
-    if (operandHead.value == NULL) {
+/*
+ * Adds extern to symbol table, with address of 0.
+ * Returns ErrorCode corresponding to outcome.
+ */
+enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr) {
+    if (operandHead.value == NULL) { /* First operand will be the external label */
         return MISSING_OPERAND;
     } else if (isValidLabel(operandHead.value)) {
-        return addSymbol(symbolTablePtr, operandHead.value, dc, EXTERNAL);
+        return addSymbol(symbolTablePtr, operandHead.value, 0, EXTERNAL);
     } else {
         return INVALID_LABEL;
     }
