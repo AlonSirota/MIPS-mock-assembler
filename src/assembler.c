@@ -38,7 +38,7 @@ void assembleFile(FILE *asFile, char *fileName) {
     FILE *objFile;
     char objFileName[MAX_FILE_NAME_LEN];
     Symbol *symbolTable;
-    externalTable  *externalTable;
+    externalTable  *externalTable = NULL;
     int hasErrors = FALSE;
 
     if (firstPass(asFile, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
@@ -46,14 +46,16 @@ void assembleFile(FILE *asFile, char *fileName) {
         strcpy(objFileName, fileName);
         strcat(objFileName, ".ob");
 
+        rewind(asFile); /* bring file stream back to start... */
+
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
         if (objFile = fopen(objFileName, "w")) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
-            hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, externalTable));
+            hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, &externalTable));
             fclose(objFile); /* secondPass is done processing object file */
 
-            if (!hasErrors) {
+            if (!hasErrors) { /* TODO: delete files when failed */
                 hasErrors |= (GOOD != generateEntriesFile(fileName, symbolTable));
                 hasErrors |= (GOOD != generateExternalsFile(fileName, externalTable));
             }
@@ -84,11 +86,15 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
     FILE *entrFile;
     if (entrFile = fopen(entrFileName, "w")) {
         while (symbolTable != NULL){
-            if(symbolTable->attributes | ENTRY){
-                if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0)
+            if(symbolTable->attributes & ENTRY){
+                if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0){
+                    fclose(entrFile);
                     return FILE_WRITE_ERROR;
+                }
             }
+            symbolTable = symbolTable->next;
         }
+        fclose(entrFile);
         return GOOD;
     }else {
         remove(entrFileName);
@@ -103,9 +109,12 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
     FILE *entrFile;
     if (entrFile = fopen(externalFileName, "w")) {
         while (et != NULL){
-            if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0)
+            if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0){
+                fclose(entrFile);
                 return FILE_WRITE_ERROR;
+            }
         }
+        fclose(entrFile);
         return GOOD;
     }else {
         remove(externalFileName);
@@ -130,7 +139,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
 
     /* Iterate over file's lines, while counting the line number */
     /* fgetshred reads a line from asFile to lineStr */
-    for (lineNumber = 0; fgetsShred(asFile, LINE_LENGTH + 1, lineStr); lineNumber++) {
+    for (lineNumber = 1; fgetsShred(asFile, LINE_LENGTH + 1, lineStr); lineNumber++) {
         lineParsed = strToLine(lineStr);
 
         if (!isLineRelevant(lineParsed)) { /* skip irrelevant lines */
@@ -153,13 +162,14 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             }
         }
         else if (!strcmp(lineParsed.head.value,ENTRY_MNEMONIC)) { /* process entry lines */
-            continue; /* Not handled in first pass. */
+            error = addSymbol(&symbolTable, lineParsed.head.next->value, -1, ENTRY);
+            logError(error, &hasErrors, lineNumber);
         }
         else if (!strcmp(lineParsed.head.value,EXTERN_MNEMONIC)) { /* process extern lines */
             error = processExtern(lineParsed.head, &symbolTable);
             logError(error, &hasErrors, lineNumber);
         }
-        else if (lineParsed.head.value != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
+        else if (lineParsed.head.value != NULL && lineParsed.label != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
                 error = addSymbol(&symbolTable, lineParsed.label, *icOut, CODE);
                 logError(error, &hasErrors, lineNumber);
                 *icOut += 4;
@@ -227,7 +237,7 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
     return buffer;
 }
 
-enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  *externalTable1){
+enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1){
     int ic = 100, lineNo = 1;
     char lineStr[LINE_LENGTH + 1],  buf[80];
     enum ErrorCode ecTemp, ec;
@@ -235,7 +245,7 @@ enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  *ex
     assert(f != NULL);
     while(fgetsShred(f, LINE_LENGTH + 1, lineStr) != NULL){
         lineParsed = strToLine(lineStr);
-        if(lineParsed.head.value == NULL){ /* empty line */
+        if(lineParsed.head.value == NULL || lineParsed.head.value[0] == '.'){ /* empty line or a directive*/
             lineNo++;
             continue;
         }

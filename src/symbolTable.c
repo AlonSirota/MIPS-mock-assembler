@@ -1,7 +1,9 @@
 //
 // Created by Ram Ben on 7/2/2021.
 //
+#include <ctype.h>
 #include "symbolTable.h"
+#include "instructionList.h"
 
 
 Symbol *newSymbol(char *label, int address, int attributes);
@@ -17,7 +19,10 @@ Symbol *findSymbolInTable(Symbol *table, char *label) {
 enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
     Symbol* curr;
     Symbol *next;
-    // TODO check if label is legal, return an error otherwise. Can't be an assembly keyword.
+    enum ErrorCode ec = isValidLabel(label);
+    // TODO check if label is legal, return an error otherwise. Can't be an assembly keyword: TEST
+    if(ec != GOOD)
+        return ec;
     next = newSymbol(label, address, attributes); /* Prepare new symbol */
     // TODO makesure malloc succeded
 
@@ -30,9 +35,15 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
     curr = *tablePtr;
     do {
         /* Don't append to table if label already exists */
-        if (!strcmp(curr->label, label)) { // TODO add exception, it's ok if trying to add external symbol, that is already defined as external.
+        if (!strcmp(curr->label, label) && !(attributes & EXTERNAL)) { // TODO add exception, it's ok if trying to add external symbol, that is already defined as external.
+            if((curr->attributes & ENTRY) && curr->address == -1){ /* an entry may be decleared before defined, in this case temp addr "-1" is given */
+                curr->attributes |= attributes; /*add new attr*/
+                curr->address = address;
+                discardTable(next); /* no need for a new node */
+                return GOOD; /*  */
+            }
             discardTable(next);
-            printf("label %s was already defined\n", label);
+            /*printf("label %s was already defined\n", label);*/
             return ERR_LABEL_ALREADY_DEFINED;
         }
 
@@ -67,7 +78,24 @@ void discardTable(Symbol *table) {
     }
 }
 
-int isValidLabel(char *str) {
-    // TODO
-    return 1;
+
+enum ErrorCode isValidLabel(char *str){
+    char *in;
+    inst *instruction = findInstruction(str);
+    if(instruction != NULL)
+        return LABLE_IS_FORBIDDEN_WORD;
+    if(str == NULL)
+        return INVALID_LABEL;
+    in = str;
+    int count = 1;
+    if(!isalpha(in[0]))
+        return INVALID_LABEL;
+
+    while (in[count] != NULL){
+        if(!isalnum(in[count]))
+            return INVALID_LABEL;
+        count++;
+    }
+
+    return (count <= 31)?GOOD:INVALID_LABEL;
 }

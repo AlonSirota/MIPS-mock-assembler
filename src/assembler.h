@@ -28,7 +28,7 @@ char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
 void assembleFile(FILE *asFile, char *fileName);
 enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **symbolTableOut);
-enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  *externalTable1);
+enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 int addBytesToImage(bytesNode **tablePtr, byte *bytes);

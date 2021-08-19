@@ -5,7 +5,7 @@
 #ifndef WTFPROJECT_SYMBOLTABLET_H
 #define WTFPROJECT_SYMBOLTABLET_H
 #include <stdlib.h>
-#include "string.h"
+#include <string.h>
 #include "consts.h"
 #include <stdio.h>
 
@@ -28,6 +28,6 @@ typedef struct symbolNode {
 Symbol *findSymbolInTable(Symbol *table, char *label);
 enum ErrorCode addSymbol(Symbol **tablePtr, char* label, int address, int attributes);
 void discardTable(Symbol *table);
-int isValidLabel(char *str);
+enum ErrorCode isValidLabel(char *str);
 
 #endif //WTFPROJECT_INSTRUCTIONLIST_H
