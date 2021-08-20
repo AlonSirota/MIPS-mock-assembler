@@ -113,6 +113,7 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
                 fclose(entrFile);
                 return FILE_WRITE_ERROR;
             }
+            et = et->next;
         }
         fclose(entrFile);
         return GOOD;
@@ -170,10 +171,12 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             error = processExtern(lineParsed.head.next, symbolTableOut);
             logError(error, &hasErrors, lineNumber);
         }
-        else if (lineParsed.head.value != NULL && lineParsed.label != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
+        else if (lineParsed.head.value != NULL ) {/* Treat this line as an instruction, as concluded by process of elimination. */
+            if(lineParsed.label != NULL){
                 error = addSymbol(symbolTableOut, lineParsed.label, *icOut, CODE);
                 logError(error, &hasErrors, lineNumber);
-                *icOut += 4;
+            }
+            *icOut += 4;
             }
             /* Further processing of instruction line is done in second pass. This deviates then the algorithm in assignment details */
     }

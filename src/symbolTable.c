@@ -35,10 +35,10 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
     curr = *tablePtr;
     do {
         /* Don't append to table if label already exists */
-        if (!strcmp(curr->label, label) && !(attributes & EXTERNAL)) { // TODO add exception, it's ok if trying to add external symbol, that is already defined as external.
-            if((curr->attributes & ENTRY) && curr->address == -1){ /* an entry may be decleared before defined, in this case temp addr "-1" is given */
+        if (!strcmp(curr->label, label) && !(attributes & EXTERNAL)) {
+            if(((curr->attributes & ENTRY) || (attributes & ENTRY)) && (curr->address == -1 || address == -1)){ /* an entry may be decleared before defined, in this case temp addr "-1" is given */
                 curr->attributes |= attributes; /*add new attr*/
-                curr->address = address;
+                curr->address = (address == -1)?(curr->address):address;
                 discardTable(next); /* no need for a new node */
                 return GOOD; /*  */
             }

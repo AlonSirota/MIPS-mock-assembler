@@ -197,7 +197,7 @@ enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symb
     binaryInstruction |= instruction->opcode << I_OP_OFFSET;
     binaryInstruction |= rs << I_RS_OFFSET;
     binaryInstruction |= rt << I_RT_OFFSET;
-    binaryInstruction |= add << I_IMMED_OFFSET;
+    binaryInstruction |= (add & ((1<<16)-1)) << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
     return GOOD;
 }
