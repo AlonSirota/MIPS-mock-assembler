@@ -167,7 +167,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             logError(error, &hasErrors, lineNumber);
         }
         else if (!strcmp(lineParsed.head.value,EXTERN_MNEMONIC)) { /* process extern lines */
-            error = processExtern(lineParsed.head, symbolTableOut);
+            error = processExtern(lineParsed.head.next, symbolTableOut);
             logError(error, &hasErrors, lineNumber);
         }
         else if (lineParsed.head.value != NULL && lineParsed.label != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
@@ -325,13 +325,13 @@ int addBytesToImage(bytesNode **tablePtr, byte *bytes) {
  * Adds extern to symbol table, with address of 0.
  * Returns ErrorCode corresponding to outcome.
  */
-enum ErrorCode processExtern(node operandHead, Symbol **symbolTablePtr) {
-    if (operandHead.value == NULL) { /* First operand will be the external label */
+enum ErrorCode processExtern(node *operandHead, Symbol **symbolTablePtr) {
+    if (operandHead == NULL) {
         return MISSING_OPERAND;
-    } else if (!isLastNode(operandHead)) { /* Should only have one argument */
+    } else if (!isLastNode(*operandHead)) { /* Should only have this one argument */
         return TOO_MANY_ARGUMENTS;
-    } else if (isValidLabel(operandHead.value)) {
-        return addSymbol(symbolTablePtr, operandHead.value, 0, EXTERNAL);
+    } else if (isValidLabel(operandHead->value)) {
+        return addSymbol(symbolTablePtr, operandHead->value, 0, EXTERNAL);
     } else {
         return INVALID_LABEL;
     }
