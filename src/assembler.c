@@ -134,7 +134,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     line lineParsed;
     *symbolTableOut = NULL;
     *dataImagePtr = NULL;
-    byte *directiveBytes = NULL;
+    byteArray directiveBytes;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
     *icOut = 100, *dcOut = 0;
@@ -158,10 +158,10 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             directiveBytes = directiveToBytes(lineParsed, &error);
             logError(error, &hasErrors, lineNumber);
 
-            if (directiveBytes)
+            if (error == GOOD)
             {
                 addBytesToImage(dataImagePtr, directiveBytes);
-                *dcOut += sizeof(directiveBytes);
+                *dcOut += sizeof(directiveBytes.size);
             }
         }
         else if (!strcmp(lineParsed.head.value,ENTRY_MNEMONIC)) { /* process entry lines */
@@ -303,7 +303,7 @@ void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
     }
 }
 
-int addBytesToImage(bytesNode **tablePtr, byte *bytes) {
+int addBytesToImage(bytesNode **tablePtr, byteArray bytes) {
     bytesNode * curr;
     bytesNode *next = (bytesNode *) malloc(sizeof (bytesNode)); /* Prepare new symbol */
     // TODO makesure malloc succeded
@@ -355,17 +355,19 @@ int isLineRelevant(line l) {
  * returs GOOD or FILE_WRITE_ERROR if failed
  */
 enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic) {
-    byte *bytePtr;
+    byteArray bytes;
     bytesNode *curr;
-    int currAddr = ic; /* address of last appended byte */
+    int currAddr = ic /* address of last appended byteArray */
+            ,i;
 
     /* Overwrite the last character, because it will always be a '\n' char, to prevent consecutive newlines */
     fseek(objFile, -1, SEEK_CUR);
 
     /* each node */
     for (curr = dataImage; curr != NULL; curr = curr->next) {
-        /* each byte in node */
-        for (bytePtr = dataImage->bytes; bytePtr - dataImage->bytes < sizeof dataImage->bytes; bytePtr++) {
+        /* each byteArray in node */
+        bytes = curr->bytes;
+        for (i = 0; i < bytes.size; i++) {
             /* Every few bytes, carriage return and print address */
             if (currAddr % BYTES_PER_LINE == 0) {
                 if (fprintf(objFile,"\n%.4d", currAddr) < 0) {
@@ -373,8 +375,8 @@ enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic
                 }
             }
 
-            /* Print current byte as two Hex characters */
-            if (fprintf(objFile, " %.2X", *bytePtr) < 0) {
+            /* Print current byteArray as two Hex characters */
+            if (fprintf(objFile, " %.2X", bytes.arr[i]) < 0) {
                 return FILE_WRITE_ERROR;
             }
             currAddr++;

@@ -779,22 +779,23 @@ TEST(instructionJ, baseLabel){// wont work.... mistake in the maman....
 }
 
 TEST(directiveToByteTest, db) {
-    byte buffer[1000];
-    byte *res;
+    byteArray buffer[1000];
+    byteArray res;
     ErrorCode e;
     node nextNext = {.value = "-12", .next = NULL};
     node next = {.value = "31", .next = &nextNext};
     node head = {.value = ".db", .next = &next};
     line l = {.head = head};
     res = directiveToBytes(l, &e);
-    ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
-    ASSERT_TRUE(res[1] == 0b11110100); /* -12 in binary */
+    printf("%d   %d   ", res.arr[0], res.arr[1]);
+    ASSERT_TRUE(res.arr[0] == 31); /* 31 in binary */
+    ASSERT_TRUE(res.arr[1] == -12); /* -12 in binary */
 
-    free(res);
+    free(res.arr);
 }
 TEST(directiveToByteTest, dw) {
-    byte buffer[1000];
-    byte *res;
+    byteArray buffer[1000];
+    byteArray res;
     ErrorCode e;
     node nextNext = {.value = "-12", .next = NULL};
     node next = {.value = "31", .next = &nextNext};
@@ -802,21 +803,21 @@ TEST(directiveToByteTest, dw) {
     line l = {.head = head};
     res = directiveToBytes(l,&e);
 
-    ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
-    ASSERT_TRUE(res[1] == 0);
-    ASSERT_TRUE(res[2] == 0);
-    ASSERT_TRUE(res[3] == 0);
+    ASSERT_TRUE(res.arr[0] == 31); /* 32 in binary */
+    ASSERT_TRUE(res.arr[1] == 0);
+    ASSERT_TRUE(res.arr[2] == 0);
+    ASSERT_TRUE(res.arr[3] == 0);
 
-    ASSERT_TRUE(res[4] == 0b11110100); /* -12 in binary */
-    ASSERT_TRUE(res[5] == 0b11111111);
-    ASSERT_TRUE(res[6] == 0b11111111);
-    ASSERT_TRUE(res[7] == 0b11111111);
+    ASSERT_TRUE(res.arr[4] == -12); /* -12 in binary */
+    ASSERT_TRUE((unsigned char) res.arr[5] == 0b11111111);
+    ASSERT_TRUE((unsigned char)res.arr[6] == 0b11111111);
+    ASSERT_TRUE((unsigned char)res.arr[7] == 0b11111111);
 
-    free(res);
+    free(res.arr);
 }
 TEST(directiveToByteTest, dh) {
-    byte buffer[1000];
-    byte *res;
+    char buffer[1000];
+    byteArray res;
     ErrorCode e;
     node nextNext = {.value = "-12", .next = NULL};
     node next = {.value = "31", .next = &nextNext};
@@ -824,12 +825,12 @@ TEST(directiveToByteTest, dh) {
     line l = {.head = head};
     res = directiveToBytes(l,&e);
 
-    ASSERT_TRUE(res[0] == 0b00011111); /* 32 in binary */
-    ASSERT_TRUE(res[1] == 0b00000000);
+    ASSERT_TRUE((unsigned char)res.arr[0] == 0b00011111); /* 32 in binary */
+    ASSERT_TRUE((unsigned char)res.arr[1] == 0b00000000);
 
-    ASSERT_TRUE(res[2] == 0b11110100); /* -12 in binary */
-    ASSERT_TRUE(res[3] == 0b11111111);
-    free(res);
+    ASSERT_TRUE((unsigned char)res.arr[2] == 0b11110100); /* -12 in binary */
+    ASSERT_TRUE((unsigned char)res.arr[3] == 0b11111111);
+    free(res.arr);
 }
 
 TEST(printErrors, codeToMsg){

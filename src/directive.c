@@ -4,6 +4,8 @@
 
 #include "directive.h"
 
+int directiveTypeToSize(directiveType type);
+
 directiveType strToDirectiveType(char *name){
     if(name == NULL)
         return UNDEFINED;
@@ -29,34 +31,54 @@ int isLineDirective(line l) {
 }
 
 /*
- * Convert l line (that is assumed to be a directive command) to byte array.
+ * Convert l line (that is assumed to be a directive command) to byteArray array.
  */
-byte * directiveToBytes(line l, enum ErrorCode *errorOut) {
+byteArray directiveToBytes(line l, enum ErrorCode *errorOut) {
     char *mnemonic = l.head.value;
-    byte bytes[LINE_LENGTH * WORD_SIZE]; /* This size will suffice the 'heaviest' case of a line like "<mnemonic> .dw 0,0,0,0..." */
-    int count;
-    byte *result;
+    char byteBuffer[LINE_LENGTH * WORD_SIZE]; /* This size will suffice the 'heaviest' case of a line like "<mnemonic> .dw 0,0,0,0..." */
+    byteArray result = {NULL, 0}; /* empty result */
+    int dElementSize;
 
-    if (mnemonic == NULL) {
-        return NULL;
-    }
-    else if (!strcmp(mnemonic, ".db")) {
-        count = lineParametersToBytes(l.head.next, bytes, BYTE_SIZE);
-    }else if (!strcmp(mnemonic, ".dh")) {
-        count = lineParametersToBytes(l.head.next, bytes, HALF_SIZE);
-    }else if (!strcmp(mnemonic, ".dw")) {
-        count = lineParametersToBytes(l.head.next, bytes, WORD_SIZE);
-    }
-    else if (!strcmp(mnemonic, ".asciz")) {
-        count = ascizParametersToBytes(l.head.next, bytes, errorOut);
-    }else  {
-        printf("Unrecognized directive mnemonic: \"%s\"\n", mnemonic); /* TODO errorCodeify this */
+    /* Convert string to byteBuffer according to the mnemonic */
+    directiveType type = strToDirectiveType(mnemonic);
+    switch (type) {
+        case ASCII_TYPE:
+            result.size = ascizParametersToBytes(l.head.next, byteBuffer, errorOut);
+            break;
+
+        /* .db, .dw, .dh are processed the same way, with only the size of each element varying */
+        case BYTE_TYPE:
+        case WORD_TYPE:
+        case HALF_WORD_TYPE:
+            dElementSize = directiveTypeToSize(type);
+            result.size = lineParametersToBytes(l.head.next, byteBuffer, dElementSize);
+            break;
+        default:
+            *errorOut = UNDEFINED_DIRECTIVE_MNEMONIC;
+            return result;
     }
 
     /* Copy the section of the buffer that contains the generated data. */
-    result = (byte *) malloc(sizeof(byte) * count); /* TODO error check */
-    memcpy(result, bytes, count);
+    result.arr = (char *) malloc(sizeof(char) * result.size); /* TODO error check */
+    memcpy(result.arr, byteBuffer, result.size);
     return result;
+}
+
+/*
+ * Returns the size (in bytes) of each element of the directive type .db/.dh/.dw.
+ * Returns 0 if type is not any of the above.
+ */
+int directiveTypeToSize(directiveType type) {
+    switch (type) {
+        case BYTE_TYPE:
+            return BYTE_SIZE;
+        case HALF_WORD_TYPE:
+            return HALF_SIZE;
+        case WORD_TYPE:
+            return WORD_SIZE;
+        default:
+            return 0;
+    }
 }
 
 /*
@@ -65,7 +87,7 @@ byte * directiveToBytes(line l, enum ErrorCode *errorOut) {
  * Bytes are inserted in little endian
  * Returns the number of bytes written.
  */
-int lineParametersToBytes(node *head, byte *buffer, int size) {
+int lineParametersToBytes(node *head, char *buffer, int size) {
     long int res;
     int i, j, count = 0, shift;
     for (i = 0;head != NULL; head = head->next, i++) {
@@ -98,7 +120,7 @@ int lineParametersToBytes(node *head, byte *buffer, int size) {
  * Returns number of bytes inserted to buffer,
  * updates 'errOut' if found an error
  */
-int ascizParametersToBytes(node *head, byte *buffer, enum ErrorCode *errOut) {
+int ascizParametersToBytes(node *head, char *buffer, enum ErrorCode *errOut) {
     /* assert that there is 1 parameter, otherwise this error should have been caught elsewhere */
     assert(head != NULL);
     assert(head->value != NULL);
@@ -136,7 +158,7 @@ int outOfBounds(int num, int byteCount) {
             max = WORD_MAX;
             break;
         default:
-            printf("Error, unrecognized byte size in 'outOfBounds' function\n");
+            printf("Error, unrecognized byteArray size in 'outOfBounds' function\n");
     }
     return num > max || num < min;
 }

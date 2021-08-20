@@ -20,7 +20,7 @@
 #include "helper.h"
 
 typedef struct bytesNode {
-    byte *bytes;
+    byteArray bytes;
     struct bytesNode *next;
 } bytesNode;
 
@@ -33,7 +33,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1);
 char *fgetsShred(FILE *f, int n, char *buffer);
 void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
-int addBytesToImage(bytesNode **tablePtr, byte *bytes);
+int addBytesToImage(bytesNode **tablePtr, byteArray bytes);
 enum ErrorCode processExtern(node *operandHead, Symbol **symbolTablePtr);
 int isLineRelevant(line l);
 void printError(enum ErrorCode ec, int lineNo);
