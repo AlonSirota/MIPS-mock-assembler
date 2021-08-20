@@ -5,5 +5,5 @@
 #include "helper.h"
 
 int isEmptyString(char *str) {
-    return strcmp(str, "");
+    return !strcmp(str, "");
 }
