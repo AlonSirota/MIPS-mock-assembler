@@ -330,7 +330,7 @@ enum ErrorCode processExtern(node *operandHead, Symbol **symbolTablePtr) {
         return MISSING_OPERAND;
     } else if (!isLastNode(*operandHead)) { /* Should only have this one argument */
         return TOO_MANY_ARGUMENTS;
-    } else if (isValidLabel(operandHead->value)) {
+    } else if (isValidLabel(operandHead->value) == GOOD) {
         return addSymbol(symbolTablePtr, operandHead->value, 0, EXTERNAL);
     } else {
         return INVALID_LABEL;
