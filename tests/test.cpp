@@ -868,6 +868,29 @@ TEST(assemble, ps) {
     ASSERT_TRUE(compareFiles(buf2,buf3));
 }
 
+TEST(isValidLabel, addIsReserved) {
+    ASSERT_EQ(isValidLabel("add"),LABEL_IS_RESERVED_KEYWORD);
+}
+
+TEST(isValidLabel, ascizIsReserved) {
+    ASSERT_EQ(isValidLabel(".asciz"),LABEL_IS_RESERVED_KEYWORD);
+}
+
+TEST(isValidLabel, goodLabel) {
+    ASSERT_EQ(isValidLabel("goodLabel"),GOOD);
+}
+
+TEST(isValidLabel, labelCantStartWithNumber) {
+    ASSERT_EQ(isValidLabel("1badLabel"),INVALID_LABEL);
+}
+
+TEST(isValidLabel, labelWithBadChars) {
+    ASSERT_EQ(isValidLabel("bad_Label"),INVALID_LABEL); /* _ is an invalid chararacter in label*/
+}
+
+TEST(isValidLabel, tooLongLabel) {
+    ASSERT_EQ(isValidLabel("ImOver31CharactersWhichIsTheLimit"),LABEL_TOO_LONG);
+}
 /**
 * todo: add external table tests
 */
