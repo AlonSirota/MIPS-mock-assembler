@@ -626,7 +626,7 @@ TEST(instructionJJMP, baseRegister){// wont work.... mistake in the maman....
     addSymbol(&st, "Next", 116, CODE);
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, NULL);
+    status = parseJInstruction(instruction, l.head.next, buf, st,ic, NULL);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
@@ -645,25 +645,25 @@ TEST(instructionJJMP, baseLabel){// wont work.... mistake in the maman....
     strcpy(str,"jmp Next");
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"jmp Last");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"jmp First");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"jmp Prev");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
@@ -679,27 +679,27 @@ TEST(instructionJJMP, tooFewArgs){
     strcpy(str,"jmp ");
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, MISSING_ARGUMENTS);
     strcpy(str,"jmp $9,");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
     strcpy(str,"jmp $9,-5");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
     strcpy(str,"jmp Next,-5");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
     strcpy(str,"jmp Next,");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
 
 }
@@ -715,7 +715,7 @@ TEST(instructionJJMP, wrongContext){
     strcpy(str,"jmp $900");
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, OPERAND_NOT_VALID_REGISTER);
 
     /* labels are checked before.. */
@@ -731,13 +731,13 @@ TEST(instructionJStop, baseRegister){// wont work.... mistake in the maman....
     strcpy(str,"stop");
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"stop $1");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, TOO_MANY_ARGUMENTS);
 }
 TEST(instructionJ, baseLabel){// wont work.... mistake in the maman....
@@ -755,25 +755,25 @@ TEST(instructionJ, baseLabel){// wont work.... mistake in the maman....
     strcpy(str,"la K");
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"la A");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"la B");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
     strcpy(str,"la C");
     l = strToLine(str);
     instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     ASSERT_EQ(status, GOOD);
     ASSERT_EQ(strcmp(output,buf), 0);
 }
@@ -853,7 +853,7 @@ TEST(printLineToBuffere,print){
     strcpy(str,"stop");
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
-    status = parseJInstruction(instruction, l.head.next, buf, st, &externalTable);
+    status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
     printLineToBuffere(out, ic, buf);
     ASSERT_STREQ("0148 00 00 00 FC\n", out);
 }

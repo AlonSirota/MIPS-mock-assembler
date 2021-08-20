@@ -53,6 +53,7 @@ void assembleFile(FILE *asFile, char *fileName) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
             hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, &externalTable));
+
             fclose(objFile); /* secondPass is done processing object file */
 
             if (!hasErrors) { /* TODO: delete files when failed */
