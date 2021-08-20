@@ -282,9 +282,9 @@ void makeErrStr(char *buff, enum ErrorCode ec, int lineNo){
 }
 
 void printError(enum ErrorCode ec, int lineNo){
-    char buff[256];
+    char buff[ERROR_BUFFER_LENGTH];
     makeErrStr(buff, ec, lineNo);
-    fprintf(stderr, "%s", buff);
+    printf("%s", buff);
 }
 
 void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){

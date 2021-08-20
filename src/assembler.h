@@ -8,6 +8,8 @@
 #define CODE_SIZE 2^25 /* max memory size */
 #define DATA_SIZE 2^25
 
+#define ERROR_BUFFER_LENGTH 256
+
 #include <stdio.h>
 #include <assert.h>
 #include "directive.h"
