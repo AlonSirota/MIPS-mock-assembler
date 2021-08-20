@@ -297,7 +297,7 @@ void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
     while (num <= ic){
         fprintf(f, "%.4d", num);
         for(i = 0; i < 4 && num++ <= ic; i++) {
-            fprintf(f, " %.2X", codeSeg[num - 100]);
+            fprintf(f, " %2X", codeSeg[num - 100]);
         }
         printf("/n");
     }
@@ -375,8 +375,9 @@ enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic
                 }
             }
 
-            /* Print current byteArray as two Hex characters */
-            if (fprintf(objFile, " %.2X", bytes.arr[i]) < 0) {
+            /* Print current byteArray as two Hex characters
+             * cast prevents sign extension causing more than 2 characters to be written */
+            if (fprintf(objFile, " %.2X", (unsigned char) bytes.arr[i]) < 0) {
                 return FILE_WRITE_ERROR;
             }
             currAddr++;
