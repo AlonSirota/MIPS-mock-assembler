@@ -4,5 +4,5 @@
 
 #ifndef WTFPROJECT_UTILITY_H
 #define WTFPROJECT_UTILITY_H
-bool compareFiles(const std::string& p1, const std::string& p2);
+bool compareFiles(const std::string& expected, const std::string& actual);
 #endif //WTFPROJECT_UTILITY_H
