@@ -81,9 +81,9 @@ void discardTable(Symbol *table) {
 // TODO improve documentation
 enum ErrorCode isValidLabel(char *str){
     char *in;
-    inst *instruction = strToInstruction(str);
-    if(instruction != NULL)
+    if (isReservedKeyword(str)) {
         return LABEL_IS_RESERVED_KEYWORD;
+    }
     if(str == NULL)
         return INVALID_LABEL;
     in = str;
@@ -98,4 +98,18 @@ enum ErrorCode isValidLabel(char *str){
     }
 
     return (count <= 31)?GOOD:INVALID_LABEL;
+}
+
+/*
+ * Returns true if 'str' is a directive or instruction mnemonic like "add" or ".asciz"
+ */
+int isReservedKeyword(char *str) {
+    inst *instruction = strToInstruction(str);
+    if(instruction != NULL)
+        return TRUE;
+    directiveType dt = strToDirectiveType(str);
+    if (dt != UNDEFINED)
+        return TRUE;
+
+    return FALSE;
 }

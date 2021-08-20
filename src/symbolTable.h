@@ -8,6 +8,7 @@
 #include <string.h>
 #include "consts.h"
 #include <stdio.h>
+#include "directive.h"
 
 /* Will be used for flags as bitmask */
 enum symbolType {
@@ -29,5 +30,6 @@ Symbol *findSymbolInTable(Symbol *table, char *label);
 enum ErrorCode addSymbol(Symbol **tablePtr, char* label, int address, int attributes);
 void discardTable(Symbol *table);
 enum ErrorCode isValidLabel(char *str);
+int isReservedKeyword(char *str);
 
 #endif //WTFPROJECT_INSTRUCTIONLIST_H
