@@ -197,10 +197,6 @@ void logError(enum ErrorCode error, int *hasErrors, int lineNumber) {
     }
 }
 
-char *codeToMsg(enum ErrorCode code) {
-    return findErrorString(code);
-}
-
 /*
  * Like fgets, but flushes f till end of line / EOF.
  */

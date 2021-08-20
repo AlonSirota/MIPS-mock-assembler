@@ -24,6 +24,6 @@ typedef struct {
 } ErrorString;
 
 extern ErrorString errorStrings[];
-char *findErrorString(enum ErrorCode ec);
+char *codeToMsg(enum ErrorCode ec);
 
 #endif //WTFPROJECT_CONSTS_H

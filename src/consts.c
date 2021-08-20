@@ -26,7 +26,7 @@ ErrorString errorStrings[] = {
         {GENERIC_ERROR, NULL}
 };
 
-char *findErrorString(enum ErrorCode ec){
+char *codeToMsg(enum ErrorCode ec){
     ErrorString *es = errorStrings;
     while (es->errorString != NULL){
         if (ec == es->errorCode)
