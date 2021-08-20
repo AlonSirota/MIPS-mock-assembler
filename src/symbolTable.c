@@ -80,24 +80,29 @@ void discardTable(Symbol *table) {
 
 // TODO improve documentation
 enum ErrorCode isValidLabel(char *str){
-    char *in;
+    int i;
+    /* Label can't be a reserved keyword */
     if (isReservedKeyword(str)) {
         return LABEL_IS_RESERVED_KEYWORD;
     }
-    if(str == NULL)
-        return INVALID_LABEL;
-    in = str;
-    int count = 1;
-    if(!isalpha(in[0]))
+
+    /* label mustn't be empty */
+    if(str == NULL || isEmptyString(str))
         return INVALID_LABEL;
 
-    while (in[count] != NULL){
-        if(!isalnum(in[count]))
-            return INVALID_LABEL;
-        count++;
+    /* label must start with a letter */
+    if(!isalpha(str[0])) {
+        return INVALID_LABEL;
     }
 
-    return (count <= MAX_LABEL_LENGTH) ? GOOD : LABEL_TOO_LONG;
+    /* later characters can be either letter or number */
+    for (i = 1; str[i] != '\0'; i++) {
+        if (!isalnum(str[i]))
+            return INVALID_LABEL;
+    }
+    i--; /* don't count the last NULL character in the length */
+
+    return (i <= MAX_LABEL_LENGTH) ? GOOD : LABEL_TOO_LONG;
 }
 
 /*
