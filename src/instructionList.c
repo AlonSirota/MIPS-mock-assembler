@@ -67,7 +67,7 @@ enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int 
         case 'I':
             return parseIInstruction(instruction, node->next, buf, symbolTable, ic);
         case 'J':
-            return parseJInstruction(instruction, node->next, buf, symbolTable, externalTable1);
+            return parseJInstruction(instruction, node->next, buf, symbolTable, ic, externalTable1);
         default:
             break; /* impossible.... */
     }
@@ -253,18 +253,18 @@ enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf) 
     return GOOD;
 }
 
-enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, externalTable  **externalTable1) {
+enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
     switch (instruction->IID) {
         case INSTRUCTION_JMP:
-            return instructionJJMP(instruction,node,buf, symbolTable, externalTable1);
+            return instructionJJMP(instruction,node,buf, symbolTable,ic, externalTable1);
         case INSTRUCTION_STOP:
             return instructionJStop(instruction,node,buf);
         default:
-            return instructionJ(instruction,node,buf, symbolTable, externalTable1);
+            return instructionJ(instruction,node,buf, symbolTable, ic, externalTable1);
     }
 }
 
-enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable, externalTable  **externalTable1) {
+enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
     unsigned long  binaryInstruction = 0;
     int rs_flag = 0, addr; /* immed is 16 bit singed int*/
     enum ErrorCode ec;
@@ -286,7 +286,7 @@ enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol 
             return LABEL_DOES_NOT_EXIST;
 
         if(((s->attributes & EXTERNAL)))
-            addExternal(externalTable1, s->label, s->address);
+            addExternal(externalTable1, s->label, ic);
 
         addr = s->address;
     }
@@ -309,7 +309,7 @@ enum ErrorCode instructionJStop(inst *instruction, node *node, char *buf){
     return GOOD;
 }
 
-enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable, externalTable  **externalTable1) {
+enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
     unsigned long  binaryInstruction = 0;
     int  addr; /* immed is 16 bit singed int*/
     enum ErrorCode ec;
@@ -323,7 +323,7 @@ enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *sy
     if (s == NULL)
         return LABEL_DOES_NOT_EXIST;
     if(s->attributes &  EXTERNAL)
-        addExternal(externalTable1, s->label, s->address);
+        addExternal(externalTable1, s->label, ic);
     addr = s->address;
     node = node->next;
     if (node != NULL)
