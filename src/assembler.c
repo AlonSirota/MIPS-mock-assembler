@@ -130,7 +130,8 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     int lineNumber;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
-    Symbol *symbolTable = NULL;
+    *symbolTableOut = NULL;
+    *dataImagePtr = NULL;
     byte *directiveBytes = NULL;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
@@ -147,7 +148,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
         }
         else if (isLineDirective(lineParsed)) { /* process directive lines */
             if (lineParsed.label != NULL) { /* if has label, add to symbol table */
-                error = addSymbol(&symbolTable, lineParsed.label, *dcOut, DATA);
+                error = addSymbol(symbolTableOut, lineParsed.label, *dcOut, DATA);
                 logError(error, &hasErrors, lineNumber);
             }
 
@@ -162,21 +163,20 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             }
         }
         else if (!strcmp(lineParsed.head.value,ENTRY_MNEMONIC)) { /* process entry lines */
-            error = addSymbol(&symbolTable, lineParsed.head.next->value, -1, ENTRY);
+            error = addSymbol(symbolTableOut, lineParsed.head.next->value, -1, ENTRY);
             logError(error, &hasErrors, lineNumber);
         }
         else if (!strcmp(lineParsed.head.value,EXTERN_MNEMONIC)) { /* process extern lines */
-            error = processExtern(lineParsed.head, &symbolTable);
+            error = processExtern(lineParsed.head, symbolTableOut);
             logError(error, &hasErrors, lineNumber);
         }
         else if (lineParsed.head.value != NULL && lineParsed.label != NULL) {/* Treat this line as an instruction, as concluded by process of elimination. */
-                error = addSymbol(&symbolTable, lineParsed.label, *icOut, CODE);
+                error = addSymbol(symbolTableOut, lineParsed.label, *icOut, CODE);
                 logError(error, &hasErrors, lineNumber);
                 *icOut += 4;
             }
             /* Further processing of instruction line is done in second pass. This deviates then the algorithm in assignment details */
     }
-    *symbolTableOut = symbolTable;
     return error;
 }
 
