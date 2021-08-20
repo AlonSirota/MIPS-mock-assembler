@@ -24,6 +24,7 @@ ErrorString errorStrings[] = {
         {EXTERNAL_LABEL, "Label is external but instruction requires a local label"},
         {LABEL_IS_RESERVED_KEYWORD,  "Label cannot be a forbidden word (instruction, etc..)"},
         {LABEL_TOO_LONG, "Label is too long" },
+        {UNDEFINED_DIRECTIVE_MNEMONIC, "Unrecognized directive mnemonic"},
         {GENERIC_ERROR, NULL}
 };
 
