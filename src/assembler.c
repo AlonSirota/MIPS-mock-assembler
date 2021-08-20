@@ -236,7 +236,7 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1){
     int ic = 100, lineNo = 1;
     char lineStr[LINE_LENGTH + 1],  buf[80];
-    enum ErrorCode ecTemp, ec;
+    enum ErrorCode ecTemp, ec = GOOD;
     line lineParsed;
     assert(f != NULL);
     while(fgetsShred(f, LINE_LENGTH + 1, lineStr) != NULL){
