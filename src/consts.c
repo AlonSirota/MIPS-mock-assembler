@@ -23,6 +23,7 @@ ErrorString errorStrings[] = {
         {LABEL_DOES_NOT_EXIST, "Label doesn't exist"},
         {EXTERNAL_LABEL, "Label is external but instruction requires a local label"},
         {LABEL_IS_RESERVED_KEYWORD,  "Label cannot be a forbidden word (instruction, etc..)"},
+        {LABEL_TOO_LONG, "Label is too long" },
         {GENERIC_ERROR, NULL}
 };
 

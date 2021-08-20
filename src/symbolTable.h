@@ -4,6 +4,8 @@
 
 #ifndef WTFPROJECT_SYMBOLTABLET_H
 #define WTFPROJECT_SYMBOLTABLET_H
+#define MAX_LABEL_LENGTH 31
+
 #include <stdlib.h>
 #include <string.h>
 #include "consts.h"

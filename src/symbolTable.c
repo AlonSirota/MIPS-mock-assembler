@@ -97,7 +97,7 @@ enum ErrorCode isValidLabel(char *str){
         count++;
     }
 
-    return (count <= 31)?GOOD:INVALID_LABEL;
+    return (count <= MAX_LABEL_LENGTH) ? GOOD : LABEL_TOO_LONG;
 }
 
 /*
