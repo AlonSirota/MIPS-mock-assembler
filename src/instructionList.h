@@ -67,7 +67,7 @@ typedef struct inst{
 } inst;
 
 extern inst INSTRUCTIONS[];
-inst *findInstruction(char *name);
+inst *strToInstruction(char *name);
 
 enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1);
 

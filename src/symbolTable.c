@@ -78,10 +78,10 @@ void discardTable(Symbol *table) {
     }
 }
 
-
+// TODO improve documentation
 enum ErrorCode isValidLabel(char *str){
     char *in;
-    inst *instruction = findInstruction(str);
+    inst *instruction = strToInstruction(str);
     if(instruction != NULL)
         return LABLE_IS_FORBIDDEN_WORD;
     if(str == NULL)

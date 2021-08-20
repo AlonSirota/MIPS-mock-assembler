@@ -37,7 +37,7 @@ inst INSTRUCTIONS[] = {{"add", 'R', 1, 0, INSTRUCTION_ADD},
  * @param name - name of an instruction, e.g: "add", "sub"...
  * @return a pointer to the apropriate instruction, null if not found
  */
-inst *findInstruction(char *name){
+inst *strToInstruction(char *name){
     inst *ptr = INSTRUCTIONS;
     while (ptr->IID != INSTRUCTION_LIST_END){
         if (strcmp(name, ptr->name) == 0)
@@ -58,7 +58,7 @@ inst *findInstruction(char *name){
 enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
     if(node == NULL)
         return GOOD; /* empty line do nothing */
-    inst *instruction = findInstruction(node->value);
+    inst *instruction = strToInstruction(node->value);
     if(instruction == NULL)
         return UNRECOGNIZED_INSTRUCTION;
     switch (instruction->type) {
