@@ -53,7 +53,7 @@ void assembleFile(FILE *asFile, char *fileName) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
             hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, &externalTable));
-
+            hasErrors |= (GOOD != appendDataImageToFile(objFile, dataImage, ic));
             fclose(objFile); /* secondPass is done processing object file */
 
             if (!hasErrors) { /* TODO: delete files when failed */
@@ -348,4 +348,38 @@ enum ErrorCode processExtern(node *operandHead, Symbol **symbolTablePtr) {
 int isLineRelevant(line l) {
     /* if mnemonic is empty */
     return !(l.head.value == NULL || !strcmp(l.head.value, ""));
+}
+
+/*
+ * Appends bytes from dataImage to objFile (which is expected to be opened and writable)
+ * returs GOOD or FILE_WRITE_ERROR if failed
+ */
+enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic) {
+    byte *bytePtr;
+    bytesNode *curr;
+    int currAddr = ic; /* address of last appended byte */
+
+    /* Overwrite the last character, because it will always be a '\n' char, to prevent consecutive newlines */
+    fseek(objFile, -1, SEEK_CUR);
+
+    /* each node */
+    for (curr = dataImage; curr != NULL; curr = curr->next) {
+        /* each byte in node */
+        for (bytePtr = dataImage->bytes; bytePtr - dataImage->bytes < sizeof dataImage->bytes; bytePtr++) {
+            /* Every few bytes, carriage return and print address */
+            if (currAddr % BYTES_PER_LINE == 0) {
+                if (fprintf(objFile,"\n%.4d", currAddr) < 0) {
+                    return FILE_WRITE_ERROR;
+                }
+            }
+
+            /* Print current byte as two Hex characters */
+            if (fprintf(objFile, " %.2X", *bytePtr) < 0) {
+                return FILE_WRITE_ERROR;
+            }
+            currAddr++;
+        }
+    }
+
+    return GOOD;
 }
