@@ -83,7 +83,7 @@ enum ErrorCode isValidLabel(char *str){
     char *in;
     inst *instruction = strToInstruction(str);
     if(instruction != NULL)
-        return LABLE_IS_FORBIDDEN_WORD;
+        return LABEL_IS_RESERVED_KEYWORD;
     if(str == NULL)
         return INVALID_LABEL;
     in = str;

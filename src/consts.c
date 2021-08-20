@@ -22,7 +22,7 @@ ErrorString errorStrings[] = {
         {IMMED_OUT_OF_RANGE, "immediate is out of range - 16 bit singed number"},
         {LABEL_DOES_NOT_EXIST, "Label doesn't exist"},
         {EXTERNAL_LABEL, "Label is external but instruction requires a local label"},
-        {LABLE_IS_FORBIDDEN_WORD, "Label cannot be a forbidden word (instruction, etc..)"},
+        {LABEL_IS_RESERVED_KEYWORD,  "Label cannot be a forbidden word (instruction, etc..)"},
         {GENERIC_ERROR, NULL}
 };
 
