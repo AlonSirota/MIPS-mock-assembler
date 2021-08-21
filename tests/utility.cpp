@@ -10,10 +10,12 @@ bool compareFiles(const std::string& p1, const std::string& p2) {
     std::ifstream f2(p2, std::ifstream::binary|std::ifstream::ate);
 
     if (f1.fail() || f2.fail()) {
+        fprintf(stderr, "Failed to open a file\n");
         return false; //file problem
     }
 
     if (f1.tellg() != f2.tellg()) {
+        printf("Files are of different lengths\n");
         return false; //size mismatch
     }
 
