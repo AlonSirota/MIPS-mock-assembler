@@ -49,7 +49,7 @@ void assembleFile(FILE *asFile, char *fileName) {
         rewind(asFile); /* bring file stream back to start... */
 
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
-        if (objFile = fopen(objFileName, "w")) {
+        if (objFile = fopen(objFileName, "wb")) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
             hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, &externalTable));
