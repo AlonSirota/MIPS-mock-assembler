@@ -222,7 +222,7 @@ enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf, Symbol
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
-    binaryInstruction += immed << I_IMMED_OFFSET;
+    binaryInstruction += (immed & ((1<<16)-1)) << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
     return GOOD;
 }
@@ -248,7 +248,7 @@ enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf) 
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
-    binaryInstruction += immed << I_IMMED_OFFSET;
+    binaryInstruction += (immed & ((1<<16)-1)) << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
     return GOOD;
 }

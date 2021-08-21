@@ -138,6 +138,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     byteArray directiveBytes;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
+    Symbol *temp;
     *icOut = FIRST_MEMORY_ADDRESS, *dcOut = 0;
     assert(asFile != NULL);
 
@@ -182,6 +183,13 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             }
             /* Further processing of instruction line is done in second pass. This deviates then the algorithm in assignment details */
     }
+    temp = *symbolTableOut;
+    while(temp != NULL){
+        if(temp->attributes & DATA)
+            temp->address += *icOut;
+        temp = temp->next;
+    }
+
     return error;
 }
 
