@@ -19,6 +19,7 @@ bool compareFiles(const std::string& expected, const std::string& actual) {
     fseek(actualFile, 0, SEEK_SET);
     while (fgets(expectedLine, 99, expectedFile) && fgets(actualLine, 99, actualFile)) {
         if (strcmp(expectedLine, actualLine)) {
+            printf("Expected: %s\nActual: %s\n",expectedLine, actualLine);
             return false;
         }
     }
