@@ -16,7 +16,7 @@ bool compareFiles(const std::string& expected, const std::string& actual) {
 //        ftruncate(fileno(actualFile), len - 1);
     }
 
-    fseek(actualFile, 0, SEEK_SET);
+//    fseek(actualFile, 0, SEEK_SET);
 //    while (fgets(expectedLine, 99, expectedFile) && fgets(actualLine, 99, actualFile)) {
 //        if (strcmp(expectedLine, actualLine)) {
 //            return false;
