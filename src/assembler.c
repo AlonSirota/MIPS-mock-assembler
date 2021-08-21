@@ -162,7 +162,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             if (error == GOOD)
             {
                 addBytesToImage(dataImagePtr, directiveBytes);
-                *dcOut += sizeof(directiveBytes.size);
+                *dcOut += directiveBytes.size;
             }
         }
         else if (!strcmp(lineParsed.head.value,ENTRY_MNEMONIC)) { /* process entry lines */
