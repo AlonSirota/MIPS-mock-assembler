@@ -13,7 +13,7 @@ bool compareFiles(const std::string& expected, const std::string& actual) {
     char c;
     if ((c = getc(actualFile)) == '\n') {
         unsigned long len = ftell(actualFile);
-        ftruncate(fileno(actualFile), len - 1);
+//        ftruncate(fileno(actualFile), len - 1);
     }
 
     fseek(actualFile, 0, SEEK_SET);
