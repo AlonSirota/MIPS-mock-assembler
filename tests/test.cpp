@@ -866,7 +866,8 @@ TEST(assemble, ps) {
     strcpy(yolo, buf.c_str());
     assemblePath(yolo);
     std::string buf3 = asFilesBasePath + "ps.ob";
-//    ASSERT_TRUE(compareFiles(buf2,buf3));
+    bool filesEqual = compareFiles(buf2,buf3);
+//    ASSERT_TRUE(filesEqual);
 }
 
 TEST(isValidLabel, addIsReserved) {
