@@ -5,8 +5,8 @@
 #include <unistd.h>
 
 bool compareFiles(const std::string& expected, const std::string& actual) {
-    char *expectedLine = static_cast<char *>(calloc(sizeof(char), 100));
-    char *actualLine = static_cast<char *>(calloc(sizeof(char), 100));
+    char *expectedLine = (char *)(calloc(sizeof(char), 100));
+    char *actualLine = (char *)(calloc(sizeof(char), 100));
     FILE *expectedFile = fopen(expected.c_str(), "r"),
     *actualFile = fopen(actual.c_str(), "a+");
     fseek(actualFile, -1, SEEK_END);
