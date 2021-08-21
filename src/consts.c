@@ -25,6 +25,8 @@ ErrorString errorStrings[] = {
         {LABEL_IS_RESERVED_KEYWORD,  "Label cannot be a forbidden word (instruction, etc..)"},
         {LABEL_TOO_LONG, "Label is too long" },
         {UNDEFINED_DIRECTIVE_MNEMONIC, "Unrecognized directive mnemonic"},
+        {INVALID_PARAMETER,"parameter isn't a valid number"},
+        {OUT_OF_RANGE_PARAMETER,"parameter is out of range"},
         {GENERIC_ERROR, NULL}
 };
 

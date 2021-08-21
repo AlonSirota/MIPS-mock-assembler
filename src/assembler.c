@@ -162,7 +162,8 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
 
             if (error == GOOD)
             {
-                addBytesToImage(dataImagePtr, directiveBytes);
+                error = addBytesToImage(dataImagePtr, directiveBytes);
+                logError(error, &hasErrors, lineNumber);
                 *dcOut += directiveBytes.size;
             }
         }
@@ -312,16 +313,17 @@ void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
     }
 }
 
-int addBytesToImage(bytesNode **tablePtr, byteArray bytes) {
+enum ErrorCode addBytesToImage(bytesNode **tablePtr, byteArray bytes) {
     bytesNode * curr;
     bytesNode *next = (bytesNode *) malloc(sizeof (bytesNode)); /* Prepare new symbol */
-    // TODO makesure malloc succeded
+    if(next == NULL)
+        return INSUFFICIENT_MEMORY;
     next->next = NULL;
     next->bytes = bytes;
 
     if (*tablePtr == NULL) { /* if table is empty */
         *tablePtr = next; /* it now contains the new element. */
-        return EXIT_SUCCESS;
+        return GOOD;
     }
 
     /* else, find last element*/
@@ -331,7 +333,7 @@ int addBytesToImage(bytesNode **tablePtr, byteArray bytes) {
 
     /* append */
     curr->next = next;
-    return EXIT_SUCCESS;
+    return GOOD;
 }
 
 /*

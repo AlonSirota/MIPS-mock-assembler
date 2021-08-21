@@ -20,11 +20,11 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
     Symbol* curr;
     Symbol *next;
     enum ErrorCode ec = isValidLabel(label);
-    // TODO check if label is legal, return an error otherwise. Can't be an assembly keyword: TEST
     if(ec != GOOD)
         return ec;
     next = newSymbol(label, address, attributes); /* Prepare new symbol */
-    // TODO makesure malloc succeded
+    if(next == NULL)
+        return INSUFFICIENT_MEMORY;
 
     if (*tablePtr == NULL) { /* if table is empty */
         *tablePtr = next; /* it now contains the new element. */
@@ -58,8 +58,12 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
 }
 
 Symbol *newSymbol(char *label, int address, int attributes) {
-    Symbol * s = (Symbol *) malloc(sizeof (Symbol)); // TODO handle malloc error
-    char *nextLabel = strdup(label); //TODO handle strdup error
+    Symbol * s = (Symbol *) malloc(sizeof (Symbol));
+    if (s == NULL)
+        return NULL;
+    char *nextLabel = strdup(label);
+    if (nextLabel == NULL)
+        return NULL;
     s->label = nextLabel;
     s->address = address;
     s->attributes = attributes;

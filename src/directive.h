@@ -36,7 +36,7 @@ int isLineDirective(line l);
 directiveType strToDirectiveType(char *name);
 byteArray directiveToBytes(line l, enum ErrorCode *errorOut);
 char* bytesToHexStr(byteArray bytes[]);
-int lineParametersToBytes(node *head, char *buffer, int size); /* TODO add errOut, like in ascizParametersToBytes */
+int lineParametersToBytes(node *head, char *buffer, int size, enum ErrorCode *errorOut);
 int ascizParametersToBytes(node *head, char *buffer, enum ErrorCode *errOut);
 int outOfBounds(int num, int byteCount);
 

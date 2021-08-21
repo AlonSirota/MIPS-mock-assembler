@@ -51,16 +51,20 @@ byteArray directiveToBytes(line l, enum ErrorCode *errorOut) {
         case WORD_TYPE:
         case HALF_WORD_TYPE:
             dElementSize = directiveTypeToSize(type);
-            result.size = lineParametersToBytes(l.head.next, byteBuffer, dElementSize);
+            result.size = lineParametersToBytes(l.head.next, byteBuffer, dElementSize, errorOut);
             break;
         default:
             *errorOut = UNDEFINED_DIRECTIVE_MNEMONIC;
             return result;
     }
-
+    if(*errorOut != GOOD)
+        return result;
     /* Copy the section of the buffer that contains the generated data. */
-    result.arr = (char *) malloc(sizeof(char) * result.size); /* TODO error check */
-    memcpy(result.arr, byteBuffer, result.size);
+    result.arr = (char *) malloc(sizeof(char) * result.size);
+    if (result.arr == NULL)
+        *errorOut = INSUFFICIENT_MEMORY;
+    else
+        memcpy(result.arr, byteBuffer, result.size);
     return result;
 }
 
@@ -87,18 +91,20 @@ int directiveTypeToSize(directiveType type) {
  * Bytes are inserted in little endian
  * Returns the number of bytes written.
  */
-int lineParametersToBytes(node *head, char *buffer, int size) {
+int lineParametersToBytes(node *head, char *buffer, int size, enum ErrorCode *errorOut) {
     long int res;
     int i, j, count = 0, shift;
     for (i = 0;head != NULL; head = head->next, i++) {
         assert(head->value != NULL);
         res = atol(head->value);
         if (errno != 0) {
-            printf("parameter \"%s\" isn't a valid number", head->value);
+            /*printf("parameter \"%s\" isn't a valid number", head->value);*/
+            *errorOut = INVALID_PARAMETER;
             return 0;
         }
         else if (outOfBounds(res, size)) {
-            printf("parameter \"%s\" is out of range\n", head->value);
+            /*printf("parameter \"%s\" is out of range\n", head->value);*/
+            *errorOut = OUT_OF_RANGE_PARAMETER;
             return 0;
         }
 
