@@ -22,12 +22,12 @@ bool compareFiles(const std::string& expected, const std::string& actual) {
             return false;
         }
     }
-    if (getc(expectedFile) == EOF) {
-        fgets(actualLine, 99, actualFile);
-        if ((!strcmp(actualLine, "\n")) || fgetc(actualFile) != EOF){
-            return false;
-        }
-    }
+//    if (getc(expectedFile) == EOF) {
+//        fgets(actualLine, 99, actualFile);
+//        if ((!strcmp(actualLine, "\n")) || fgetc(actualFile) != EOF){
+//            return false;
+//        }
+//    }
 
     return true;
     // TODO fix memory leak here, but low priority.
