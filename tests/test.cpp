@@ -865,7 +865,7 @@ TEST(assemble, ps) {
     char yolo[100];
     strcpy(yolo, buf.c_str());
     assemblePath(yolo);
-//    std::string buf3 = asFilesBasePath + "ps.ob";
+    std::string buf3 = asFilesBasePath + "ps.ob";
 //    ASSERT_TRUE(compareFiles(buf2,buf3));
 }
 
