@@ -844,7 +844,7 @@ TEST(printErrors, printErrorOK){
     makeErrStr(buf, ec, 100);
     ASSERT_STREQ(buf, "Error at line 100: Invalid label\n");
 }
-TEST(printLineToBuffere,print){
+TEST(printLineToBuffer, print){
     char buf[20];
     char out[80];
     int status, ic = 148;
@@ -855,7 +855,7 @@ TEST(printLineToBuffere,print){
     line l = strToLine(str);
     inst *instruction = strToInstruction(l.head.value);
     status = parseJInstruction(instruction, l.head.next, buf, st, ic, &externalTable);
-    printLineToBuffere(out, ic, buf);
+    printLineToBuffer(out, ic, buf);
     ASSERT_STREQ("0148 00 00 00 FC\n", out);
 }
 

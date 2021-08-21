@@ -265,13 +265,13 @@ enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **e
 /*
  * easier to debuf buffers then files....
  * */
-void printLineToBuffere(char *out, int ic, char *buf) {
+void printLineToBuffer(char *out, int ic, char *buf) {
     sprintf(out, "%.4d %s\n", ic, buf);
 }
 
 enum ErrorCode printLineToFile(FILE *pIobuf, int ic, char *buf) {
     char temp[80];
-    printLineToBuffere(temp, ic, buf);
+    printLineToBuffer(temp, ic, buf);
     return (fprintf(pIobuf, "%s", temp) > 0 )? GOOD: FILE_WRITE_ERROR;
 }
 
