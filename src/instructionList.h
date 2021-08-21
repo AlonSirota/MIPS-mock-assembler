@@ -80,7 +80,7 @@ enum ErrorCode instructionRMove(inst *instruction, node *node, char *buf);
 
 enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic);
 enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf);
-enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable);
+enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf);
 
 enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1);
 enum ErrorCode instructionJStop(inst *instruction, node *node, char *buf);

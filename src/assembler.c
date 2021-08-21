@@ -74,21 +74,21 @@ void assembleFile(FILE *asFile, char *fileName) {
 }
 
 /**
- * NOT TESTED!!!, no need for deep testing cuz input should be generated properly.
+ * generate entries file.
  *
- * @param fileName
- * @param symbolTable
- * @return
+ * @param fileName - base filename
+ * @param symbolTable - symbol table
+ * @return GOOD on success, else the errorCode
  */
 enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
     char entrFileName[MAX_FILE_NAME_LEN];
     strcpy(entrFileName, fileName);
-    strcat(entrFileName, ".ent");
+    strcat(entrFileName, ".ent"); /* basefilename.ent */
     FILE *entrFile;
-    if (entrFile = fopen(entrFileName, "w")) {
+    if (entrFile = fopen(entrFileName, "w")) { /* create new file */
         while (symbolTable != NULL){
-            if(symbolTable->attributes & ENTRY){
-                if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0){
+            if(symbolTable->attributes & ENTRY){ /* if symbol is entry */
+                if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0){ /* fprintf failed*/
                     fclose(entrFile);
                     return FILE_WRITE_ERROR;
                 }
@@ -103,14 +103,21 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
     }
 }
 
+/**
+ * generate externals file.
+ *
+ * @param fileName - base filename
+ * @param symbolTable - symbol table
+ * @return GOOD on success, else the errorCode
+ */
 enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
     char externalFileName[MAX_FILE_NAME_LEN];
     strcpy(externalFileName, fileName);
-    strcat(externalFileName, ".ext");
+    strcat(externalFileName, ".ext"); /* basefilename.ext */
     FILE *entrFile;
     if (entrFile = fopen(externalFileName, "w")) {
         while (et != NULL){
-            if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0){
+            if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0){ /*fprintf failed*/
                 fclose(entrFile);
                 return FILE_WRITE_ERROR;
             }
@@ -124,6 +131,9 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
     }
 }
 
+/*
+ * write ic and dc to obj file
+ */
 enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc) {
     /* To get the byte count of the code segment, need to subtract the first memory address from the last */
     return (fprintf(pIobuf, "%d %d\n", ic - FIRST_MEMORY_ADDRESS, dc) > 0 )? GOOD: FILE_WRITE_ERROR;
@@ -247,24 +257,28 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
     return buffer;
 }
 
+/*
+ * perfomes a second pass on input file
+ * parses instructions and generates the code segment of obj file and externals table
+ */
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1){
     int ic = FIRST_MEMORY_ADDRESS, lineNo = 1;
     char lineStr[LINE_LENGTH + 1],  buf[80];
     enum ErrorCode ecTemp, ec = GOOD;
     line lineParsed;
     assert(f != NULL);
-    while(fgetsShred(f, LINE_LENGTH + 1, lineStr) != NULL){
-        lineParsed = strToLine(lineStr);
+    while(fgetsShred(f, LINE_LENGTH + 1, lineStr) != NULL){ /**read line*/
+        lineParsed = strToLine(lineStr); /*parse line*/
         if(lineParsed.head.value == NULL || lineParsed.head.value[0] == '.'){ /* empty line or a directive*/
             lineNo++;
             continue;
         }
-        ecTemp = parseInstruction(&lineParsed.head, buf, st, ic, externalTable1);
-        if(ecTemp != GOOD){
-            printError(ecTemp, lineNo);
-            ec = GENERIC_ERROR;
+        ecTemp = parseInstruction(&lineParsed.head, buf, st, ic, externalTable1); /*actually parse the instruction and generate code and externals table*/
+        if(ecTemp != GOOD){ /* report error */
+            printError(ecTemp, lineNo); /*print error*/
+            ec = GENERIC_ERROR; /*tell caller function it failed (details not required cuz error output was generated)*/
         }
-        if(ec == GOOD){
+        if(ec == GOOD){ /*line is good so print code in required format*/
             printLineToFile(objFile, ic, buf);
         }
         ic += 4; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
@@ -273,12 +287,15 @@ enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **e
     return ec;
 }
 /*
+ * generate output string for printing instruction line
  * easier to debuf buffers then files....
  * */
 void printLineToBuffer(char *out, int ic, char *buf) {
     sprintf(out, "%.4d %s\n", ic, buf);
 }
-
+/*
+ * print the instruction string generated in secondpass in the required format
+ */
 enum ErrorCode printLineToFile(FILE *pIobuf, int ic, char *buf) {
     char temp[80];
     printLineToBuffer(temp, ic, buf);
@@ -286,6 +303,7 @@ enum ErrorCode printLineToFile(FILE *pIobuf, int ic, char *buf) {
 }
 
 /*
+ * generate error output string
  * easier for testing
  * */
 void makeErrStr(char *buff, enum ErrorCode ec, int lineNo){
@@ -294,25 +312,14 @@ void makeErrStr(char *buff, enum ErrorCode ec, int lineNo){
         errorMsg = "Unknown error - errorcode was defined in enume ErroeCode but was not given an errorString";
     sprintf(buff, "Error at line %d: %s\n", lineNo, errorMsg);
 }
-
+/*
+ * print an error
+ */
 void printError(enum ErrorCode ec, int lineNo){
     char buff[ERROR_BUFFER_LENGTH];
     makeErrStr(buff, ec, lineNo);
     printf("%s", buff);
 }
-
-void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
-    int i, num = FIRST_MEMORY_ADDRESS;
-    fprintf(f, "%d %d\n", ic-FIRST_MEMORY_ADDRESS,dc);
-    while (num <= ic){
-        fprintf(f, "%.4d", num);
-        for(i = 0; i < 4 && num++ <= ic; i++) {
-            fprintf(f, " %2X", codeSeg[num - FIRST_MEMORY_ADDRESS]);
-        }
-        printf("/n");
-    }
-}
-
 enum ErrorCode addBytesToImage(bytesNode **tablePtr, byteArray bytes) {
     bytesNode * curr;
     bytesNode *next = (bytesNode *) malloc(sizeof (bytesNode)); /* Prepare new symbol */

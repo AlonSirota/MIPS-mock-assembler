@@ -4,6 +4,7 @@
 #include "instructionList.h"
 
 #define REGISTER_KEYWORD '$'
+#define IMMED_BIT_SIZE 16
 inst INSTRUCTIONS[] = {{"add",  'R', 1, 0,  INSTRUCTION_ADD},
                        {"sub",  'R', 2, 0,  INSTRUCTION_SUB},
                        {"and",  'R', 3, 0,  INSTRUCTION_AND},
@@ -78,10 +79,10 @@ enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int 
 /**
  * parse spesifically R typed instruction
  * parsing is grouped by similar types of INSTRUCTIONS
- * @param instruction
- * @param node
- * @param buf
- * @return
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @return GOOD on success, else the error that occurred
  */
 enum ErrorCode parseRInstruction(inst *instruction, node *node, char *buf) {
     switch (instruction->IID) {
@@ -95,20 +96,28 @@ enum ErrorCode parseRInstruction(inst *instruction, node *node, char *buf) {
     }
 }
 
+/**
+ * parse spesifically R-arithmetic typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode instructionRArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0; /* the resulting binary code of the instruction */
     int rs,rd,rt; /* registers */
     enum ErrorCode ec;
     ec = parseRegister(node, &rs);
-    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+    if (ec != GOOD)
         return ec;
     node = node->next;
     ec = parseRegister(node, &rt);
-    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+    if (ec != GOOD)
         return ec;
     node = node->next;
     ec = parseRegister(node, &rd);
-    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+    if (ec != GOOD)
         return ec;
     node = node->next;
     if(node != NULL) /* didnt reach end of line */
@@ -122,16 +131,24 @@ enum ErrorCode instructionRArithmetic(inst *instruction, node *node, char *buf) 
     return GOOD;
 }
 
+/**
+ * parse spesifically R-Move typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode instructionRMove(inst *instruction, node *node, char *buf) { /* move rd, rs */
     unsigned long  binaryInstruction = 0;
     int rs,rd,rt;
     enum ErrorCode ec;
     ec = parseRegister(node, &rs);
-    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+    if (ec != GOOD)
         return ec;
     node = node->next;
     ec = parseRegister(node, &rd);
-    if (ec != GOOD) /* register number can only be non negetive, negetive result means an error was returned */
+    if (ec != GOOD)
         return ec;
     node = node->next;
     if(node != NULL)
@@ -146,6 +163,16 @@ enum ErrorCode instructionRMove(inst *instruction, node *node, char *buf) { /* m
     return GOOD;
 }
 
+/**
+ * parse spesifically I typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @param symbolTable - symbol table
+ * @param ic = instruction counter
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode parseIInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     switch (instruction->IID) {
         case INSTRUCTION_BNE:
@@ -162,12 +189,22 @@ enum ErrorCode parseIInstruction(inst *instruction, node *node, char *buf, Symbo
             return instructionIArithmetic(instruction,node,buf);
             break;
         default:
-            return instructionILoad(instruction,node,buf, symbolTable);
+            return instructionILoad(instruction,node,buf);
 
 
     }
 }
 
+/**
+ * parse spesifically I-Branching typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @param symbolTable - symbol table
+ * @param ic = instruction counter
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic) {
     unsigned long  binaryInstruction = 0;
     int rs,rt, add;
@@ -193,7 +230,7 @@ enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symb
     if(s == NULL)
         return LABEL_DOES_NOT_EXIST;
     /* see: https://opal.openu.ac.il/mod/ouilforum/discuss.php?d=2967783&p=7079705#p7079705 */
-    if((s->attributes & EXTERNAL))
+    if((s->attributes & EXTERNAL)) /* cannot branch to external file */
         return EXTERNAL_LABEL;
     add = s->address - ic;
     binaryInstruction |= instruction->opcode << I_OP_OFFSET;
@@ -203,7 +240,16 @@ enum ErrorCode instructionIBranch(inst *instruction, node *node, char *buf, Symb
     printInstruction(buf, binaryInstruction);
     return GOOD;
 }
-enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf, Symbol *symbolTable){
+
+/**
+ * parse spesifically I-Load typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @return GOOD on success, else the error that occurred
+ */
+enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf){
     unsigned long  binaryInstruction = 0;
     int rs,rt, immed;
     enum ErrorCode ec;
@@ -224,11 +270,19 @@ enum ErrorCode instructionILoad(inst *instruction, node *node, char *buf, Symbol
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
-    binaryInstruction += (immed & ((1<<16)-1)) << I_IMMED_OFFSET;
+    binaryInstruction += (immed & ((1<<IMMED_BIT_SIZE)-1)) << I_IMMED_OFFSET; /* int may be >16bit so trimming for negative values */
     printInstruction(buf, binaryInstruction);
     return GOOD;
 }
 
+/**
+ * parse spesifically I-Arithmetic typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf) {
     unsigned long  binaryInstruction = 0;
     int rs,rt, immed;
@@ -250,11 +304,22 @@ enum ErrorCode instructionIArithmetic(inst *instruction, node *node, char *buf) 
     binaryInstruction += instruction->opcode << I_OP_OFFSET;
     binaryInstruction += rs << I_RS_OFFSET;
     binaryInstruction += rt << I_RT_OFFSET;
-    binaryInstruction += (immed & ((1<<16)-1)) << I_IMMED_OFFSET;
+    binaryInstruction += (immed & ((1<<IMMED_BIT_SIZE)-1)) << I_IMMED_OFFSET;
     printInstruction(buf, binaryInstruction);
     return GOOD;
 }
 
+/**
+ * parse spesifically J typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @param symbolTable - symbole table
+ * @param ic = instruction counter
+ * @param externalTable1 - pointer to external table
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
     switch (instruction->IID) {
         case INSTRUCTION_JMP:
@@ -266,6 +331,17 @@ enum ErrorCode parseJInstruction(inst *instruction, node *node, char *buf, Symbo
     }
 }
 
+/**
+ * parse spesifically J typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @param symbolTable - symbole table
+ * @param ic = instruction counter
+ * @param externalTable1 - pointer to external table
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
     unsigned long  binaryInstruction = 0;
     int rs_flag = 0, addr; /* immed is 16 bit singed int*/
@@ -278,7 +354,7 @@ enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol 
     }
     else if (ec == MISSING_ARGUMENTS || ec == OPERAND_NOT_VALID_REGISTER){ /* JMP $register but bad register */
         return ec;
-    }else {
+    }else { /* jmp label */
         ec = readLabel(node);
         if (ec != GOOD)
             return ec;
@@ -287,7 +363,7 @@ enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol 
         if (s == NULL)
             return LABEL_DOES_NOT_EXIST;
 
-        if(((s->attributes & EXTERNAL)))
+        if(((s->attributes & EXTERNAL))) /* if used external label save where */
             addExternal(externalTable1, s->label, ic);
 
         addr = s->address;
@@ -302,15 +378,34 @@ enum ErrorCode instructionJJMP(inst *instruction, node *node, char *buf, Symbol 
     return GOOD;
 }
 
+/**
+ * parse spesifically the stop instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode instructionJStop(inst *instruction, node *node, char *buf){
     unsigned long  binaryInstruction = 0;
-    if (node != NULL)
+    if (node != NULL) /* no parameters */
         return TOO_MANY_ARGUMENTS;
     binaryInstruction |= instruction->opcode << J_OP_OFFSET;
     printInstruction(buf, binaryInstruction);
     return GOOD;
 }
 
+/**
+ * parse generic J typed instruction
+ * parsing is grouped by similar types of INSTRUCTIONS
+ * @param instruction - instruction type
+ * @param node - first relevant line parameter
+ * @param buf - string output buffer
+ * @param symbolTable - symbole table
+ * @param ic = instruction counter
+ * @param externalTable1 - pointer to external table
+ * @return GOOD on success, else the error that occurred
+ */
 enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
     unsigned long  binaryInstruction = 0;
     int  addr; /* immed is 16 bit singed int*/
@@ -326,7 +421,7 @@ enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *sy
         return LABEL_DOES_NOT_EXIST;
     if(s->attributes &  EXTERNAL)
         addExternal(externalTable1, s->label, ic);
-    addr = s->address;
+    addr = s->address; /* should be valid */
     node = node->next;
     if (node != NULL)
         return TOO_MANY_ARGUMENTS;
@@ -348,10 +443,10 @@ enum ErrorCode parseRegister(node *node, int *reg) {
         return MISSING_ARGUMENTS;
     }
     str = node->value;
-    if(str == NULL || str[0] == NULL){
+    if(str == NULL || str[0] == 0){ /* null string or zero length string */
         return MISSING_ARGUMENTS;
     }
-    if(str[0] != REGISTER_KEYWORD)
+    if(str[0] != REGISTER_KEYWORD) /* start with $*/
         return OPERAND_NOT_REGISTER;
     if(!isdigit(str[1]))
         return OPERAND_NOT_VALID_REGISTER;
@@ -372,12 +467,12 @@ enum ErrorCode readImmed(node *node, int *immed){
     if (node == NULL)
         return MISSING_ARGUMENTS;
     buf = node->value;
-    if(buf == NULL || strlen(buf)==0){
+    if(buf == NULL || strlen(buf)==0){  /* null string or zero length string */
         return MISSING_ARGUMENTS;
     }
     long prev = 0, res = 0;
     int sing = 1;
-    if(!isdigit(buf[0])){
+    if(!isdigit(buf[0])){ /* check immed sing */
         switch (buf[0]) {
             case '-':
                 sing = -1;
@@ -402,11 +497,18 @@ enum ErrorCode readImmed(node *node, int *immed){
         buf++;
     }
     res *= sing;
-    if(res <= (-(1 << 16)) || res >= ((1 << 16) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
+    if(res <= (-(1 << IMMED_BIT_SIZE)) || res >= ((1 << IMMED_BIT_SIZE) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
         return IMMED_OUT_OF_RANGE;
     *immed = to16bit(res);
     return GOOD;
 }
+
+/**
+ * recives one parameter from line and does BASIC label validation.
+ * even if label isnt valid for other reason it would still result in label doesnt exist error (first pass does comprehensive label validation
+ * @param buf  - the parameter that should contain a valid immediate, can be null in which case a MISSING_ARGUMENT error will be returned
+ * @return the value of the immediate or the appropriate error code
+ */
 enum ErrorCode readLabel(node *node){
     char *in;
     if(node == NULL)
@@ -440,8 +542,8 @@ void printInstruction(char *buf,unsigned int binaryInstruction) {
  * convert int to 16 bit 2's compliment.
  * we cant guarantee int is 16 bit exactly and uses 2's compliment (even tho it practicaly is)
  * range check is already done
- * @param in
- * @return
+ * @param in number
+ * @return calculate 2's compliment
  */
 int to16bit(int in){
     int sing, out = 0;

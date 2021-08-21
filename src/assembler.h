@@ -26,7 +26,6 @@ typedef struct bytesNode {
     struct bytesNode *next;
 } bytesNode;
 
-char parseOp(node node, char string[18], int i, Symbol *pSymbol);
 void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
 char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
@@ -34,7 +33,6 @@ void assembleFile(FILE *asFile, char *fileName);
 enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **symbolTableOut);
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1);
 char *fgetsShred(FILE *f, int n, char *buffer);
-void  generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg);
 enum ErrorCode addBytesToImage(bytesNode **tablePtr, byteArray bytes);
 enum ErrorCode processExtern(node *operandHead, Symbol **symbolTablePtr);
 int isLineRelevant(line l);
