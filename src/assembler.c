@@ -370,7 +370,7 @@ enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic
             ,i;
 
     /* Overwrite the last character, because it will always be a '\n' char, to prevent consecutive newlines */
-    fseek(objFile, -1, SEEK_CUR);
+    fseek(objFile, -2, SEEK_CUR);
 
     /* each node */
     for (curr = dataImage; curr != NULL; curr = curr->next) {
