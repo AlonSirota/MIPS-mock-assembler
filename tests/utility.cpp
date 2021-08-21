@@ -17,11 +17,11 @@ bool compareFiles(const std::string& expected, const std::string& actual) {
     }
 
     fseek(actualFile, 0, SEEK_SET);
-    while (fgets(expectedLine, 99, expectedFile) && fgets(actualLine, 99, actualFile)) {
-        if (strcmp(expectedLine, actualLine)) {
-            return false;
-        }
-    }
+//    while (fgets(expectedLine, 99, expectedFile) && fgets(actualLine, 99, actualFile)) {
+//        if (strcmp(expectedLine, actualLine)) {
+//            return false;
+//        }
+//    }
 //    if (getc(expectedFile) == EOF) {
 //        fgets(actualLine, 99, actualFile);
 //        if ((!strcmp(actualLine, "\n")) || fgetc(actualFile) != EOF){
