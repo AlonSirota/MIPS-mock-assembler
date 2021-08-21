@@ -10,6 +10,8 @@
 
 #define ERROR_BUFFER_LENGTH 256
 
+#define FIRST_MEMORY_ADDRESS 100
+
 #include <stdio.h>
 #include <assert.h>
 #include "directive.h"

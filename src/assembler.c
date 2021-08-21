@@ -125,7 +125,8 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
 }
 
 enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc) {
-    return (fprintf(pIobuf, "%d %d\n", ic, dc) > 0 )? GOOD: FILE_WRITE_ERROR;
+    /* To get the byte count of the code segment, need to subtract the first memory address from the last */
+    return (fprintf(pIobuf, "%d %d\n", ic - FIRST_MEMORY_ADDRESS, dc) > 0 )? GOOD: FILE_WRITE_ERROR;
 }
 
 enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **symbolTableOut) {
@@ -137,7 +138,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     byteArray directiveBytes;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
-    *icOut = 100, *dcOut = 0;
+    *icOut = FIRST_MEMORY_ADDRESS, *dcOut = 0;
     assert(asFile != NULL);
 
     /* Iterate over file's lines, while counting the line number */
@@ -238,7 +239,7 @@ char *fgetsShred(FILE *f, int n, char *buffer) {
 }
 
 enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1){
-    int ic = 100, lineNo = 1;
+    int ic = FIRST_MEMORY_ADDRESS, lineNo = 1;
     char lineStr[LINE_LENGTH + 1],  buf[80];
     enum ErrorCode ecTemp, ec = GOOD;
     line lineParsed;
@@ -292,12 +293,12 @@ void printError(enum ErrorCode ec, int lineNo){
 }
 
 void generateOutput(FILE *f, char *codeSeg, int ic, int dc, char *dataSeg){
-    int i, num = 100;
-    fprintf(f, "%d %d\n", ic-100,dc);
+    int i, num = FIRST_MEMORY_ADDRESS;
+    fprintf(f, "%d %d\n", ic-FIRST_MEMORY_ADDRESS,dc);
     while (num <= ic){
         fprintf(f, "%.4d", num);
         for(i = 0; i < 4 && num++ <= ic; i++) {
-            fprintf(f, " %2X", codeSeg[num - 100]);
+            fprintf(f, " %2X", codeSeg[num - FIRST_MEMORY_ADDRESS]);
         }
         printf("/n");
     }
