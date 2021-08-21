@@ -3,33 +3,25 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fstream>
 
-bool compareFiles(const std::string& expected, const std::string& actual) {
-    char *expectedLine = static_cast<char *>(calloc(sizeof(char), 100));
-    char *actualLine = static_cast<char *>(calloc(sizeof(char), 100));
-    FILE *expectedFile = fopen(expected.c_str(), "r"),
-    *actualFile = fopen(actual.c_str(), "a+");
-    fseek(actualFile, -1, SEEK_END);
-    char c;
-    if ((c = getc(actualFile)) == '\n') {
-        unsigned long len = ftell(actualFile);
-        ftruncate(fileno(actualFile), len - 1);
+bool compareFiles(const std::string& p1, const std::string& p2) {
+    std::ifstream f1(p1, std::ifstream::binary|std::ifstream::ate);
+    std::ifstream f2(p2, std::ifstream::binary|std::ifstream::ate);
+
+    if (f1.fail() || f2.fail()) {
+        return false; //file problem
     }
 
-    fseek(actualFile, 0, SEEK_SET);
-    while (fgets(expectedLine, 99, expectedFile) && fgets(actualLine, 99, actualFile)) {
-        if (strcmp(expectedLine, actualLine)) {
-            printf("Expected: %s\nActual: %s\n",expectedLine, actualLine);
-            return false;
-        }
-    }
-    if (getc(expectedFile) == EOF) {
-        fgets(actualLine, 99, actualFile);
-        if ((!strcmp(actualLine, "\n")) || fgetc(actualFile) != EOF){
-            return false;
-        }
+    if (f1.tellg() != f2.tellg()) {
+        return false; //size mismatch
     }
 
-    return true;
-    // TODO fix memory leak here, but low priority.
+    //seek back to beginning and use std::equal to compare contents
+    f1.seekg(0, std::ifstream::beg);
+    f2.seekg(0, std::ifstream::beg);
+    return std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
+                      std::istreambuf_iterator<char>(),
+                      std::istreambuf_iterator<char>(f2.rdbuf()));
 }
+
