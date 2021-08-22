@@ -1,6 +1,3 @@
-//
-// Created by Ram Ben on 8/16/2021.
-//
 
 #ifndef ASSEMBLER_EXTERNALTABLE_H
 #define ASSEMBLER_EXTERNALTABLE_H
