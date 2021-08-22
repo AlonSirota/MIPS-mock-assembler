@@ -1,5 +1,5 @@
 main: main.c assembler.o externalTable.o line.o consts.o helper.o directive.o symbolTable.o instructionList.o
-	gcc  -ansi -Wall -pedantic main.c assembler.o externalTable.o line.o consts.o helper.o directive.o symbolTable.o instructionList.o
+	gcc  -ansi -Wall -pedantic main.c assembler.o externalTable.o line.o consts.o helper.o directive.o symbolTable.o instructionList.o -o assembler
 assembler.o: assembler.c assembler.h consts.o line.o helper.o directive.o symbolTable.o externalTable.o
 	gcc  -ansi -Wall -pedantic -c assembler.c line.c consts.c helper.c directive.c symbolTable.c externalTable.c 
 line.o: line.c line.h 
