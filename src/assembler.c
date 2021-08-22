@@ -172,21 +172,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
             continue;
         }
         else if (isLineDirective(lineParsed)) { /* process directive lines */
-            if (lineParsed.label != NULL) { /* if has label, add to symbol table */
-                error = addSymbol(symbolTableOut, lineParsed.label, *dcOut, DATA);
-                logError(error, &hasErrors, lineNumber);
-            }
-
-            /* Encode directive data */
-            directiveBytes = directiveToBytes(lineParsed, &error);
-            logError(error, &hasErrors, lineNumber);
-
-            if (error == GOOD)
-            {
-                error = addBytesToImage(dataImagePtr, directiveBytes);
-                logError(error, &hasErrors, lineNumber);
-                *dcOut += directiveBytes.size;
-            }
+            error = processDirective(lineParsed, dataImagePtr, symbolTableOut, dcOut, &hasErrors, lineNumber);
         }
         else if (!strcmp(lineParsed.head.value,ENTRY_MNEMONIC)) { /* process entry lines */
             error = addSymbol(symbolTableOut, lineParsed.head.next->value, -1, ENTRY);
@@ -213,6 +199,36 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     }
 
     return error;
+}
+
+/**
+ * Processes a directive line as a part of the first pass
+ * @param lineParsed
+ * @param dataImagePtr, populates it with directive data
+ * @param symbolTableOut, populates incase data is labeled.
+ * @param dcOut, updates it according to data size
+ * @param hasErrors, updates in case of error
+ * @param lineNumber, usef for debug printing
+ * @return type of error encountered
+ */
+enum ErrorCode processDirective(line lineParsed,bytesNode **dataImagePtr, Symbol **symbolTableOut, int *dcOut, int *hasErrors, int lineNumber) {
+    byteArray directiveBytes;
+    enum ErrorCode error = GOOD;
+    if (lineParsed.label != NULL) { /* if has label, add to symbol table */
+        error = addSymbol(symbolTableOut, lineParsed.label, *dcOut, DATA);
+        logError(error, hasErrors, lineNumber);
+    }
+
+    /* Encode directive data */
+    directiveBytes = directiveToBytes(lineParsed, &error);
+    logError(error, hasErrors, lineNumber);
+
+    if (error == GOOD)
+    {
+        error = addBytesToImage(dataImagePtr, directiveBytes);
+        logError(error, hasErrors, lineNumber);
+        *dcOut += directiveBytes.size;
+    }
 }
 
 /*
@@ -243,6 +259,10 @@ enum ErrorCode secondPass(FILE *asFile, FILE *objFile, Symbol *st, externalTable
 
     rewind(asFile);
     while(fgetsShred(asFile, LINE_LENGTH + 1, lineStr) != NULL){ /**read line*/
+        if (lineNo == 9) {
+            lineNo++;
+            lineNo--;
+        }
         lineParsed = strToLine(lineStr); /*parse line*/
         if(lineParsed.head.value == NULL || lineParsed.head.value[0] == '.'){ /* empty line or a directive*/
             lineNo++;

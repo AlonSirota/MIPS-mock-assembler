@@ -40,4 +40,5 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable);
 enum ErrorCode generateExternalsFile (char *fileName, externalTable *et);
 enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic);
 void removeOutputFiles(char *baseName);
+enum ErrorCode processDirective(line lineParsed,bytesNode **dataImagePtr, Symbol **symbolTableOut, int *dcOut, int *hasErrors, int lineNumber);
 #endif //ASSEMBLER_ASSEMBLER_H
