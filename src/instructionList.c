@@ -72,6 +72,7 @@ enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int 
         case 'J':
             return parseJInstruction(instruction, node->next, buf, symbolTable, ic, externalTable1);
         default:
+            return GENERIC_ERROR;
             break; /* impossible.... */
     }
 }
@@ -496,7 +497,7 @@ enum ErrorCode readLabel(node *node){
     if(!isalpha(in[0]))
         return INVALID_LABEL;
 
-    while (in[count] != NULL){
+    while (in[count] != 0){
         if(!isalnum(in[count]))
             return INVALID_LABEL;
         count++;
@@ -510,10 +511,10 @@ enum ErrorCode readLabel(node *node){
  */
 void printInstruction(char *buf,unsigned int binaryInstruction) {
     unsigned char parsedInstruction[4];
-    parsedInstruction[0] = (binaryInstruction) & 0b11111111; /* extructing bytes from instruction to "memory" in little endian */
-    parsedInstruction[1] = (binaryInstruction >> 8) & 0b11111111;
-    parsedInstruction[2] = (binaryInstruction >> 16) & 0b11111111;
-    parsedInstruction[3] = (binaryInstruction >> 24) & 0b11111111;
+    parsedInstruction[0] = (binaryInstruction) & ONE_BYTE_CONST; /* extructing bytes from instruction to "memory" in little endian */
+    parsedInstruction[1] = (binaryInstruction >> 8) & ONE_BYTE_CONST;
+    parsedInstruction[2] = (binaryInstruction >> 16) & ONE_BYTE_CONST;
+    parsedInstruction[3] = (binaryInstruction >> 24) & ONE_BYTE_CONST;
     sprintf(buf, "%.2X %.2X %.2X %.2X", parsedInstruction[0], parsedInstruction[1], parsedInstruction[2], parsedInstruction[3]);
 }
 /**

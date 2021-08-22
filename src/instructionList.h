@@ -24,6 +24,7 @@
 #define J_REG_FLAG_OFFSET 25
 #define J_ADDR_OFFSET 0
 
+#define ONE_BYTE_CONST 255 /* one byte */
 
 typedef enum instruction_id {
     INSTRUCTION_ADD,
