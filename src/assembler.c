@@ -63,7 +63,6 @@ void assembleFile(FILE *asFile, char *fileName) {
             printf("Error while opening file %s\n", fileName);
             hasErrors = TRUE;
         }
-        printf("ok?");
     }
 
     if (hasErrors) {
