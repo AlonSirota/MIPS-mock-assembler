@@ -253,8 +253,7 @@ enum ErrorCode processDirective(line lineParsed,bytesNode **dataImagePtr, Symbol
 void logError(enum ErrorCode error, int *hasErrors, int lineNumber) {
     const char* errorMsg;
     if (error != GOOD) {
-        errorMsg = codeToMsg(error);
-        printf("%d: %s\n", lineNumber, errorMsg);
+        printError(error, lineNumber);
 
         *hasErrors = TRUE;
     }
