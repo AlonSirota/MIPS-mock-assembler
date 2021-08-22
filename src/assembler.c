@@ -244,6 +244,7 @@ enum ErrorCode processDirective(line lineParsed,bytesNode **dataImagePtr, Symbol
         logError(error, hasErrors, lineNumber);
         *dcOut += directiveBytes.size;
     }
+    return error;
 }
 
 /*
