@@ -1,9 +1,8 @@
 #include "line.h"
 #include <stddef.h>
 #include <string.h>
-#include <stdio.h>
 
-char* strdupN(char *original, int n) {
+char* strdupN(const char *original, int n) {
     char *out = (char *) malloc(sizeof(char) * (n + 1)); /* + 1 for '\0' */
     int i;
     for (i = 0; i < n; i++) {
@@ -21,10 +20,10 @@ char* strsep(char** stringp, const char* delim)
   p = (start != NULL) ? strpbrk(start, delim) : NULL;
 
   if (p == NULL)
-    {
-    *stringp = NULL;
-    }
-    else
+  {
+      *stringp = NULL;
+  }
+  else
   {
     *p = '\0';
     *stringp = p + 1;
@@ -130,7 +129,6 @@ void freeLine(line l) {
     freeSafely(l.label);
     freeSafely(l.head.value);
 
-    curr = l.head.next;
     for (curr = l.head.next; curr != NULL; curr = next) {
         freeSafely(curr->value);
         next = curr->next;

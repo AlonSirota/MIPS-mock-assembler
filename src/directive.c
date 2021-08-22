@@ -130,7 +130,7 @@ int ascizParametersToBytes(node *head, char *buffer, enum ErrorCode *errOut) {
     assert(head->next == NULL);
 
     char *str = head->value;
-    int i, count = 0;
+    int i;
 
     /* Check for illegal chars */
     for (i = 0; str[i] != '\0'; i++) {
@@ -139,13 +139,13 @@ int ascizParametersToBytes(node *head, char *buffer, enum ErrorCode *errOut) {
         }
     }
     strcpy((char *) buffer, str);
-    return strlen((char *)buffer) + 1; /* +1 for Null character */
+    return (int) strlen((char *)buffer) + 1; /* +1 for Null character */
 }
 /*
  * Returns true if number isn't in the range of numbers that can be
  * represented by byteCount bytes.
  */
-int outOfBounds(int num, int byteCount) {
+int outOfBounds(long num, int byteCount) {
     int min, max;
     switch (byteCount) {
         case 1:

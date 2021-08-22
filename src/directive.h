@@ -13,7 +13,6 @@
 #define WORD_SIZE 4
 #define BYTE_SIZE 1
 #define HALF_SIZE 2
-#define ASCII_SIZE 1
 
 #define HALF_WORD_MIN -32768
 #define HALF_WORD_MAX 32767
@@ -35,9 +34,8 @@ typedef enum{
 int isLineDirective(line l);
 directiveType strToDirectiveType(char *name);
 byteArray directiveToBytes(line l, enum ErrorCode *errorOut);
-char* bytesToHexStr(byteArray bytes[]);
 int lineParametersToBytes(node *head, char *buffer, int size, enum ErrorCode *errorOut);
 int ascizParametersToBytes(node *head, char *buffer, enum ErrorCode *errOut);
-int outOfBounds(int num, int byteCount);
+int outOfBounds(long num, int byteCount);
 
 #endif //ASSEMBLER_DIRECTIVE_H

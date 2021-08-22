@@ -49,7 +49,7 @@ void assembleFile(FILE *asFile, char *fileName) {
         rewind(asFile); /* bring file stream back to start... */
 
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
-        if (objFile = fopen(objFileName, "wb")) {
+        if ((objFile = fopen(objFileName, "wb"))) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
             hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, &externalTable));
@@ -85,7 +85,7 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
     strcpy(entrFileName, fileName);
     strcat(entrFileName, ".ent"); /* basefilename.ent */
     FILE *entrFile;
-    if (entrFile = fopen(entrFileName, "w")) { /* create new file */
+    if ((entrFile = fopen(entrFileName, "w"))) { /* create new file */
         while (symbolTable != NULL){
             if(symbolTable->attributes & ENTRY){ /* if symbol is entry */
                 if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0){ /* fprintf failed*/
@@ -115,7 +115,7 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
     strcpy(externalFileName, fileName);
     strcat(externalFileName, ".ext"); /* basefilename.ext */
     FILE *entrFile;
-    if (entrFile = fopen(externalFileName, "w")) {
+    if ((entrFile = fopen(externalFileName, "w"))) {
         while (et != NULL){
             if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0){ /*fprintf failed*/
                 fclose(entrFile);
@@ -215,9 +215,7 @@ void logError(enum ErrorCode error, int *hasErrors, int lineNumber) {
         errorMsg = codeToMsg(error);
         printf("%d: %s\n", lineNumber, errorMsg);
 
-        if (error) {
-            *hasErrors = TRUE;
-        }
+        *hasErrors = TRUE;
     }
 }
 

@@ -4,9 +4,7 @@
 
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
-#define USING_WINDOWS
-#define CODE_SIZE 2^25 /* max memory size */
-#define DATA_SIZE 2^25
+#define CODE_SIZE (2^25) /* max memory size */
 
 #define ERROR_BUFFER_LENGTH 256
 
@@ -27,7 +25,6 @@ typedef struct bytesNode {
 } bytesNode;
 
 void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
-char *codeToMsg(enum ErrorCode code);
 void assemblePath(char *fileName);
 void assembleFile(FILE *asFile, char *fileName);
 enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **symbolTableOut);
