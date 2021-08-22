@@ -69,6 +69,11 @@ void assembleFile(FILE *asFile, char *fileName) {
         /* assembleFile function is responsible for deleting objectfile if encountered any errors during assembly process */
         removeOutputFiles(fileName);
     }
+
+    /* Destroy data structures */
+    discardExternalTable(externalTable);
+    discardTable(symbolTable);
+    freeByteList(dataImage);
 }
 
 /**

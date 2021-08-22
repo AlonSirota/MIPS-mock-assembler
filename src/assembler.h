@@ -19,11 +19,7 @@
 #include "externalTable.h"
 #include "helper.h"
 #include "instructionList.h"
-
-typedef struct bytesNode {
-    byteArray bytes;
-    struct bytesNode *next;
-} bytesNode;
+#include "directive.h"
 
 void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
 void assemblePath(char *fileName);
