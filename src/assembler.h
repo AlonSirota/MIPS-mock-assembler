@@ -18,6 +18,7 @@
 #include "directive.h"
 #include "externalTable.h"
 #include "helper.h"
+#include "instructionList.h"
 
 typedef struct bytesNode {
     byteArray bytes;

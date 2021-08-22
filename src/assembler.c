@@ -2,9 +2,6 @@
 // Created by alon on 6/27/21.
 //
 #include "assembler.h"
-#include "instructionList.h"
-
-
 
 void assemblePath(char *fileName) {
     /* Check that fileName ends with .asm */

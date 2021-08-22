@@ -10,7 +10,8 @@
 #include "consts.c"
 #include "externalTable.c"
 #include "helper.c"
-#include "utility.h"
+#include "utility.c"
+#include "helper.c"
 
 
 void testAsFile(std::string caseName);
