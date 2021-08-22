@@ -12,8 +12,8 @@
 #include "helper.c"
 #include "utility.h"
 
-/* Used for creating path of .as files for testing */
-const std::string asFilesBasePath = "../../tests/assembly_files_test_cases/";
+
+void testAsFile(std::string caseName);
 
 TEST(fgetsShred, Shred) {
     FILE *stream;
@@ -860,24 +860,7 @@ TEST(printLineToBuffer, print){
 }
 
 TEST(assemble, ps) {
-    std::string asFile = asFilesBasePath + "ps.as";
-    std::string expectedOb = asFilesBasePath + "true_ps.ob";
-    std::string actualOb = asFilesBasePath + "ps.ob";
-    std::string expectedExt = asFilesBasePath + "true_ps.ext";
-    std::string actualExt = asFilesBasePath + "ps.ext";
-    std::string expectedEnt= asFilesBasePath + "true_ps.ent";
-    std::string actualEnt = asFilesBasePath + "ps.ent";
-
-    remove(actualExt.c_str());
-    remove(actualOb.c_str());
-    remove(actualEnt.c_str());
-    char buff[100];
-    strcpy(buff, asFile.c_str());
-    assemblePath(buff);
-
-    ASSERT_TRUE(compareFiles(expectedOb, actualOb));
-    ASSERT_TRUE(compareFiles(expectedExt, actualExt));
-    ASSERT_TRUE(compareFiles(expectedEnt, actualEnt));
+    testAsFile("ps");
 }
 
 TEST(isValidLabel, addIsReserved) {
@@ -903,6 +886,33 @@ TEST(isValidLabel, labelWithBadChars) {
 TEST(isValidLabel, tooLongLabel) {
     ASSERT_EQ(isValidLabel("ImOver31CharactersWhichIsTheLimit"),LABEL_TOO_LONG);
 }
+
+void testAsFile(std::string caseName) {
+    std::string expectedPreFix = "true_";
+    std::string dirPath = "../../tests/assembly_files_test_cases/" + caseName + '/';
+
+    std::string asFile = dirPath + caseName + ".as";
+    std::string expectedOb = dirPath + expectedPreFix + caseName + ".ob";
+    std::string expectedExt = dirPath + expectedPreFix + caseName + ".ext";
+    std::string expectedEnt = dirPath + expectedPreFix + caseName + ".ent";
+
+    std::string actualOb = dirPath + caseName + ".ob";
+    std::string actualExt = dirPath + caseName + ".ext";
+    std::string actualEnt = dirPath + caseName + ".ent";
+
+    remove(actualExt.c_str());
+    remove(actualOb.c_str());
+    remove(actualEnt.c_str());
+
+    char buff[100];
+    strcpy(buff, asFile.c_str());
+    assemblePath(buff);
+
+    ASSERT_TRUE(compareFiles(expectedOb, actualOb));
+    ASSERT_TRUE(compareFiles(expectedExt, actualExt));
+    ASSERT_TRUE(compareFiles(expectedEnt, actualEnt));
+}
+
 /**
 * todo: add external table tests
 */
