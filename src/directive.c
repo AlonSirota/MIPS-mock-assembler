@@ -114,7 +114,7 @@ int lineParametersToBytes(struct node *head, char *buffer, int size, enum ErrorC
         // little endian?!?!?!
         for (j = 0, shift = 0; j < size; j++, shift += CHAR_BIT) {
             res = res >> shift;
-            buffer[i * size + j] = res & 0b11111111;
+            buffer[i * size + j] = res & 255; /* 255 = 0b11111111*/
             count++;
         }
     }
