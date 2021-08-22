@@ -26,14 +26,14 @@ directiveType strToDirectiveType(char *name){
 /*
  * Returns true if line's operand is a directive.
  */
-int isLineDirective(line l) {
+int isLineDirective(struct line l) {
     return strToDirectiveType(l.head.value) != UNDEFINED;
 }
 
 /*
  * Convert l line (that is assumed to be a directive command) to byteArray array.
  */
-byteArray directiveToBytes(line l, enum ErrorCode *errorOut) {
+byteArray directiveToBytes(struct line l, enum ErrorCode *errorOut) {
     char *mnemonic = l.head.value;
     char byteBuffer[LINE_LENGTH * WORD_SIZE]; /* This size will suffice the 'heaviest' case of a line like "<mnemonic> .dw 0,0,0,0..." */
     byteArray result = {NULL, 0}; /* empty result */
@@ -91,7 +91,7 @@ int directiveTypeToSize(directiveType type) {
  * Bytes are inserted in little endian
  * Returns the number of bytes written.
  */
-int lineParametersToBytes(node *head, char *buffer, int size, enum ErrorCode *errorOut) {
+int lineParametersToBytes(struct node *head, char *buffer, int size, enum ErrorCode *errorOut) {
     long int res;
     int i, j, count = 0, shift;
     for (i = 0;head != NULL; head = head->next, i++) {
@@ -123,7 +123,7 @@ int lineParametersToBytes(node *head, char *buffer, int size, enum ErrorCode *er
  * Returns number of bytes inserted to buffer,
  * updates 'errOut' if found an error
  */
-int ascizParametersToBytes(node *head, char *buffer, enum ErrorCode *errOut) {
+int ascizParametersToBytes(struct node *head, char *buffer, enum ErrorCode *errOut) {
     /* assert that there is 1 parameter, otherwise this error should have been caught elsewhere */
     assert(head != NULL);
     assert(head->value != NULL);

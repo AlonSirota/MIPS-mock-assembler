@@ -31,11 +31,11 @@ typedef enum{
     UNDEFINED
 } directiveType;
 
-int isLineDirective(line l);
+int isLineDirective(struct line l);
 directiveType strToDirectiveType(char *name);
-byteArray directiveToBytes(line l, enum ErrorCode *errorOut);
-int lineParametersToBytes(node *head, char *buffer, int size, enum ErrorCode *errorOut);
-int ascizParametersToBytes(node *head, char *buffer, enum ErrorCode *errOut);
+byteArray directiveToBytes(struct line l, enum ErrorCode *errorOut);
+int lineParametersToBytes(struct node *head, char *buffer, int size, enum ErrorCode *errorOut);
+int ascizParametersToBytes(struct node *head, char *buffer, enum ErrorCode *errOut);
 int outOfBounds(long num, int byteCount);
 
 #endif //ASSEMBLER_DIRECTIVE_H
