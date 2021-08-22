@@ -68,7 +68,7 @@ void assembleFile(FILE *asFile, char *fileName) {
 
     if (hasErrors) {
         /* assembleFile function is responsible for deleting objectfile if encountered any errors during assembly process */
-        remove(objFileName);
+        removeOutputFiles(fileName);
     }
 }
 
@@ -366,4 +366,21 @@ enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic
     }
 
     return GOOD;
+}
+
+/**
+ * Delete the output files from the assembly run.
+ * @param baseName, the filename without the extension.
+ */
+void removeOutputFiles(char *baseName) {
+    char buf[MAX_FILE_NAME_LEN];
+    const char *extensions[3] = {".ob", ".ext", ".ent"}; /* array of strings */
+    int i;
+
+    for (i = 0; i < sizeof (extensions) / sizeof (char *); i++) {
+        strcpy(buf, baseName);
+        strcat(buf, extensions[i]);
+
+        remove(buf);
+    }
 }

@@ -39,4 +39,5 @@ enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc);
 enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable);
 enum ErrorCode generateExternalsFile (char *fileName, externalTable *et);
 enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic);
+void removeOutputFiles(char *baseName);
 #endif //ASSEMBLER_ASSEMBLER_H
