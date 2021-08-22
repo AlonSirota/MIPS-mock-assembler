@@ -186,7 +186,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
                 error = addSymbol(symbolTableOut, lineParsed.label, *icOut, CODE);
                 logError(error, &hasErrors, lineNumber);
             }
-            *icOut += 4;
+            *icOut += BYTES_IN_CODE_LINE;
         }
         /* Further processing of instruction line is done in second pass. This deviates then the algorithm in assignment details */
         freeLine(lineParsed); /* line holds dynamically allocated memory */
@@ -272,7 +272,7 @@ enum ErrorCode secondPass(FILE *asFile, FILE *objFile, Symbol *st, externalTable
         if(ec == GOOD){ /*line is good so print code in required format*/
             printLineToFile(objFile, ic, buf);
         }
-        ic += 4; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
+        ic += BYTES_IN_CODE_LINE; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
 
         nextLoop:
         freeLine(lineParsed); /* Line holds dynamic memory */

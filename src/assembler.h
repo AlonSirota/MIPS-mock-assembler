@@ -7,7 +7,7 @@
 #define CODE_SIZE (2^25) /* max memory size */
 
 #define ERROR_BUFFER_LENGTH 256
-
+#define BYTES_IN_CODE_LINE 4
 #define FIRST_MEMORY_ADDRESS 100
 
 #include <stdio.h>
