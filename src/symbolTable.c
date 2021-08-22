@@ -6,8 +6,12 @@
 #include "instructionList.h"
 
 
-Symbol *newSymbol(char *label, int address, int attributes);
-
+/**
+ * Returns node from Symbol list (table), of parameter label
+ * @param table (haystack)
+ * @param label (needle)
+ * @return needle
+ */
 Symbol *findSymbolInTable(Symbol *table, char *label) {
     while (table != NULL && strcmp(label, table->label) != 0){
         table = table->next;
@@ -15,7 +19,13 @@ Symbol *findSymbolInTable(Symbol *table, char *label) {
     return table;
 }
 
-
+/**
+ * Adds sybol node to table (linked list).
+ * If table is empty, will create the head into *tablePtr.
+ * @param tablePtr to insert into
+ * label, address, attributes: symbol properties.
+ * @return error type
+ */
 enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
     Symbol* curr, *prev;
     Symbol *next;
@@ -39,10 +49,10 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
             if(((curr->attributes & ENTRY) || (attributes & ENTRY)) && (curr->address == -1 || address == -1)){ /* an entry may be decleared before defined, in this case temp addr "-1" is given */
                 curr->attributes |= attributes; /*add new attr*/
                 curr->address = (address == -1)?(curr->address):address;
-                discardTable(next); /* no need for a new node */
+                freeSymbolList(next); /* no need for a new node */
                 return GOOD; /*  */
             }
-            discardTable(next);
+            freeSymbolList(next);
             /*printf("label %s was already defined\n", label);*/
             return ERR_LABEL_ALREADY_DEFINED;
         }
@@ -58,6 +68,10 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
     return GOOD;
 }
 
+/**
+ * Create a new symbol with properies according to parameters
+ * @return new symbol
+ */
 Symbol *newSymbol(char *label, int address, int attributes) {
     Symbol * s = (Symbol *) malloc(sizeof (Symbol));
     if (s == NULL)
@@ -73,7 +87,10 @@ Symbol *newSymbol(char *label, int address, int attributes) {
     return s;
 }
 
-void discardTable(Symbol *table) {
+/*
+ * Destroys the symbol linked list
+ */
+void freeSymbolList(Symbol *table) {
     Symbol *next;
     while(table != NULL){
         next = table->next;
@@ -83,7 +100,15 @@ void discardTable(Symbol *table) {
     }
 }
 
-// TODO improve documentation
+/**
+ * Returns true if all is correct:
+ * str is not a reserved keyword of assembly
+ * str isn't empty
+ * str starts with a letter
+ * str only holds letters and numbers
+ * str isn't longer than MAX_LABEL_LENGTH
+ * @param str
+ */
 enum ErrorCode isValidLabel(char *str){
     int i;
     /* Label can't be a reserved keyword */

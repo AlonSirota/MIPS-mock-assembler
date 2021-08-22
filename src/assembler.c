@@ -72,7 +72,7 @@ void assembleFile(FILE *asFile, char *fileName) {
 
     /* Destroy data structures */
     discardExternalTable(externalTable);
-    discardTable(symbolTable);
+    freeSymbolList(symbolTable);
     freeByteList(dataImage);
 }
 

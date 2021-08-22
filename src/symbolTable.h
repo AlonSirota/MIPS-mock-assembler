@@ -30,8 +30,9 @@ typedef struct symbolNode {
 
 Symbol *findSymbolInTable(Symbol *table, char *label);
 enum ErrorCode addSymbol(Symbol **tablePtr, char* label, int address, int attributes);
-void discardTable(Symbol *table);
+void freeSymbolList(Symbol *table);
 enum ErrorCode isValidLabel(char *str);
 int isReservedKeyword(char *str);
+Symbol *newSymbol(char *label, int address, int attributes);
 
 #endif //ASSEMBLER_INSTRUCTIONLIST_H

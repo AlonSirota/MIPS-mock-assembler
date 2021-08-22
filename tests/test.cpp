@@ -203,7 +203,7 @@ TEST(addSymbol, easy) {
     ASSERT_TRUE(curr->address == 2);
     ASSERT_TRUE(curr->attributes == DATA | CODE);
     ASSERT_TRUE(curr->next == NULL);
-    discardTable(tableHead);
+    freeSymbolList(tableHead);
 }
 
 TEST(addSymbol, preventDuplicates) {
@@ -217,7 +217,7 @@ TEST(addSymbol, preventDuplicates) {
     ASSERT_TRUE(curr->address == 1);
     ASSERT_TRUE(curr->attributes == DATA);
     ASSERT_TRUE(curr->next == NULL);
-    discardTable(tableHead);
+    freeSymbolList(tableHead);
 }
 TEST(parseInstructionRArithmetic, base){
     char buf[20];
