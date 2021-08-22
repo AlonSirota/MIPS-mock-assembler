@@ -1,6 +1,3 @@
-//
-// Created by alon on 6/27/21.
-//
 #include "assembler.h"
 
 /**

@@ -13,7 +13,7 @@
 #define NONE -1
 
 #include <assert.h>
-#include "ctype.h"
+#include <ctype.h>
 #include "consts.h"
 #include <stdlib.h>
 

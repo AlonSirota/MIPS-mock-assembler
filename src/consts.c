@@ -1,6 +1,3 @@
-//
-// Created by alon on 8/14/21.
-//
 #include "consts.h"
 
 ErrorString errorStrings[] = {

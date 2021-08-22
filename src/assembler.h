@@ -1,7 +1,3 @@
-//
-// Created by alon on 6/27/21.
-//
-
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
 #include "consts.h"
@@ -32,4 +28,4 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et);
 enum ErrorCode appendDataImageToFile(FILE *objFile, bytesNode *dataImage, int ic);
 void removeOutputFiles(char *baseName);
 enum ErrorCode processDirective(line lineParsed,bytesNode **dataImagePtr, Symbol **symbolTableOut, int *dcOut, int *hasErrors, int lineNumber);
-#endif //ASSEMBLER_ASSEMBLER_H
+#endif

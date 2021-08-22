@@ -1,7 +1,3 @@
-//
-// Created by alon on 7/31/21.
-//
-
 #ifndef ASSEMBLER_CONSTS_H
 #define ASSEMBLER_CONSTS_H
 #include <stddef.h>
@@ -28,4 +24,4 @@ typedef struct {
 extern ErrorString errorStrings[];
 char *codeToMsg(enum ErrorCode ec);
 
-#endif //ASSEMBLER_CONSTS_H
+#endif
