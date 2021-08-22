@@ -1,6 +1,3 @@
-//
-// Created by Ram Ben on 7/2/2021.
-//
 #include "symbolTable.h"
 
 /**

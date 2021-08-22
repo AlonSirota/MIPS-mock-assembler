@@ -1,6 +1,3 @@
-//
-// Created by Ram Ben on 7/3/2021.
-//
 
 #ifndef ASSEMBLER_SYMBOLTABLET_H
 #define ASSEMBLER_SYMBOLTABLET_H
@@ -34,4 +31,4 @@ enum ErrorCode isValidLabel(char *str);
 int isReservedKeyword(char *str);
 Symbol *newSymbol(char *label, int address, int attributes);
 
-#endif //ASSEMBLER_INSTRUCTIONLIST_H
+#endif

@@ -1,7 +1,3 @@
-//
-// Created by alon on 8/18/21.
-//
-
 #include "helper.h"
 
 /*
@@ -22,7 +18,7 @@ int parseLong(const char *str, long *val) {
     errno = 0; /* Reset errno to avoid using a value set in the past */
     *val = strtol(str, &temp, 10);
 
-    /* strtol error detection *//* strtol error detection */
+    /* strtol error detection */
     if (temp == str || *temp != '\0' ||
         ((*val == LONG_MIN || *val == LONG_MAX) && errno == ERANGE)) {
         rc = FALSE;

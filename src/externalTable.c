@@ -1,8 +1,3 @@
-//
-// Created by Ram Ben on 8/16/2021.
-//
-
-
 #include "externalTable.h"
 
 
@@ -10,10 +5,10 @@
  * duplicate a string to a new memory location acquired from malloc
  * */
 char *strdup(const char *src) {
-    char *dst = (char *)malloc(strlen (src) + 1);  // Space for length plus nul
-    if (dst == NULL) return NULL;          // No memory
-    strcpy(dst, src);                      // Copy the characters
-    return dst;                            // Return the new string
+    char *dst = (char *)malloc(strlen (src) + 1);  /* Space for length plus nul */
+    if (dst == NULL) return NULL;          /* No memory */
+    strcpy(dst, src);                      /* Copy the characters */
+    return dst;                            /* Return the new string */
 }
 
 /**

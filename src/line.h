@@ -1,7 +1,3 @@
-//
-// Created by alon on 7/1/21.
-//
-
 #ifndef ASSEMBLER_LINE_H
 #define ASSEMBLER_LINE_H
 #define LINE_LENGTH 80
@@ -38,4 +34,4 @@ char * trimWhiteSpace(char *str);
 void freeLine(line l);
 void freeSafely(void *ptr);
 int isLastNode(node n);
-#endif //ASSEMBLER_LINE_H
+#endif

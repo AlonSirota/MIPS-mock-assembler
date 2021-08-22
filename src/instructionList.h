@@ -1,7 +1,3 @@
-//
-// Created by Ram Ben on 7/3/2021.
-//
-
 #ifndef ASSEMBLER_INSTRUCTIONLIST_H
 #define ASSEMBLER_INSTRUCTIONLIST_H
 
@@ -89,4 +85,4 @@ void printInstruction(char *buf, unsigned int binaryInstruction);
 enum ErrorCode readImmed(node *node, int *immed);
 enum ErrorCode readLabel(node *node);
 int to16bit(int in);
-#endif //ASSEMBLER_INSTRUCTIONLIST_H
+#endif

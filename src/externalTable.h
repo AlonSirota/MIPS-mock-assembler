@@ -18,4 +18,4 @@ void discardExternalTable(externalTable *table);
 
 
 
-#endif //ASSEMBLER_EXTERNALTABLE_H
+#endif /*ASSEMBLER_EXTERNALTABLE_H */

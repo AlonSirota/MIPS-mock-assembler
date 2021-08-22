@@ -1,7 +1,3 @@
-//
-// Created by alon on 8/18/21.
-//
-
 #ifndef ASSEMBLER_HELPER_H
 #define ASSEMBLER_HELPER_H
 #include <stdio.h>
@@ -19,4 +15,4 @@ char* strsep(char** stringp, const char* delim);
 char *strdupN(const char *original, int n);
 char lastChar(char *str);
 
-#endif //ASSEMBLER_HELPER_H
+#endif

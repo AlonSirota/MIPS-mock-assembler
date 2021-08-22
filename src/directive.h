@@ -1,7 +1,3 @@
-//
-// Created by alon on 7/4/21.
-//
-
 #ifndef ASSEMBLER_DIRECTIVE_H
 #define ASSEMBLER_DIRECTIVE_H
 #include "line.h"
@@ -44,4 +40,4 @@ int ascizParametersToBytes(struct node *head, char *buffer, enum ErrorCode *errO
 int outOfBounds(long num, int byteCount);
 void freeByteList(bytesNode *head);
 
-#endif //ASSEMBLER_DIRECTIVE_H
+#endif

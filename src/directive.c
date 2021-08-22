@@ -1,7 +1,3 @@
-//
-// Created by Ram Ben on 7/3/2021.
-//
-
 #include "directive.h"
 
 /**
@@ -111,7 +107,6 @@ int lineParametersToBytes(struct node *head, char *buffer, int size, enum ErrorC
             return 0;
         }
 
-        // little endian?!?!?!
         for (j = 0, shift = 0; j < size; j++, shift += CHAR_BIT) {
             res = res >> shift;
             buffer[i * size + j] = res & 255; /* 255 = 0b11111111*/
