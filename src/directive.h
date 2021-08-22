@@ -6,6 +6,8 @@
 #define ASSEMBLER_DIRECTIVE_H
 #include "line.h"
 #include <limits.h>
+#include <string.h>
+#include "helper.h"
 
 #define WORD_SIZE 4
 #define BYTE_SIZE 1
