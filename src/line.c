@@ -105,13 +105,14 @@ void freeSafely(void *ptr) {
 void parseAscizParameters(char *paramStr, line *lOut) {
     char *token;
     node *curr;
+    char *closingParenthesisPtr;
     token = strtok(paramStr,"");
     if (*token != '\"') {
         /*printf("Expected \" as first character in first token after .asciz\n");*/
         lOut->error = ASCIIZ_MISSING_PARENTHESIS;
     } else {
         token++; /* skip first \" char */
-        char *closingParenthesisPtr = strpbrk(token, "\"");
+        closingParenthesisPtr= strpbrk(token, "\"");
         if (closingParenthesisPtr == NULL) {
             lOut->error = ASCIIZ_UNBALANCED_PARENTHESIS;
         } else { /* Found closing \" character */

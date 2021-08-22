@@ -67,10 +67,13 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
  * @return new symbol
  */
 Symbol *newSymbol(char *label, int address, int attributes) {
-    Symbol * s = (Symbol *) malloc(sizeof (Symbol));
+    Symbol * s;
+    char *nextLabel = strdup(label);
+
+    s = (Symbol *) malloc(sizeof (Symbol));
+
     if (s == NULL)
         return NULL;
-    char *nextLabel = strdup(label);
     if (nextLabel == NULL)
         return NULL;
     s->label = nextLabel;

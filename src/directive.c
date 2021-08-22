@@ -125,14 +125,15 @@ int lineParametersToBytes(struct node *head, char *buffer, int size, enum ErrorC
  * updates 'errOut' if found an error
  */
 int ascizParametersToBytes(struct node *head, char *buffer, enum ErrorCode *errOut) {
+    char *str;
+    int i;
+
     /* assert that there is 1 parameter, otherwise this error should have been caught elsewhere */
     assert(head != NULL);
     assert(head->value != NULL);
     assert(head->next == NULL);
 
-    char *str = head->value;
-    int i;
-
+    str = head->value;
     /* Check for illegal chars */
     for (i = 0; str[i] != '\0'; i++) {
         if (!isprint(str[i])) {
