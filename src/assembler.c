@@ -3,6 +3,10 @@
 //
 #include "assembler.h"
 
+/**
+ * Runs the assembly process on file in fileName
+ * @param fileName, path to a .as file to be assembled
+ */
 void assemblePath(char *fileName) {
     /* Check that fileName ends with .asm */
     char *extension = strstr(fileName, ASSEMBLY_EXTENSION);
@@ -22,11 +26,11 @@ void assemblePath(char *fileName) {
     fclose(f);
 }
 
-
-/*
- * Assembles file asFile.
- * asFile parameter is expected to be an opened file.
+/**
+ * Assembles asFile
  * asFile won't be closed as part of this function.
+ * @param asFile parameter is expected to be an opened file.
+ * @param fileName
  */
 void assembleFile(FILE *asFile, char *fileName) {
     assert(asFile != NULL);
@@ -39,13 +43,13 @@ void assembleFile(FILE *asFile, char *fileName) {
     int hasErrors = FALSE;
 
     if (firstPass(asFile, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
-        /* Name of object file is: "<.as file name>.ob" */
+        /* objFileName = "<.as file name>.ob" */
         strcpy(objFileName, fileName);
         strcat(objFileName, ".ob");
 
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
         if ((objFile = fopen(objFileName, "wb"))) {
-            /* Generate the different output files, set on has errors if encountered any errors in them */
+            /* Generate the different output files, turn on hasErrors flag if encountered any errors in them */
             hasErrors |= (GOOD != writeObjFileHeader(objFile, ic, dc));
             hasErrors |= (GOOD != secondPass(asFile, objFile, symbolTable, &externalTable));
             hasErrors |= (GOOD != appendDataImageToFile(objFile, dataImage, ic));
