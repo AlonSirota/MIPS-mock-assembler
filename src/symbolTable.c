@@ -17,7 +17,7 @@ Symbol *findSymbolInTable(Symbol *table, char *label) {
 
 
 enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attributes) {
-    Symbol* curr;
+    Symbol* curr, *prev;
     Symbol *next;
     enum ErrorCode ec = isValidLabel(label);
     if(ec != GOOD)
@@ -48,12 +48,13 @@ enum ErrorCode addSymbol(Symbol **tablePtr, char *label, int address, int attrib
         }
 
         /* Go forward until reaching last node */
-        if (curr->next != NULL)
-            curr = curr->next;
-    } while (curr->next != NULL);
+        prev = curr;
+        curr = curr->next;
+
+    } while (curr != NULL);
 
     /* append */
-    curr->next = next;
+    prev->next = next;
     return GOOD;
 }
 

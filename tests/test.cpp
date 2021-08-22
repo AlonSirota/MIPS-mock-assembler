@@ -862,6 +862,10 @@ TEST(printLineToBuffer, print){
 TEST(assemble, ps) {
     testAsFile("ps");
 }
+TEST(assemble, onlyData) {
+    testAsFile("only_data");
+}
+
 
 TEST(isValidLabel, addIsReserved) {
     ASSERT_EQ(isValidLabel("add"),LABEL_IS_RESERVED_KEYWORD);
