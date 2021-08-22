@@ -35,9 +35,7 @@ typedef struct line {
 void parseParameters(char *paramStr, line *lOut);
 void parseAscizParameters (char *paramStr, line *lOut);
 void parseGenericParameters (char *paramStr, line *lOut);
-char* strsep(char** stringp, const char* delim);
 line strToLine(char *str);
-char lastChar(char *str);
 char * firstNoneSpace(char *str);
 void trimTrailingSpace(char *str);
 char * trimWhiteSpace(char *str);

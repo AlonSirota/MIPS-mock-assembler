@@ -6,18 +6,17 @@
 #define ASSEMBLER_HELPER_H
 #include "string.h"
 #include <errno.h>
-#include "consts.h"
-#include "directive.h"
-#include "line.h"
-#include "symbolTable.h"
-#include "externalTable.h"
 #include <stdlib.h>
 #include <limits.h>
 #include <stdio.h>
 #include <assert.h>
+#include <ctype.h>
 
 int isEmptyString(char *str);
 int parseLong(const char *str, long *val);
 char *fgetsShred(FILE *f, int n, char *buffer);
+char* strsep(char** stringp, const char* delim);
+char *strdupN(const char *original, int n);
+char lastChar(char *str);
 
 #endif //ASSEMBLER_HELPER_H

@@ -1,36 +1,7 @@
 #include "line.h"
+#include "helper.h"
 #include <stddef.h>
 #include <string.h>
-
-char* strdupN(const char *original, int n) {
-    char *out = (char *) malloc(sizeof(char) * (n + 1)); /* + 1 for '\0' */
-    int i;
-    for (i = 0; i < n; i++) {
-        out[i] = original[i];
-    }
-    out[i] = '\0';
-    return out;
-}
-
-char* strsep(char** stringp, const char* delim)
-{
-  char* start = *stringp;
-  char* p;
-
-  p = (start != NULL) ? strpbrk(start, delim) : NULL;
-
-  if (p == NULL)
-  {
-      *stringp = NULL;
-  }
-  else
-  {
-    *p = '\0';
-    *stringp = p + 1;
-  }
-
-  return start;
-}
 
 /*
  * Parse a string to a line struct
@@ -70,17 +41,6 @@ line strToLine(char *str) {
     parseParameters(token, &l);
 
     return l;
-}
-
-/*
- * Returns
- * Expects str to have at least one character.
- */
-char lastChar(char *str) {
-    assert(str != NULL);
-    assert(strlen(str));
-
-    return str[strlen(str) - 1];
 }
 
 /*
