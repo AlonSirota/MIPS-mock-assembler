@@ -148,7 +148,7 @@ int ascizParametersToBytes(struct node *head, char *buffer, enum ErrorCode *errO
  * represented by byteCount bytes.
  */
 int outOfBounds(long num, int byteCount) {
-    int min, max;
+    long min, max;
     switch (byteCount) {
         case 1:
             min = CHAR_MIN;
@@ -160,7 +160,7 @@ int outOfBounds(long num, int byteCount) {
             break;
         case 4:
             min = WORD_MIN;
-            max = WORD_MAX;
+            max = WORD_MAX; 
             break;
         default:
             printf("Error, unrecognized byteArray size in 'outOfBounds' function\n");

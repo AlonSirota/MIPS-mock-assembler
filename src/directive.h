@@ -11,7 +11,7 @@
 
 #define HALF_WORD_MIN -32768
 #define HALF_WORD_MAX 32767
-#define WORD_MIN -2147483648
+#define WORD_MIN -2147483647
 #define WORD_MAX 2147483647
 typedef struct byteArray {
     char *arr;
