@@ -6,9 +6,10 @@
  */
 externalTable *newExternalSymbol(char *label, int address) {
     externalTable * s = (externalTable *) malloc(sizeof (externalTable));
+    char *nextLabel;
     if (s == NULL) /* out of memort*/
         return NULL;
-    char *nextLabel = strdup(label);
+    nextLabel = strdup(label);
     if (nextLabel == NULL) /* strdup failed (out of memory)*/
         return NULL;
     s->label = nextLabel;

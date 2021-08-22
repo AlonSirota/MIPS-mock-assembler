@@ -4,6 +4,7 @@
 #include "consts.h"
 #include <string.h>
 #include <stdlib.h>
+#include "helper.h"
 typedef struct externalTableNode {
     struct externalTableNode *next;
     char* label;
