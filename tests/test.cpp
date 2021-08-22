@@ -866,6 +866,10 @@ TEST(assemble, onlyData) {
     testAsFile("only_data");
 }
 
+TEST(assemble, onlyCode) {
+    testAsFile("only_code");
+}
+
 
 TEST(isValidLabel, addIsReserved) {
     ASSERT_EQ(isValidLabel("add"),LABEL_IS_RESERVED_KEYWORD);
