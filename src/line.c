@@ -105,7 +105,7 @@ void freeSafely(void *ptr) {
 void parseAscizParameters(char *paramStr, line *lOut) {
     char *token;
     node *curr;
-    token = strtok_r(NULL,"", &paramStr);
+    token = strtok(paramStr,"");
     if (*token != '\"') {
         /*printf("Expected \" as first character in first token after .asciz\n");*/
         lOut->error = ASCIIZ_MISSING_PARENTHESIS;
