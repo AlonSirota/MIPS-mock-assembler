@@ -55,7 +55,7 @@ void assembleFile(FILE *asFile, char *fileName) {
             hasErrors |= (GOOD != appendDataImageToFile(objFile, dataImage, ic));
             fclose(objFile); /* secondPass is done processing object file */
 
-            if (!hasErrors) { /* TODO: delete files when failed */
+            if (!hasErrors) {
                 hasErrors |= (GOOD != generateEntriesFile(fileName, symbolTable));
                 hasErrors |= (GOOD != generateExternalsFile(fileName, externalTable));
             }
