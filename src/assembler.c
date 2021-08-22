@@ -180,7 +180,7 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     for (lineNumber = 1; fgetsShred(asFile, LINE_LENGTH + 1, lineStr); lineNumber++) {
         lineParsed = strToLine(lineStr);
 
-        if (!isLineRelevant(lineParsed)) { /* skip irrelevant lines */
+        if (lineParsed.error != GOOD || !isLineRelevant(lineParsed)) { /* skip irrelevant lines */
             continue;
         }
         else if (isLineDirective(lineParsed)) { /* process directive lines */
