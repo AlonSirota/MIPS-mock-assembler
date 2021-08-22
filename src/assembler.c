@@ -156,7 +156,6 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     line lineParsed;
     *symbolTableOut = NULL;
     *dataImagePtr = NULL;
-    byteArray directiveBytes;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
     Symbol *temp;
@@ -188,8 +187,9 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
                 logError(error, &hasErrors, lineNumber);
             }
             *icOut += 4;
-            }
-            /* Further processing of instruction line is done in second pass. This deviates then the algorithm in assignment details */
+        }
+        /* Further processing of instruction line is done in second pass. This deviates then the algorithm in assignment details */
+        freeLine(lineParsed); /* line holds dynamically allocated memory */
     }
     temp = *symbolTableOut;
     while(temp != NULL){
@@ -259,14 +259,10 @@ enum ErrorCode secondPass(FILE *asFile, FILE *objFile, Symbol *st, externalTable
 
     rewind(asFile);
     while(fgetsShred(asFile, LINE_LENGTH + 1, lineStr) != NULL){ /**read line*/
-        if (lineNo == 9) {
-            lineNo++;
-            lineNo--;
-        }
         lineParsed = strToLine(lineStr); /*parse line*/
         if(lineParsed.head.value == NULL || lineParsed.head.value[0] == '.'){ /* empty line or a directive*/
             lineNo++;
-            continue;
+            goto nextLoop;
         }
         ecTemp = parseInstruction(&lineParsed.head, buf, st, ic, externalTable1); /*actually parse the instruction and generate code and externals table*/
         if(ecTemp != GOOD){ /* report error */
@@ -277,6 +273,9 @@ enum ErrorCode secondPass(FILE *asFile, FILE *objFile, Symbol *st, externalTable
             printLineToFile(objFile, ic, buf);
         }
         ic += 4; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
+
+        nextLoop:
+        freeLine(lineParsed); /* Line holds dynamic memory */
         lineNo++;
     }
     return ec;
