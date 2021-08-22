@@ -470,35 +470,13 @@ enum ErrorCode readImmed(node *node, int *immed){
     if(buf == NULL || strlen(buf)==0){  /* null string or zero length string */
         return MISSING_ARGUMENTS;
     }
-    long prev = 0, res = 0;
-    int sing = 1;
-    if(!isdigit(buf[0])){ /* check immed sing */
-        switch (buf[0]) {
-            case '-':
-                sing = -1;
-                buf++;
-                break;
-            case '+':
-                sing = 1;
-                buf++;
-                break;
-            default:
-                return ILLEAGLE_IMMED;
-        }
+    long res = 0;
+    if (parseLong(node->value, &res) == FALSE){
+        return ILLEAGLE_IMMED;
     }
-    while(*buf != NULL){
-        if(!isdigit(buf[0]))
-            return ILLEAGLE_IMMED;
-        prev = res;
-        res *= 10;
-        res += buf[0] - '0';
-        if(res <= prev && prev != 0) /* int overflow (int may be bigger then 16 bits) */
-            return IMMED_OUT_OF_RANGE;
-        buf++;
-    }
-    res *= sing;
-    if(res <= (-(1 << IMMED_BIT_SIZE)) || res >= ((1 << IMMED_BIT_SIZE) - 1)) /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
+    if(res <= (-(1 << IMMED_BIT_SIZE)) || res >= ((1 << IMMED_BIT_SIZE) - 1)){ /* res is 16 bit singed so its range in 2's complimint is: -2^15 <= res <= 2^15-1 */
         return IMMED_OUT_OF_RANGE;
+    }
     *immed = to16bit(res);
     return GOOD;
 }
