@@ -9,6 +9,7 @@
 #include "directive.h"
 #include "symbolTable.h"
 #include "line.h"
+#include "externalTable.h"
 #define CODE_SIZE (2^25) /* max memory size */
 
 #define ERROR_BUFFER_LENGTH 256
