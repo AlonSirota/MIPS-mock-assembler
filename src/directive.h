@@ -14,8 +14,8 @@
 #include "symbolTable.h"
 #include "externalTable.h"
 #include "helper.h"
-#include "instructionList.h"
-
+/*#include "instructionList.h"
+*/
 #define WORD_SIZE 4
 #define BYTE_SIZE 1
 #define HALF_SIZE 2

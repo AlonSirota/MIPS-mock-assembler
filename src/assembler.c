@@ -85,6 +85,7 @@ void assembleFile(FILE *asFile, char *fileName) {
  */
 enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
     char entrFileName[MAX_FILE_NAME_LEN];
+    int keep = FALSE;
     strcpy(entrFileName, fileName);
     strcat(entrFileName, ".ent"); /* basefilename.ent */
     FILE *entrFile;
@@ -93,12 +94,16 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
             if(symbolTable->attributes & ENTRY){ /* if symbol is entry */
                 if(fprintf(entrFile, "%s %.4d\n", symbolTable->label, symbolTable->address) <= 0){ /* fprintf failed*/
                     fclose(entrFile);
+                    remove(entrFileName);
                     return FILE_WRITE_ERROR;
-                }
+                }else
+                    keep = TRUE;
             }
             symbolTable = symbolTable->next;
         }
         fclose(entrFile);
+        if(!keep) /* if no entrie no need for entry file */
+            remove(entrFileName);
         return GOOD;
     }else {
         remove(entrFileName);
@@ -115,6 +120,7 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
  */
 enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
     char externalFileName[MAX_FILE_NAME_LEN];
+    int keep = FALSE;
     strcpy(externalFileName, fileName);
     strcat(externalFileName, ".ext"); /* basefilename.ext */
     FILE *entrFile;
@@ -122,11 +128,15 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
         while (et != NULL){
             if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0){ /*fprintf failed*/
                 fclose(entrFile);
+                remove(externalFileName);
                 return FILE_WRITE_ERROR;
-            }
+            }else
+                keep = TRUE;
             et = et->next;
         }
         fclose(entrFile);
+        if(!keep)
+            remove(externalFileName); /* if no externals then no need for file */
         return GOOD;
     }else {
         remove(externalFileName);

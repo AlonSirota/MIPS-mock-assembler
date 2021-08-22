@@ -9,10 +9,12 @@ bool compareFiles(const std::string& p1, const std::string& p2) {
     std::ifstream f1(p1, std::ifstream::binary|std::ifstream::ate);
     std::ifstream f2(p2, std::ifstream::binary|std::ifstream::ate);
 
-    if (f1.fail() || f2.fail()) {
+    if (f1.fail() != f2.fail()) { /* if both files dont exist it means the file shouldnt generate */
         fprintf(stderr, "Failed to open a file\n");
         return false; //file problem
     }
+    if(f1.fail() && f2.fail())
+        return true;
     /*
     if (f1.tellg() != f2.tellg()) {
         printf("Files are of different lengths\n");
