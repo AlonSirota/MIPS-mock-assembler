@@ -12,6 +12,8 @@
 #include <ctype.h>
 #include "consts.h"
 #include <stdlib.h>
+#include <string.h>
+#include "helper.h"
 
 typedef struct node {
     char *value;

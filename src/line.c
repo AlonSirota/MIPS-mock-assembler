@@ -1,7 +1,4 @@
 #include "line.h"
-#include "helper.h"
-#include <stddef.h>
-#include <string.h>
 
 /*
  * Parse a string to a line struct
