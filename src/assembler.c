@@ -129,14 +129,27 @@ enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
     }
 }
 
-/*
+/**
  * write ic and dc to obj file
+ * @param pIobuf
+ * @param ic
+ * @param dc
+ * @return
  */
 enum ErrorCode writeObjFileHeader(FILE *pIobuf, int ic, int dc) {
     /* To get the byte count of the code segment, need to subtract the first memory address from the last */
     return (fprintf(pIobuf, "%d %d\n", ic - FIRST_MEMORY_ADDRESS, dc) > 0 )? GOOD: FILE_WRITE_ERROR;
 }
 
+/**
+ * Parses .as file
+ * @param asFile assembly file to parse
+ * @param icOut
+ * @param dcOut
+ * @param dataImagePtr, will be populated with data image
+ * @param symbolTableOut, will be populated with the symbols
+ * @return the error encountered
+ */
 enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **symbolTableOut) {
     int lineNumber;
     char lineStr[LINE_LENGTH + 1];
