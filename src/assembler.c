@@ -43,8 +43,6 @@ void assembleFile(FILE *asFile, char *fileName) {
         strcpy(objFileName, fileName);
         strcat(objFileName, ".ob");
 
-        rewind(asFile); /* bring file stream back to start... */
-
         /* object file is opened outside of secondPass because it's simpler to create and remove it if needed from here */
         if ((objFile = fopen(objFileName, "wb"))) {
             /* Generate the different output files, set on has errors if encountered any errors in them */
@@ -220,13 +218,15 @@ void logError(enum ErrorCode error, int *hasErrors, int lineNumber) {
  * perfomes a second pass on input file
  * parses instructions and generates the code segment of obj file and externals table
  */
-enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1){
+enum ErrorCode secondPass(FILE *asFile, FILE *objFile, Symbol *st, externalTable  **externalTable1){
     int ic = FIRST_MEMORY_ADDRESS, lineNo = 1;
     char lineStr[LINE_LENGTH + 1],  buf[80];
     enum ErrorCode ecTemp, ec = GOOD;
     line lineParsed;
-    assert(f != NULL);
-    while(fgetsShred(f, LINE_LENGTH + 1, lineStr) != NULL){ /**read line*/
+    assert(asFile != NULL);
+
+    rewind(asFile);
+    while(fgetsShred(asFile, LINE_LENGTH + 1, lineStr) != NULL){ /**read line*/
         lineParsed = strToLine(lineStr); /*parse line*/
         if(lineParsed.head.value == NULL || lineParsed.head.value[0] == '.'){ /* empty line or a directive*/
             lineNo++;

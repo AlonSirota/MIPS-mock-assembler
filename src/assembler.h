@@ -29,7 +29,7 @@ void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
 void assemblePath(char *fileName);
 void assembleFile(FILE *asFile, char *fileName);
 enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataImagePtr, Symbol **symbolTableOut);
-enum ErrorCode secondPass(FILE *f, FILE *objFile, Symbol *st, externalTable  **externalTable1);
+enum ErrorCode secondPass(FILE *asFile, FILE *objFile, Symbol *st, externalTable  **externalTable1);
 enum ErrorCode addBytesToImage(bytesNode **tablePtr, byteArray bytes);
 enum ErrorCode processExtern(node *operandHead, Symbol **symbolTablePtr);
 int isLineRelevant(line l);
