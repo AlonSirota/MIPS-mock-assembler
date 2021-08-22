@@ -2,8 +2,8 @@
 // Created by Ram Ben on 7/3/2021.
 //
 
-#ifndef WTFPROJECT_SYMBOLTABLET_H
-#define WTFPROJECT_SYMBOLTABLET_H
+#ifndef ASSEMBLER_SYMBOLTABLET_H
+#define ASSEMBLER_SYMBOLTABLET_H
 #define MAX_LABEL_LENGTH 31
 
 #include <stdlib.h>
@@ -34,4 +34,4 @@ void discardTable(Symbol *table);
 enum ErrorCode isValidLabel(char *str);
 int isReservedKeyword(char *str);
 
-#endif //WTFPROJECT_INSTRUCTIONLIST_H
+#endif //ASSEMBLER_INSTRUCTIONLIST_H

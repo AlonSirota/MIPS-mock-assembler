@@ -2,8 +2,8 @@
 // Created by Ram Ben on 7/3/2021.
 //
 
-#ifndef WTFPROJECT_INSTRUCTIONLIST_H
-#define WTFPROJECT_INSTRUCTIONLIST_H
+#ifndef ASSEMBLER_INSTRUCTIONLIST_H
+#define ASSEMBLER_INSTRUCTIONLIST_H
 
 #include <stdio.h>
 #include <string.h>
@@ -91,4 +91,4 @@ void printInstruction(char *buf, unsigned int binaryInstruction);
 enum ErrorCode readImmed(node *node, int *immed);
 enum ErrorCode readLabel(node *node);
 int to16bit(int in);
-#endif //WTFPROJECT_INSTRUCTIONLIST_H
+#endif //ASSEMBLER_INSTRUCTIONLIST_H

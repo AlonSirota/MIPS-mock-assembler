@@ -2,8 +2,8 @@
 // Created by alon on 7/1/21.
 //
 
-#ifndef WTFPROJECT_LINE_H
-#define WTFPROJECT_LINE_H
+#ifndef ASSEMBLER_LINE_H
+#define ASSEMBLER_LINE_H
 #define LINE_LENGTH 80
 #define WORD_DELIMITERS " \t"
 #define LABEL_SUFFIX ':'
@@ -44,4 +44,4 @@ char * trimWhiteSpace(char *str);
 void freeLine(line l);
 void freeSafely(void *ptr);
 int isLastNode(node n);
-#endif //WTFPROJECT_LINE_H
+#endif //ASSEMBLER_LINE_H

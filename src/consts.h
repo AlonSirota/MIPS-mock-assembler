@@ -2,8 +2,8 @@
 // Created by alon on 7/31/21.
 //
 
-#ifndef WTFPROJECT_CONSTS_H
-#define WTFPROJECT_CONSTS_H
+#ifndef ASSEMBLER_CONSTS_H
+#define ASSEMBLER_CONSTS_H
 #include <stddef.h>
 #define ASSEMBLY_EXTENSION ".as"
 #define ASCII_MNEMONIC ".asciz"
@@ -28,4 +28,4 @@ typedef struct {
 extern ErrorString errorStrings[];
 char *codeToMsg(enum ErrorCode ec);
 
-#endif //WTFPROJECT_CONSTS_H
+#endif //ASSEMBLER_CONSTS_H
