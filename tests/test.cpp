@@ -874,6 +874,10 @@ TEST(assemble, empty) {
     testAsFile("empty");
 }
 
+TEST(assemble, errors) {
+    testAsFile("errors");
+}
+
 
 TEST(isValidLabel, addIsReserved) {
     ASSERT_EQ(isValidLabel("add"),LABEL_IS_RESERVED_KEYWORD);

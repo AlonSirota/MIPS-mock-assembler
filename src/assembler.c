@@ -274,21 +274,18 @@ enum ErrorCode secondPass(FILE *asFile, FILE *objFile, Symbol *st, externalTable
     rewind(asFile);
     while(fgetsShred(asFile, LINE_LENGTH + 1, lineStr) != NULL){ /**read line*/
         lineParsed = strToLine(lineStr); /*parse line*/
-        if(lineParsed.head.value == NULL || lineParsed.head.value[0] == '.'){ /* empty line or a directive*/
-            lineNo++;
-            goto nextLoop;
-        }
-        ecTemp = parseInstruction(&lineParsed.head, buf, st, ic, externalTable1); /*actually parse the instruction and generate code and externals table*/
-        if(ecTemp != GOOD){ /* report error */
-            printError(ecTemp, lineNo); /*print error*/
-            ec = GENERIC_ERROR; /*tell caller function it failed (details not required cuz error output was generated)*/
-        }
-        if(ec == GOOD){ /*line is good so print code in required format*/
-            printLineToFile(objFile, ic, buf);
-        }
-        ic += BYTES_IN_CODE_LINE; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
+        if(!(lineParsed.head.value == NULL || lineParsed.head.value[0] == '.')){ /* empty line or a directive*/
 
-        nextLoop:
+            ecTemp = parseInstruction(&lineParsed.head, buf, st, ic, externalTable1); /*actually parse the instruction and generate code and externals table*/
+            if(ecTemp != GOOD){ /* report error */
+                printError(ecTemp, lineNo); /*print error*/
+                ec = GENERIC_ERROR; /*tell caller function it failed (details not required cuz error output was generated)*/
+            }
+            if(ec == GOOD){ /*line is good so print code in required format*/
+                printLineToFile(objFile, ic, buf);
+            }
+            ic += BYTES_IN_CODE_LINE; /* if there is any error no output file will be generated so no need to worry if necessary to increase ic in case of a bad line */
+        }
         freeLine(lineParsed); /* Line holds dynamic memory */
         lineNo++;
     }
