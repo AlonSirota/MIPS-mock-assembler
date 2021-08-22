@@ -7,12 +7,13 @@
 void assemblePath(char *fileName) {
     /* Check that fileName ends with .asm */
     char *extension = strstr(fileName, ASSEMBLY_EXTENSION);
+    FILE *f;
     if (extension == NULL) {
         printf("%s is not a valid assembly file name\n", fileName);
         return;
     }
 
-    FILE *f = fopen(fileName, "r");
+    f = fopen(fileName, "r");
     if (f == NULL) {
         printf("Error while opening file %s\n", fileName);
         return;
@@ -30,7 +31,6 @@ void assemblePath(char *fileName) {
  * @param fileName
  */
 void assembleFile(FILE *asFile, char *fileName) {
-    assert(asFile != NULL);
     bytesNode *dataImage;
     int ic, dc;
     FILE *objFile;
@@ -38,6 +38,7 @@ void assembleFile(FILE *asFile, char *fileName) {
     Symbol *symbolTable;
     externalTable  *externalTable = NULL;
     int hasErrors = FALSE;
+    assert(asFile != NULL);
 
     if (firstPass(asFile, &ic, &dc, &dataImage, &symbolTable) == GOOD) {
         /* objFileName = "<.as file name>.ob" */
@@ -83,9 +84,9 @@ void assembleFile(FILE *asFile, char *fileName) {
 enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
     char entrFileName[MAX_FILE_NAME_LEN];
     int keep = FALSE;
+    FILE *entrFile;
     strcpy(entrFileName, fileName);
     strcat(entrFileName, ".ent"); /* basefilename.ent */
-    FILE *entrFile;
     if ((entrFile = fopen(entrFileName, "w"))) { /* create new file */
         while (symbolTable != NULL){
             if(symbolTable->attributes & ENTRY){ /* if symbol is entry */
@@ -118,9 +119,9 @@ enum ErrorCode generateEntriesFile(char *fileName, Symbol *symbolTable){
 enum ErrorCode generateExternalsFile (char *fileName, externalTable *et){
     char externalFileName[MAX_FILE_NAME_LEN];
     int keep = FALSE;
+    FILE *entrFile;
     strcpy(externalFileName, fileName);
     strcat(externalFileName, ".ext"); /* basefilename.ext */
-    FILE *entrFile;
     if ((entrFile = fopen(externalFileName, "w"))) {
         while (et != NULL){
             if(fprintf(entrFile, "%s %.4d\n", et->label, et->address) <= 0){ /*fprintf failed*/
@@ -166,11 +167,11 @@ enum ErrorCode firstPass(FILE *asFile, int *icOut, int *dcOut, bytesNode **dataI
     int lineNumber;
     char lineStr[LINE_LENGTH + 1];
     line lineParsed;
-    *symbolTableOut = NULL;
-    *dataImagePtr = NULL;
     int hasErrors = FALSE;
     enum ErrorCode error = GOOD; /* If encountered error */
     Symbol *temp;
+    *symbolTableOut = NULL;
+    *dataImagePtr = NULL;
     *icOut = FIRST_MEMORY_ADDRESS, *dcOut = 0;
     assert(asFile != NULL);
 
