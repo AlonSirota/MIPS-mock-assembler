@@ -8,7 +8,7 @@
  * line.head = a->b->c->NULL
  */
 line strToLine(char *str) {
-    line l = {.label = NULL, .head = { .value = NULL, .next = NULL}, l.error = GOOD};
+    line l = { NULL, {  NULL,  NULL}, GOOD};
     char *token;
 
     if (str[0] == ';') {/* Comment line, return empty line */
