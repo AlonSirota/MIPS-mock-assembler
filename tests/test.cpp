@@ -860,13 +860,24 @@ TEST(printLineToBuffer, print){
 }
 
 TEST(assemble, ps) {
-    std::string buf = asFilesBasePath + "ps.as";
-    std::string buf2 = asFilesBasePath + "true_ps.ob";
-    char yolo[100];
-    strcpy(yolo, buf.c_str());
-    assemblePath(yolo);
-    std::string buf3 = asFilesBasePath + "ps.ob";
-    ASSERT_TRUE(compareFiles(buf2,buf3));
+    std::string asFile = asFilesBasePath + "ps.as";
+    std::string expectedOb = asFilesBasePath + "true_ps.ob";
+    std::string actualOb = asFilesBasePath + "ps.ob";
+    std::string expectedExt = asFilesBasePath + "true_ps.ext";
+    std::string actualExt = asFilesBasePath + "ps.ext";
+    std::string expectedEnt= asFilesBasePath + "true_ps.ent";
+    std::string actualEnt = asFilesBasePath + "ps.ent";
+
+    remove(actualExt.c_str());
+    remove(actualOb.c_str());
+    remove(actualEnt.c_str());
+    char buff[100];
+    strcpy(buff, asFile.c_str());
+    assemblePath(buff);
+
+    ASSERT_TRUE(compareFiles(expectedOb, actualOb));
+    ASSERT_TRUE(compareFiles(expectedExt, actualExt));
+    ASSERT_TRUE(compareFiles(expectedEnt, actualEnt));
 }
 
 TEST(isValidLabel, addIsReserved) {
