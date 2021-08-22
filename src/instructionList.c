@@ -59,9 +59,10 @@ inst *strToInstruction(char *name){
  * @return the parsing result: GOOD if line is gramatically correct, else returns the error in the line
  */
 enum ErrorCode parseInstruction(node *node, char *buf, Symbol *symbolTable, int ic, externalTable  **externalTable1) {
+    inst *instruction;
     if(node == NULL)
         return GOOD; /* empty line do nothing */
-    inst *instruction = strToInstruction(node->value);
+    instruction = strToInstruction(node->value);
     if(instruction == NULL)
         return UNRECOGNIZED_INSTRUCTION;
     switch (instruction->type) {
@@ -440,6 +441,7 @@ enum ErrorCode instructionJ(inst *instruction, node *node, char *buf, Symbol *sy
  */
 enum ErrorCode parseRegister(node *node, int *reg) {
     char *str;
+    int num;
     if(node == NULL){
         return MISSING_ARGUMENTS;
     }
@@ -451,7 +453,7 @@ enum ErrorCode parseRegister(node *node, int *reg) {
         return OPERAND_NOT_REGISTER;
     if(!isdigit(str[1]))
         return OPERAND_NOT_VALID_REGISTER;
-    int num = atoi(str + 1);
+    num = atoi(str + 1);
     if(num <0 || num > 31)
         return OPERAND_NOT_VALID_REGISTER;
     *reg = num;
@@ -465,13 +467,14 @@ enum ErrorCode parseRegister(node *node, int *reg) {
  */
 enum ErrorCode readImmed(node *node, int *immed){
     char *buf;
+    long res;
     if (node == NULL)
         return MISSING_ARGUMENTS;
     buf = node->value;
     if(buf == NULL || strlen(buf)==0){  /* null string or zero length string */
         return MISSING_ARGUMENTS;
     }
-    long res = 0;
+    res = 0;
     if (parseLong(node->value, &res) == FALSE){
         return ILLEAGLE_IMMED;
     }
@@ -490,10 +493,11 @@ enum ErrorCode readImmed(node *node, int *immed){
  */
 enum ErrorCode readLabel(node *node){
     char *in;
+    int count;
     if(node == NULL)
         return MISSING_ARGUMENTS;
     in = node->value;
-    int count = 1;
+    count = 1;
     if(!isalpha(in[0]))
         return INVALID_LABEL;
 
