@@ -4,22 +4,16 @@
 
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
+#include "consts.h"
+#include "helper.h"
+#include "directive.h"
+#include "symbolTable.h"
+#include "line.h"
 #define CODE_SIZE (2^25) /* max memory size */
 
 #define ERROR_BUFFER_LENGTH 256
 #define BYTES_IN_CODE_LINE 4
 #define FIRST_MEMORY_ADDRESS 100
-
-#include <stdio.h>
-#include <assert.h>
-#include "directive.h"
-#include "line.h"
-#include "symbolTable.h"
-#include "directive.h"
-#include "externalTable.h"
-#include "helper.h"
-#include "instructionList.h"
-#include "directive.h"
 
 void logError(enum ErrorCode error, int *hasErrors, int lineNumber);
 void assemblePath(char *fileName);

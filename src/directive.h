@@ -4,16 +4,8 @@
 
 #ifndef ASSEMBLER_DIRECTIVE_H
 #define ASSEMBLER_DIRECTIVE_H
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <errno.h>
-#include <assert.h>
-#include "consts.h"
 #include "line.h"
-#include "symbolTable.h"
-#include "externalTable.h"
-#include "helper.h"
+#include <limits.h>
 
 #define WORD_SIZE 4
 #define BYTE_SIZE 1

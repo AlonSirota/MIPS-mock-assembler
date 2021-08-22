@@ -6,12 +6,17 @@
 #define ASSEMBLER_SYMBOLTABLET_H
 #define MAX_LABEL_LENGTH 31
 
-#include <stdlib.h>
-#include <string.h>
-#include "consts.h"
-#include <stdio.h>
-#include "directive.h"
 
+typedef struct symbolNode {
+    struct symbolNode *next;
+    char* label;
+    int address;
+    char attributes;
+} Symbol;
+
+#include "instructionList.h"
+#include "consts.h"
+#include "helper.h"
 /* Will be used for flags as bitmask */
 enum symbolType {
     UNSET = 0,
@@ -21,12 +26,6 @@ enum symbolType {
     EXTERNAL = 1 << 3
 };
 
-typedef struct symbolNode {
-    struct symbolNode *next;
-    char* label;
-    int address;
-    char attributes;
-} Symbol;
 
 Symbol *findSymbolInTable(Symbol *table, char *label);
 enum ErrorCode addSymbol(Symbol **tablePtr, char* label, int address, int attributes);

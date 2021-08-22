@@ -12,14 +12,10 @@
 
 #define NONE -1
 
-#include "consts.h"
-#include <stdio.h>
-#include <ctype.h>
 #include <assert.h>
-#include <string.h>
+#include "ctype.h"
+#include "consts.h"
 #include <stdlib.h>
-#include "helper.h"
-
 
 typedef struct node {
     char *value;

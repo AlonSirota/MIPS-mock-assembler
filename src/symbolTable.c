@@ -1,10 +1,7 @@
 //
 // Created by Ram Ben on 7/2/2021.
 //
-#include <ctype.h>
 #include "symbolTable.h"
-#include "instructionList.h"
-
 
 /**
  * Returns node from Symbol list (table), of parameter label

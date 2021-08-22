@@ -5,12 +5,9 @@
 #ifndef ASSEMBLER_INSTRUCTIONLIST_H
 #define ASSEMBLER_INSTRUCTIONLIST_H
 
-#include <stdio.h>
-#include <string.h>
-#include "symbolTable.h"
-#include "line.h"
-#include "consts.h"
+#include "directive.h"
 #include "externalTable.h"
+#include "symbolTable.h"
 
 #define R_OP_OFFSET 26
 #define R_RS_OFFSET 21

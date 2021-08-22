@@ -4,13 +4,13 @@
 
 #ifndef ASSEMBLER_HELPER_H
 #define ASSEMBLER_HELPER_H
-#include "string.h"
+#include <stdio.h>
+#include <string.h>
 #include <errno.h>
+#include "consts.h"
 #include <stdlib.h>
 #include <limits.h>
-#include <stdio.h>
 #include <assert.h>
-#include <ctype.h>
 
 int isEmptyString(char *str);
 int parseLong(const char *str, long *val);
