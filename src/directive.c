@@ -4,19 +4,22 @@
 
 #include "directive.h"
 
-int directiveTypeToSize(directiveType type);
-
-directiveType strToDirectiveType(char *name){
-    if(name == NULL)
+/**
+ * Converts a string, probably a mnemonic, to the corresponding directive enum
+ * @param mnemonic
+ * @return directive type
+ */
+directiveType strToDirectiveType(char *mnemonic){
+    if(mnemonic == NULL)
         return UNDEFINED;
 
-    if (!strcmp(".db", name)) {
+    if (!strcmp(".db", mnemonic)) {
         return BYTE_TYPE;
-    } else if (!strcmp(".dh", name)) {
+    } else if (!strcmp(".dh", mnemonic)) {
         return HALF_WORD_TYPE;
-    } else if (!strcmp(".dw", name)) {
+    } else if (!strcmp(".dw", mnemonic)) {
         return WORD_TYPE;
-    }else if (!strcmp(".asciz", name)) {
+    }else if (!strcmp(".asciz", mnemonic)) {
         return ASCII_TYPE;
     }else {
         return UNDEFINED;
@@ -30,8 +33,11 @@ int isLineDirective(struct line l) {
     return strToDirectiveType(l.head.value) != UNDEFINED;
 }
 
-/*
- * Convert l line (that is assumed to be a directive command) to byteArray array.
+/**
+ * Extract and generate byte array from l line (that is assumed to be a directive command).
+ * @param l to parse
+ * @param errorOut
+ * @return bytes from line
  */
 byteArray directiveToBytes(struct line l, enum ErrorCode *errorOut) {
     char *mnemonic = l.head.value;

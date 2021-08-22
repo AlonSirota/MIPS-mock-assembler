@@ -31,8 +31,9 @@ typedef enum{
     UNDEFINED
 } directiveType;
 
+int directiveTypeToSize(directiveType type);
 int isLineDirective(struct line l);
-directiveType strToDirectiveType(char *name);
+directiveType strToDirectiveType(char *mnemonic);
 byteArray directiveToBytes(struct line l, enum ErrorCode *errorOut);
 int lineParametersToBytes(struct node *head, char *buffer, int size, enum ErrorCode *errorOut);
 int ascizParametersToBytes(struct node *head, char *buffer, enum ErrorCode *errOut);
