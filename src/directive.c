@@ -172,3 +172,18 @@ int outOfBounds(long num, int byteCount) {
     }
     return num > max || num < min;
 }
+
+/**
+ * Free dynamically allocated bytesNode list
+ * @param head
+ */
+void freeByteList(bytesNode *head) {
+    bytesNode *prev, *curr = head;
+    while (curr) {
+        prev = curr;
+        curr = curr->next;
+
+        free(prev->bytes.arr);
+        free(prev);
+    }
+}

@@ -8,8 +8,14 @@
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
+#include <assert.h>
 #include "consts.h"
 #include "line.h"
+#include "symbolTable.h"
+#include "externalTable.h"
+#include "helper.h"
+#include "instructionList.h"
+
 #define WORD_SIZE 4
 #define BYTE_SIZE 1
 #define HALF_SIZE 2
@@ -31,6 +37,11 @@ typedef enum{
     UNDEFINED
 } directiveType;
 
+typedef struct bytesNode {
+    byteArray bytes;
+    struct bytesNode *next;
+} bytesNode;
+
 int directiveTypeToSize(directiveType type);
 int isLineDirective(struct line l);
 directiveType strToDirectiveType(char *mnemonic);
@@ -38,5 +49,6 @@ byteArray directiveToBytes(struct line l, enum ErrorCode *errorOut);
 int lineParametersToBytes(struct node *head, char *buffer, int size, enum ErrorCode *errorOut);
 int ascizParametersToBytes(struct node *head, char *buffer, enum ErrorCode *errOut);
 int outOfBounds(long num, int byteCount);
+void freeByteList(bytesNode *head);
 
 #endif //ASSEMBLER_DIRECTIVE_H
