@@ -136,10 +136,13 @@ enum ErrorCode isValidLabel(char *str){
  * Returns true if 'str' is a directive or instruction mnemonic like "add" or ".asciz"
  */
 int isReservedKeyword(char *str) {
-    inst *instruction = strToInstruction(str);
+    inst *instruction;
+    directiveType dt;
+
+    dt = strToDirectiveType(str);
+    instruction = strToInstruction(str);
     if(instruction != NULL)
         return TRUE;
-    directiveType dt = strToDirectiveType(str);
     if (dt != UNDEFINED)
         return TRUE;
 
