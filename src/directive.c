@@ -162,6 +162,7 @@ int outOfBounds(int num, int byteCount) {
             break;
         default:
             printf("Error, unrecognized byteArray size in 'outOfBounds' function\n");
+            return TRUE;
     }
     return num > max || num < min;
 }
