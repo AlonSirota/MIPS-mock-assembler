@@ -96,14 +96,11 @@ int lineParametersToBytes(node *head, char *buffer, int size, enum ErrorCode *er
     int i, j, count = 0, shift;
     for (i = 0;head != NULL; head = head->next, i++) {
         assert(head->value != NULL);
-        res = atol(head->value);
-        if (errno != 0) {
-            /*printf("parameter \"%s\" isn't a valid number", head->value);*/
+        if (!parseLong(head->value, &res)) {
             *errorOut = INVALID_PARAMETER;
             return 0;
         }
         else if (outOfBounds(res, size)) {
-            /*printf("parameter \"%s\" is out of range\n", head->value);*/
             *errorOut = OUT_OF_RANGE_PARAMETER;
             return 0;
         }
